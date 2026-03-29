@@ -1,0 +1,65 @@
+<!-- history-audited.component.html -->
+<div class="history-container">
+  <h2>Historique des modifications (Audité)</h2>
+
+  <div *ngIf="loading" class="loading">Chargement...</div>
+
+  <div *ngIf="!loading && history.length === 0" class="no-data">
+    Aucune modification trouvée
+  </div>
+
+  <table *ngIf="!loading && history.length > 0" class="history-table">
+    <thead>
+      <tr>
+        <th>Champ</th>
+        <th>Ancienne valeur</th>
+        <th>Nouvelle valeur</th>
+        <th>Modifié par</th>
+        <th>Date de modification</th>
+        <th>Type</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let h of history">
+        <td>{{ h.fieldName || h.field || '-' }}</td>
+        <td class="old-value">{{ h.oldValue || h.old || '-' }}</td>
+        <td class="new-value">{{ h.newValue || h.new || '-' }}</td>
+        <td>{{ h.modifiedBy || h.user || '-' }}</td>
+        <td>{{ (h.modifiedAt || h.date) | date:'dd/MM/yyyy HH:mm' }}</td>
+        <td>
+          <span class="badge" [ngClass]="getRevisionTypeClass(h.type)">
+            {{ h.type || '-' }}
+          </span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Version carte pour mobile -->
+  <div *ngIf="!loading && history.length > 0" class="mobile-cards">
+    <div *ngFor="let h of history" class="history-card">
+      <div class="card-header">
+        <span class="field-name">{{ h.fieldName || h.field || '-' }}</span>
+        <span class="badge" [ngClass]="getRevisionTypeClass(h.type)">{{ h.type || '-' }}</span>
+      </div>
+      <div class="card-body">
+        <div class="card-row">
+          <span class="label">Ancien:</span>
+          <span class="value old">{{ h.oldValue || h.old || '-' }}</span>
+        </div>
+        <div class="card-row">
+          <span class="label">Nouveau:</span>
+          <span class="value new">{{ h.newValue || h.new || '-' }}</span>
+        </div>
+        <div class="card-row">
+          <span class="label">Par:</span>
+          <span class="value">{{ h.modifiedBy || h.user || '-' }}</span>
+        </div>
+        <div class="card-row">
+          <span class="label">Date:</span>
+          <span class="value">{{ (h.modifiedAt || h.date) | date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

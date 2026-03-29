@@ -1,0 +1,85 @@
+// compliance.model.ts
+export interface ComplianceDto {
+  id?: number;
+  itemId: number;
+  chargeSheetId: number;
+  orderNumber?: string;
+  orderitemNumber?: string;
+  testDateTime?: string;
+  technicianName?: string;
+  rfidNumber?: string;
+  leoniPartNumber?: string;
+  indexValue?: number;
+  producer?: string;
+  type?: string;
+  sequenceTestPins?: string;
+  codingRequest?: string;
+  secondaryLocking?: string;
+  offsetTestMm?: number;
+  stableOffsetTestMm?: number;
+  displacementPathPushBackMm?: number;
+  housingAttachments?: string;
+  maxLeakTestMbar?: number;
+  adjustmentLeakTestMbar?: number;
+  colourVerification?: string;
+  terminalAlignment?: string;
+  openShuntsAirbag?: string;
+  spacerClosingUnit?: string;
+  specialFunctions?: string;
+  contactProblemsPercentage?: number;
+  qualifiedTestModule?: boolean;
+  conditionallyQualifiedTestModule?: boolean;
+  notQualifiedTestModule?: boolean;
+  remarks?: string;
+  createdBy?: string;
+  createdAt?: string;
+  updatedBy?: string;
+  updatedAt?: string;
+   receptionHistoryId?: number;
+  deliveryNoteNumber?: string;
+  unitNumber?: number;
+}
+
+export interface ComplianceDisplay {
+  id: number;
+  chargeSheetId: number;
+  orderNumber: string;
+orderitemNumber: string;
+  itemNumber: number;
+  testDateTime: string;
+  technicianName: string;
+  rfidNumber: string;
+  leoniPartNumber: string;
+  producer: string;
+  type: string;
+  sequenceTestPins: string;
+  codingRequest: string;
+  secondaryLocking: string;
+  offsetTestMm: number;
+  stableOffsetTestMm: number;
+  displacementPathPushBackMm: number;
+  housingAttachments: string;
+  maxLeakTestMbar: number;
+  adjustmentLeakTestMbar: number;
+  colourVerification: string;
+  terminalAlignment: string;
+  openShuntsAirbag: string;
+  spacerClosingUnit: string;
+  specialFunctions: string;
+  contactProblemsPercentage: number;
+  qualifiedTestModule: boolean;
+  conditionallyQualifiedTestModule: boolean;
+  notQualifiedTestModule: boolean;
+  remarks: string;
+  createdBy: string;
+  createdAt: string;
+  updatedBy: string;
+  updatedAt: string;
+}
+export interface PrepareCompliance {
+  itemId: number;
+  itemNumber: string;
+  quantityOrdered: number;
+  quantityReceived: number;
+  quantityToCreate: number;
+}

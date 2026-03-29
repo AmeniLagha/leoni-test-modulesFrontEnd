@@ -1,0 +1,223 @@
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* Table styles */
+.table th {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom-width: 1px;
+  background-color: #f8fafc;
+  white-space: nowrap;
+}
+
+.table td {
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Image cell */
+.claim-image-cell {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.claim-thumbnail {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid transparent;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.claim-thumbnail:hover {
+  transform: scale(1.1);
+  border-color: #1e3c72;
+  box-shadow: 0 4px 8px rgba(30, 60, 114, 0.3);
+}
+
+.no-image-placeholder, .error-placeholder {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  border-radius: 8px;
+}
+
+/* Priority badges */
+.priority-low {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.priority-medium {
+  background: #fff3e0;
+  color: #ed6c02;
+}
+
+.priority-high {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.priority-critical {
+  background: #fce4ec;
+  color: #ad1457;
+}
+
+/* Status badges */
+.status-new {
+  background: #e3f2fd;
+  color: #0b5e8a;
+}
+
+.status-assigned {
+  background: #fff3e0;
+  color: #e67700;
+}
+
+.status-in-progress {
+  background: #e8eaf6;
+  color: #2c3e50;
+}
+
+.status-resolved {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-closed {
+  background: #eceff1;
+  color: #546e7a;
+}
+
+/* Button group */
+.btn-group {
+  gap: 4px;
+}
+
+.btn-group .btn {
+  border-radius: 6px !important;
+  padding: 0.25rem 0.5rem;
+  transition: all 0.2s;
+}
+
+.btn-group .btn:hover {
+  transform: translateY(-2px);
+}
+
+/* Modal styles */
+.modal-content {
+  border: none;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.modal-header {
+  padding: 1rem 1.5rem;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+/* Form controls */
+.form-control {
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.form-control:focus {
+  border-color: #1e3c72;
+  box-shadow: 0 0 0 0.2rem rgba(30, 60, 114, 0.25);
+}
+
+/* Badge opacities */
+.bg-opacity-10 {
+  --bs-bg-opacity: 0.1;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .container-fluid {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  .table {
+    font-size: 0.8rem;
+  }
+
+  .btn-group .btn {
+    padding: 0.2rem 0.4rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .btn-group {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .table td, .table th {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .claim-thumbnail {
+    width: 32px;
+    height: 32px;
+  }
+
+  .modal-dialog {
+    margin: 0.5rem;
+  }
+}
+
+/* Scrollbar */
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

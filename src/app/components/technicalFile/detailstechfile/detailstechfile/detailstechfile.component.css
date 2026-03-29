@@ -1,0 +1,152 @@
+/* ====================== CONTAINERS ====================== */
+.tech-file-detail-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 1rem auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #1f2937;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+/* ====================== SECTIONS ====================== */
+.excel-section {
+  margin-bottom: 2rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+  overflow: hidden;
+}
+
+.section-header {
+  background: #e2e8f0;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #cbd5e1;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-header i {
+  color: #3b82f6;
+}
+
+/* ====================== TABLES ====================== */
+.excel-table-container {
+  width: 100%;
+  overflow-x: auto;
+  padding: 0.75rem 1rem;
+}
+
+.excel-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.excel-table th,
+.excel-table td {
+  border: 1px solid #d1d5db;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.excel-table th {
+  background: #1f2937;
+  color: white;
+  font-weight: 600;
+}
+
+.item-info-table th {
+  background: #374151;
+}
+
+.status-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: white;
+}
+
+.status-draft { background: #9ca3af; }
+.status-open { background: #3b82f6; }
+.status-closed { background: #10b981; }
+.status-inprogress { background: #f59e0b; }
+
+/* ====================== REMARQUES ====================== */
+.remarks-box {
+  padding: 0.75rem 1rem;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  white-space: pre-line; /* permet sauts de ligne */
+}
+
+/* ====================== ACTIONS ====================== */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.form-actions .btn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.btn-primary {
+  background: #3b82f6;
+  color: white;
+}
+
+/* ====================== LOADING & ERROR ====================== */
+.loading-container, .error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 2rem 0;
+  color: #334155;
+}
+
+.loading-container .spinner {
+  width: 50px;
+  height: 50px;
+  border: 6px solid #e5e7eb;
+  border-top: 6px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-container i {
+  font-size: 2rem;
+  color: #ef4444;
+  margin-bottom: 0.5rem;
+}
+
+/* ====================== TABLET & MOBILE ====================== */
+@media (max-width: 768px) {
+  .excel-table th, .excel-table td {
+    padding: 0.35rem;
+    font-size: 0.8rem;
+  }
+}

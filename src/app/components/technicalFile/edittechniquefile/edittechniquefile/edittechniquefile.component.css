@@ -1,0 +1,419 @@
+/* ===== CONTAINER PRINCIPAL ===== */
+.tech-file-container {
+  padding: 20px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* ===== EN-TÊTE ===== */
+.page-header {
+  background: linear-gradient(135deg, #1e3a5f, #0b2a44);
+  padding: 20px 25px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  background: rgba(255,255,255,0.1);
+  padding: 8px 15px;
+  border-radius: 30px;
+}
+
+.breadcrumb a {
+  color: white;
+  text-decoration: none;
+  opacity: 0.9;
+}
+
+.breadcrumb a:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.breadcrumb .current {
+  font-weight: 600;
+  opacity: 1;
+}
+
+/* ===== SECTIONS EXCEL ===== */
+.excel-section {
+  margin-bottom: 25px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+.section-header {
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  padding: 12px 15px;
+  border-bottom: 2px solid #cbd5e1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-header h3 i {
+  color: #1e3a5f;
+  font-size: 18px;
+}
+
+.badge-info {
+  background: #1e3a5f;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ===== TABLEAU INFORMATIONS GÉNÉRALES ===== */
+.excel-table-container {
+  padding: 15px;
+  overflow-x: auto;
+}
+
+.excel-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.info-table {
+  min-width: 800px;
+}
+
+.info-table th {
+  background: #e2e8f0;
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 0.8rem;
+  padding: 10px 8px;
+  border: 1px solid #cbd5e1;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.info-table td {
+  padding: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+/* ===== GRILLE DES ITEMS DISPONIBLES ===== */
+.available-items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+  padding: 15px;
+}
+
+.available-item-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 10px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.available-item-card:hover {
+  border-color: #1e3a5f;
+  background: #eef2ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.item-badge {
+  font-weight: 600;
+  color: #1e3a5f;
+  background: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  align-self: flex-start;
+}
+
+.item-details {
+  font-size: 0.75rem;
+  color: #64748b;
+  display: flex;
+  flex-direction: column;
+}
+
+.add-icon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: #10b981;
+  font-size: 18px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.available-item-card:hover .add-icon {
+  opacity: 1;
+}
+
+/* ===== TABLEAU MASTER DES ITEMS ===== */
+.master-table {
+  min-width: 1400px;
+  border: 1px solid #cbd5e1;
+}
+
+/* En-têtes de groupe */
+.master-table .group-header th {
+  background: linear-gradient(135deg, #1e3a5f, #0b2a44);
+  color: white;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-align: center;
+  padding: 12px 4px;
+  border: 1px solid #2d4b6e;
+}
+
+/* Sous-en-têtes */
+.master-table .subgroup-header th {
+  background: #e2e8f0;
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-align: center;
+  padding: 8px 2px;
+  border: 1px solid #cbd5e1;
+}
+
+/* Cellules du tableau */
+.master-table td {
+  padding: 6px 3px;
+  border: 1px solid #e2e8f0;
+  vertical-align: middle;
+  background: white;
+}
+
+.master-table tbody tr:hover td {
+  background: #f8fafc;
+}
+
+/* Numéro de ligne */
+.row-number {
+  text-align: center;
+  font-weight: 600;
+  color: #1e3a5f;
+  background: #f1f5f9;
+}
+
+/* Cellule d'ID */
+.item-id-cell {
+  text-align: center;
+  font-family: monospace;
+  color: #475569;
+}
+
+/* ===== INPUTS ===== */
+.excel-input {
+  width: 100%;
+  padding: 6px 4px;
+  border: 1px solid #cbd5e1;
+  border-radius: 3px;
+  font-size: 0.8rem;
+  box-sizing: border-box;
+  background: white;
+}
+
+.excel-input:focus {
+  border-color: #1e3a5f;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(30, 58, 95, 0.2);
+}
+
+.excel-input[readonly] {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #475569;
+  cursor: not-allowed;
+}
+
+.small-input {
+  min-width: 50px;
+  text-align: center;
+}
+
+/* ===== BOUTON AJOUTER ITEM ===== */
+.btn-add-item {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-add-item:hover {
+  background: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* ===== BOUTONS D'ACTION ===== */
+.actions-cell {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.btn-action {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.btn-remove {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.btn-remove:hover {
+  background: #fecaca;
+  transform: translateY(-2px);
+}
+
+/* ===== BOUTONS PRINCIPAUX ===== */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px solid #e2e8f0;
+}
+
+.btn {
+  padding: 10px 25px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #1e3a5f, #0b2a44);
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #0b2a44;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(11, 42, 68, 0.3);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+}
+
+.btn-secondary:hover {
+  background: #e2e8f0;
+  transform: translateY(-2px);
+}
+
+/* ===== SÉPARATEURS DE GROUPES ===== */
+.master-table td:nth-child(4) { border-left: 3px solid #f59e0b; } /* Début Raideur */
+.master-table td:nth-child(7) { border-left: 3px solid #10b981; } /* Début Déplacement */
+.master-table td:nth-child(10) { border-left: 3px solid #3b82f6; } /* Début Max sealing */
+.master-table td:nth-child(13) { border-left: 3px solid #8b5cf6; } /* Début Programmed */
+.master-table td:nth-child(16) { border-left: 3px solid #ec4899; } /* Début Détections */
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1200px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .available-items-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .tech-file-container {
+    padding: 10px;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .btn-add-item {
+    width: 100%;
+    justify-content: center;
+  }
+}

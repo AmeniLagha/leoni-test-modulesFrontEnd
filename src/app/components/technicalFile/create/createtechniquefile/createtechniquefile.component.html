@@ -1,0 +1,146 @@
+<!-- createtechniquefile.component.html -->
+<div class="tech-file-container">
+
+  <!-- ===== HEADER ===== -->
+  <div class="page-header">
+    <h1>
+      <i class="bi bi-file-earmark-plus"></i>
+      Créer un dossier technique
+    </h1>
+    <div class="breadcrumb">
+      <a routerLink="/technical-files/list">📋 Dossiers techniques</a>
+      <i class="bi bi-chevron-right"></i>
+      <span class="current">🔧 Nouveau dossier</span>
+    </div>
+  </div>
+
+  <!-- ===== FORMULAIRE ===== -->
+  <form [formGroup]="form" (ngSubmit)="submit()" class="excel-form-container">
+
+    <!-- ===== SECTION RÉFÉRENCE ===== -->
+    <div class="excel-section">
+      <div class="section-header">
+        <h3><i class="bi bi-tag"></i> Référence du dossier</h3>
+      </div>
+      <div class="excel-table-container">
+        <table class="excel-table info-table">
+          <thead>
+            <tr>
+              <th>Référence</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="text" class="excel-input" formControlName="reference" placeholder="TF-2026-001"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== SECTION ITEMS SÉLECTIONNÉS ===== -->
+    <div class="excel-section">
+      <div class="excel-table-container" formArrayName="items">
+        <table class="excel-table master-table">
+          <!-- En-tête principal avec groupes -->
+          <thead>
+            <tr class="group-header">
+              <th rowspan="2">#</th>
+              <th rowspan="2">ID Item</th>
+               <th rowspan="2">Position</th>
+              <th rowspan="2">Date</th>
+              <th rowspan="2">Technicien</th>
+              <th rowspan="2">X Code</th>
+              <th rowspan="2">Leoni Ref</th>
+              <th rowspan="2">Index</th>
+              <th rowspan="2">Prod.</th>
+              <th rowspan="2">Type</th>
+              <th rowspan="4">Ref Push Back</th>
+
+              <th colspan="3">Raideur</th>
+              <th colspan="3">Déplacement</th>
+              <th colspan="3">Max sealing</th>
+              <th colspan="3">Prog sealing</th>
+              <th colspan="3">Détections</th>
+              <th rowspan="2">Remarques</th>
+              <th rowspan="2">Actions</th>
+            </tr>
+            <tr class="subgroup-header">
+              <th>M1</th><th>M2</th><th>M3</th>
+              <th>M1</th><th>M2</th><th>M3</th>
+              <th>M1</th><th>M2</th><th>M3</th>
+              <th>M1</th><th>M2</th><th>M3</th>
+              <th>M1</th><th>M2</th><th>M3</th>
+            </tr>
+          </thead>
+
+          <!-- Corps du tableau -->
+          <tbody>
+            <tr *ngFor="let item of itemsArray.controls; let i = index" [formGroupName]="i">
+              <input type="hidden" formControlName="chargeSheetItemId">
+
+              <td class="row-number">{{ i + 1 }}</td>
+              <td class="item-id-cell">{{ item.get('chargeSheetItemId')?.value }}</td>
+              <td><input type="text" class="excel-input" formControlName="position" placeholder="A12"></td>
+              <td><input type="date" class="excel-input" formControlName="maintenanceDate"></td>
+              <td><input type="text" class="excel-input" formControlName="technicianName" readonly></td>
+              <td><input type="text" class="excel-input" formControlName="xCode" placeholder="X12345"></td>
+              <td><input type="text" class="excel-input" formControlName="leoniReferenceNumber" readonly></td>
+                           <td><input type="text" class="excel-input" formControlName="indexValue" readonly></td>
+              <td><input type="text" class="excel-input" formControlName="producer" readonly></td>
+              <td><input type="text" class="excel-input" formControlName="type" readonly></td>
+              <td><input type="text" class="excel-input" formControlName="referencePinePushBack" placeholder="REF-PB"></td>
+
+
+              <!-- Raideur -->
+              <td><input type="text" class="excel-input small-input" formControlName="pinRigidityM1" placeholder="M1"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="pinRigidityM2" placeholder="M2"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="pinRigidityM3" placeholder="M3"></td>
+
+              <!-- Déplacement -->
+              <td><input type="text" class="excel-input small-input" formControlName="displacementPathM1" placeholder="M1"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="displacementPathM2" placeholder="M2"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="displacementPathM3" placeholder="M3"></td>
+
+              <!-- Max sealing -->
+              <td><input type="text" class="excel-input small-input" formControlName="maxSealingValueM1" placeholder="M1"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="maxSealingValueM2" placeholder="M2"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="maxSealingValueM3" placeholder="M3"></td>
+
+              <!-- Programmed sealing -->
+              <td><input type="text" class="excel-input small-input" formControlName="programmedSealingValueM1" placeholder="M1"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="programmedSealingValueM2" placeholder="M2"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="programmedSealingValueM3" placeholder="M3"></td>
+
+              <!-- Détections -->
+              <td><input type="text" class="excel-input small-input" formControlName="detectionsM1" placeholder="M1"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="detectionsM2" placeholder="M2"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="detectionsM3" placeholder="M3"></td>
+
+              <!-- Remarques -->
+              <td><input type="text" class="excel-input" formControlName="remarks" placeholder="Remarques"></td>
+
+              <!-- Actions -->
+              <td class="actions-cell">
+                <button type="button" class="btn-action btn-remove" (click)="removeItem(i)" title="Supprimer">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== BOUTONS ===== -->
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="router.navigate(['/technical-files/list'])">
+        <i class="bi bi-x-circle"></i> Annuler
+      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="form.invalid || itemsArray.length === 0">
+        <i class="bi bi-check-circle"></i> Créer le dossier
+      </button>
+    </div>
+
+  </form>
+</div>

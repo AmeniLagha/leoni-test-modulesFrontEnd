@@ -1,0 +1,185 @@
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* Table styles */
+.table th {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom-width: 1px;
+  background-color: #f8fafc;
+  white-space: nowrap;
+}
+
+.table td {
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Value badges */
+.value-badge {
+  display: inline-block;
+  background: #f1f5f9;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: #1e293b;
+}
+
+/* Badges */
+.badge {
+  font-weight: 500;
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+}
+
+.bg-opacity-10 {
+  --bs-bg-opacity: 0.1;
+}
+
+/* Button group */
+.btn-group {
+  gap: 4px;
+}
+
+.btn-group .btn {
+  border-radius: 6px !important;
+  padding: 0.25rem 0.5rem;
+  transition: all 0.2s;
+}
+
+.btn-group .btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.btn-group .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Form controls */
+.form-control, .form-select, .input-group-text {
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s;
+}
+
+.form-control:focus, .form-select:focus, .input-group-text:focus {
+  border-color: #1e3c72;
+  box-shadow: 0 0 0 0.2rem rgba(30, 60, 114, 0.25);
+}
+
+.input-group-text {
+  background-color: white;
+  border-right: none;
+}
+
+.form-control {
+  border-left: none;
+}
+
+.form-control:focus {
+  border-left: none;
+}
+
+/* Pagination */
+.pagination {
+  gap: 4px;
+}
+
+.page-item .page-link {
+  border-radius: 8px;
+  color: #1e293b;
+  border: 1px solid #e2e8f0;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.page-item.active .page-link {
+  background: linear-gradient(135deg, #1e3c72 0%, #0f2b4a 100%);
+  border-color: #1e3c72;
+  color: white;
+}
+
+.page-item:not(.active) .page-link:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+/* Card footer */
+.card-footer {
+  background-color: white;
+  border-top: 1px solid #e9ecef;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .container-fluid {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  .table {
+    font-size: 0.8rem;
+  }
+
+  .btn-group .btn {
+    padding: 0.2rem 0.4rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .btn-group {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .table td, .table th {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .value-badge {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.35rem;
+  }
+}
+
+/* Scrollbar */
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

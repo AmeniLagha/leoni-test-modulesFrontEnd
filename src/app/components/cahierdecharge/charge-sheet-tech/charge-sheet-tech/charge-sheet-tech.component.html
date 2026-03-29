@@ -1,0 +1,186 @@
+<div class="container-fluid px-4 py-4">
+  <!-- HEADER -->
+  <div class="card border-0 shadow-lg mb-4" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+          <h1 class="text-white mb-2">
+            <i class="bi bi-gear me-2"></i>
+            Partie technique - Cahier #{{ chargeSheetId }}
+          </h1>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+              <li class="breadcrumb-item"><a routerLink="/charge-sheets/list" class="text-white text-decoration-none">Cahiers</a></li>
+              <li class="breadcrumb-item"><a [routerLink]="['/charge-sheets', chargeSheetId]" class="text-white text-decoration-none">#{{ chargeSheetId }}</a></li>
+              <li class="breadcrumb-item active text-white-50">Partie technique</li>
+            </ol>
+          </nav>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-light" (click)="goBack()">
+            <i class="bi bi-arrow-left me-2"></i>Retour
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p class="text-muted mt-3">Chargement des données techniques...</p>
+  </div>
+
+  <!-- ERROR -->
+  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error = null"></button>
+  </div>
+
+  <!-- FORMULAIRE -->
+  <ng-container *ngIf="!loading && !error && formWrapper">
+    <form [formGroup]="formWrapper">
+      <div formArrayName="items" class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="bg-light">
+                <!-- Ligne 1 : titres des groupes -->
+                <tr class="text-center">
+                  <th colspan="11" class="bg-primary bg-opacity-10 text-primary">Informations Ingénieur</th>
+                  <th [attr.colspan]="housingFields.length" class="bg-success bg-opacity-10 text-success">Housing Tests</th>
+                  <th [attr.colspan]="fasteningFields.length" class="bg-warning bg-opacity-10 text-warning">Fastening / Assembly</th>
+                  <th [attr.colspan]="cableFields.length" class="bg-info bg-opacity-10 text-info">Cable / Conduit</th>
+                  <th [attr.colspan]="electricalFields.length" class="bg-danger bg-opacity-10 text-danger">Electrical / Tests</th>
+                  <th rowspan="2" class="bg-secondary bg-opacity-10">Prix unitaire</th>
+                  <th rowspan="2" class="bg-secondary bg-opacity-10">Prix total</th>
+                </tr>
+
+                <!-- Ligne 2 : noms des champs -->
+                <tr class="text-center">
+                  <th>#</th>
+                  <th>Item</th>
+                  <th>Échant.</th>
+                  <th>Voies</th>
+                  <th>Couleur</th>
+                  <th>Module DB</th>
+                  <th>Réf. Leoni</th>
+                  <th>Réf. client</th>
+                  <th>Réf. joints</th>
+                  <th>Photo</th>
+                  <th>Quantité</th>
+                  <th *ngFor="let key of housingFields">{{ formatLabel(key) }}</th>
+                  <th *ngFor="let key of fasteningFields">{{ formatLabel(key) }}</th>
+                  <th *ngFor="let key of cableFields">{{ formatLabel(key) }}</th>
+                  <th *ngFor="let key of electricalFields">{{ formatLabel(key) }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <ng-container *ngFor="let item of items; let i = index" [formGroupName]="i">
+                  <tr>
+                    <!-- Informations Ingénieur (lecture seule) -->
+                    <td class="fw-semibold text-primary">{{ i + 1 }}</td>
+                    <td><span class="badge bg-secondary">#{{ item.itemNumber }}</span></td>
+                    <td>{{ item.samplesExist === 'Yes' ? 'Oui' : 'Non' }}</td>
+                    <td>{{ item.ways || '-' }}</td>
+                    <td><span class="badge" [ngClass]="getColourBadge(item.housingColour)">{{ item.housingColour || '-' }}</span></td>
+                    <td>{{ item.testModuleExistInDatabase === 'Yes' ? 'Oui' : 'Non' }}</td>
+                    <td><code>{{ item.housingReferenceLeoni || '-' }}</code></td>
+                    <td><code>{{ item.housingReferenceSupplierCustomer || '-' }}</code></td>
+                    <td>{{ item.referenceSealsClipsCableTiesCap || '-' }}</td>
+                    <td class="text-center">
+                      <div *ngIf="itemImages[item.id!]" class="position-relative d-inline-block">
+                        <img [src]="itemImages[item.id!]" alt="Photo" class="img-thumbnail" style="width: 40px; height: 40px; object-fit: cover; cursor: pointer;" (click)="openImage(itemImages[item.id!])">
+                      </div>
+                      <span *ngIf="!itemImages[item.id!]" class="text-muted">-</span>
+                    </td>
+                    <td><span class="badge bg-info">{{ item.quantityOfTestModules || 0 }}</span></td>
+
+                    <!-- Housing Tests - radio buttons -->
+                    <td *ngFor="let key of housingFields">
+                      <div class="btn-group btn-group-sm" role="group">
+                        <input type="radio" class="btn-check" [id]="'housing_ok_' + i + '_' + key" [formControlName]="key" value="*" autocomplete="off">
+                        <label class="btn btn-outline-success" [for]="'housing_ok_' + i + '_' + key">✓</label>
+                        <input type="radio" class="btn-check" [id]="'housing_nok_' + i + '_' + key" [formControlName]="key" value="" autocomplete="off">
+                        <label class="btn btn-outline-danger" [for]="'housing_nok_' + i + '_' + key">✗</label>
+                      </div>
+                    </td>
+
+                    <!-- Fastening Tests - radio buttons -->
+                    <td *ngFor="let key of fasteningFields">
+                      <div class="btn-group btn-group-sm" role="group">
+                        <input type="radio" class="btn-check" [id]="'fastening_ok_' + i + '_' + key" [formControlName]="key" value="*" autocomplete="off">
+                        <label class="btn btn-outline-success" [for]="'fastening_ok_' + i + '_' + key">✓</label>
+                        <input type="radio" class="btn-check" [id]="'fastening_nok_' + i + '_' + key" [formControlName]="key" value="" autocomplete="off">
+                        <label class="btn btn-outline-danger" [for]="'fastening_nok_' + i + '_' + key">✗</label>
+                      </div>
+                    </td>
+
+                    <!-- Cable Tests - radio buttons -->
+                    <td *ngFor="let key of cableFields">
+                      <div class="btn-group btn-group-sm" role="group">
+                        <input type="radio" class="btn-check" [id]="'cable_ok_' + i + '_' + key" [formControlName]="key" value="*" autocomplete="off">
+                        <label class="btn btn-outline-success" [for]="'cable_ok_' + i + '_' + key">✓</label>
+                        <input type="radio" class="btn-check" [id]="'cable_nok_' + i + '_' + key" [formControlName]="key" value="" autocomplete="off">
+                        <label class="btn btn-outline-danger" [for]="'cable_nok_' + i + '_' + key">✗</label>
+                      </div>
+                    </td>
+
+                    <!-- Electrical Tests - radio buttons -->
+                    <td *ngFor="let key of electricalFields">
+                      <div class="btn-group btn-group-sm" role="group">
+                        <input type="radio" class="btn-check" [id]="'electrical_ok_' + i + '_' + key" [formControlName]="key" value="*" autocomplete="off">
+                        <label class="btn btn-outline-success" [for]="'electrical_ok_' + i + '_' + key">✓</label>
+                        <input type="radio" class="btn-check" [id]="'electrical_nok_' + i + '_' + key" [formControlName]="key" value="" autocomplete="off">
+                        <label class="btn btn-outline-danger" [for]="'electrical_nok_' + i + '_' + key">✗</label>
+                      </div>
+                    </td>
+
+                    <!-- Prix -->
+                    <td><input type="number" class="form-control form-control-sm" [formControlName]="'unitPrice'" step="0.01" placeholder="0.00"></td>
+                    <td><input type="number" class="form-control form-control-sm" [formControlName]="'totalPrice'" step="0.01" placeholder="0.00"></td>
+                  </tr>
+                </ng-container>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="card-footer bg-white border-0 py-3 px-4">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
+                <i class="bi bi-x-circle me-2"></i>Annuler
+              </button>
+              <button type="button" class="btn btn-primary" (click)="saveAll()" [disabled]="!formWrapper.valid">
+                <i class="bi bi-check-circle me-2"></i>Enregistrer tout
+              </button>
+              <button type="button" class="btn btn-success" (click)="exportToExcel()">
+                <i class="bi bi-file-earmark-excel me-2"></i>Exporter Excel
+              </button>
+            </div>
+            <div class="text-muted small" *ngIf="hasUnsavedChanges">
+              <i class="bi bi-info-circle me-1"></i>Modifications non sauvegardées
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </ng-container>
+
+  <!-- MODAL IMAGE -->
+  <div class="modal fade" [class.show]="selectedImage" [style.display]="selectedImage ? 'block' : 'none'" tabindex="-1" style="background: rgba(0,0,0,0.8);">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content bg-transparent border-0">
+        <div class="modal-body text-end p-0">
+          <button type="button" class="btn-close btn-close-white mb-2" (click)="closeImage()"></button>
+          <img [src]="selectedImage" alt="Photo" class="img-fluid rounded-3 shadow-lg">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,100 @@
+<!-- statistiques.component.html -->
+<div class="stats-container">
+  <div class="stats-header">
+    <h2>
+      <i class="bi bi-bar-chart-fill"></i>
+      Statistiques du projet {{ stats?.projectName }}
+    </h2>
+    <div class="project-badge">
+      <i class="bi bi-folder"></i> {{ stats?.userProject }}
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Chargement des statistiques...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error" class="error-container">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <span>{{ error }}</span>
+  </div>
+
+  <!-- Stats Cards -->
+  <div *ngIf="!loading && !error && stats" class="stats-grid">
+
+    <!-- Carte Total -->
+    <div class="stat-card total">
+      <div class="stat-icon">
+        <i class="bi bi-files"></i>
+      </div>
+      <div class="stat-content">
+        <h3>Total Cahiers</h3>
+        <p class="stat-value">{{ stats.totalSheets }}</p>
+      </div>
+    </div>
+
+    <!-- Carte En attente ING -->
+    <div class="stat-card pending-ing">
+      <div class="stat-icon">
+        <i class="bi bi-hourglass-split"></i>
+      </div>
+      <div class="stat-content">
+        <h3>En attente ING</h3>
+        <p class="stat-value">{{ stats.pendingIng }}</p>
+        <small>Validation initiale</small>
+      </div>
+    </div>
+
+    <!-- Carte En attente PT -->
+    <div class="stat-card pending-pt">
+      <div class="stat-icon">
+        <i class="bi bi-gear"></i>
+      </div>
+      <div class="stat-content">
+        <h3>En attente PT</h3>
+        <p class="stat-value">{{ stats.pendingPt }}</p>
+        <small>Validés ING, en attente technique</small>
+      </div>
+    </div>
+
+    <!-- Carte En attente finale -->
+    <div class="stat-card pending-final">
+      <div class="stat-icon">
+        <i class="bi bi-check2-circle"></i>
+      </div>
+      <div class="stat-content">
+        <h3>Validation finale</h3>
+        <p class="stat-value">{{ stats.pendingFinal }}</p>
+        <small>Validés PT, en attente finalisation</small>
+      </div>
+    </div>
+
+    <!-- Carte Technique en cours -->
+    <div class="stat-card tech">
+      <div class="stat-icon">
+        <i class="bi bi-tools"></i>
+      </div>
+      <div class="stat-content">
+        <h3>Technique en cours</h3>
+        <p class="stat-value">{{ stats.techFilled }}</p>
+        <small>Remplissage technique</small>
+      </div>
+    </div>
+
+    <!-- Carte Complétés -->
+    <div class="stat-card completed">
+      <div class="stat-icon">
+        <i class="bi bi-check-all"></i>
+      </div>
+      <div class="stat-content">
+        <h3>Complétés</h3>
+        <p class="stat-value">{{ stats.completed }}</p>
+      </div>
+    </div>
+  </div>
+
+
+</div>

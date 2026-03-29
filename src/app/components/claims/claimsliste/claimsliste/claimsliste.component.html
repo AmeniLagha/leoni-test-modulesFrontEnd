@@ -1,0 +1,357 @@
+<div class="container-fluid px-4 py-4">
+  <!-- HEADER GRADIENT LEONI -->
+  <div class="card border-0 shadow-lg mb-4" style="background: linear-gradient(135deg, #1e3c72 0%, #0f2b4a 100%);">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+          <h2 class="text-white mb-2">
+            <i class="bi bi-clipboard-check me-2"></i>
+            Gestion des réclamations
+            <span class="badge bg-white text-primary ms-2 fs-6">{{ claims.length }}</span>
+          </h2>
+          <p class="text-white-50 mb-0">Suivi et traitement des réclamations</p>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-light" (click)="exportAllClaimsPDF()">
+            <i class="bi bi-file-earmark-pdf me-2"></i>Export PDF
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTRES AVANCÉS AVEC PÉRIODE -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label fw-semibold small text-muted text-uppercase">
+            <i class="bi bi-search me-1"></i>Recherche
+          </label>
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0">
+              <i class="bi bi-search text-muted"></i>
+            </span>
+            <input type="text" class="form-control border-start-0 ps-0"
+                   placeholder="Titre, ID, reporter..."
+                   [(ngModel)]="searchTerm"
+                   (ngModelChange)="onSearchChange()">
+          </div>
+        </div>
+
+        <!-- FILTRE PAR MOIS -->
+        <div class="col-md-2">
+          <label class="form-label fw-semibold small text-muted text-uppercase">
+            <i class="bi bi-calendar-month me-1"></i>Mois
+          </label>
+          <select class="form-select" [(ngModel)]="monthFilter" (change)="applyFilters()">
+            <option value="">Tous les mois</option>
+            <option value="1">Janvier</option>
+            <option value="2">Février</option>
+            <option value="3">Mars</option>
+            <option value="4">Avril</option>
+            <option value="5">Mai</option>
+            <option value="6">Juin</option>
+            <option value="7">Juillet</option>
+            <option value="8">Août</option>
+            <option value="9">Septembre</option>
+            <option value="10">Octobre</option>
+            <option value="11">Novembre</option>
+            <option value="12">Décembre</option>
+          </select>
+        </div>
+
+        <!-- FILTRE PAR ANNÉE -->
+        <div class="col-md-2">
+          <label class="form-label fw-semibold small text-muted text-uppercase">
+            <i class="bi bi-calendar-year me-1"></i>Année
+          </label>
+          <select class="form-select" [(ngModel)]="yearFilter" (change)="applyFilters()">
+            <option value="">Toutes les années</option>
+            <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
+          </select>
+        </div>
+
+        <!-- FILTRE PAR PRIORITÉ -->
+        <div class="col-md-3">
+          <label class="form-label fw-semibold small text-muted text-uppercase">
+            <i class="bi bi-flag me-1"></i>Priorité
+          </label>
+          <select class="form-select" [(ngModel)]="priorityFilter" (change)="applyFilters()">
+            <option value="">Toutes les priorités</option>
+            <option value="LOW">🟢 Basse</option>
+            <option value="MEDIUM">🟡 Moyenne</option>
+            <option value="HIGH">🟠 Haute</option>
+            <option value="CRITICAL">🔴 Critique</option>
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <button *ngIf="hasActiveFilters()" class="btn btn-outline-secondary w-100" (click)="resetFilters()">
+            <i class="bi bi-eraser me-2"></i>Effacer
+          </button>
+        </div>
+      </div>
+
+      <!-- Résumé des filtres actifs -->
+      <div class="row mt-3" *ngIf="monthFilter || yearFilter">
+        <div class="col-12">
+          <div class="alert alert-info py-2 mb-0">
+            <i class="bi bi-info-circle me-2"></i>
+            <strong>Filtre période :</strong>
+            <span *ngIf="monthFilter && yearFilter">
+              {{ getMonthName(monthFilter) }} {{ yearFilter }}
+            </span>
+            <span *ngIf="monthFilter && !yearFilter">
+              {{ getMonthName(monthFilter) }} (toutes années)
+            </span>
+            <span *ngIf="!monthFilter && yearFilter">
+              Année {{ yearFilter }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p class="text-muted mt-3">Chargement des réclamations...</p>
+  </div>
+
+  <!-- TABLEAU DES RÉSULTATS -->
+  <div *ngIf="!loading && filteredClaims.length > 0" class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="bg-light">
+            <tr>
+              <th class="px-3 py-3" style="width: 70px;">ID</th>
+              <th class="px-3 py-3" style="width: 70px;">Image</th>
+              <th class="px-3 py-3">Titre</th>
+              <th class="px-3 py-3">Priorité</th>
+              <th class="px-3 py-3">Statut</th>
+              <th class="px-3 py-3">Reporter</th>
+              <th class="px-3 py-3">Date</th>
+              <th class="px-3 py-3 text-center">Actions</th>
+             </thead>
+          <tbody>
+            <tr *ngFor="let c of paginatedClaims">
+              <!-- ID -->
+              <td class="px-3 py-3">
+                <span class="badge bg-primary bg-opacity-10 text-primary fw-semibold">#{{ c.id }}</span>
+                </td>
+
+              <!-- Image -->
+              <td class="px-3 py-3">
+                <div class="claim-image-cell">
+                  <div *ngIf="isImageLoading(c.id!)" class="spinner-border spinner-border-sm text-primary" role="status">
+                    <span class="visually-hidden">Chargement...</span>
+                  </div>
+                  <img *ngIf="c.imagePath && getImageUrl(c.id!) && !isImageLoading(c.id!)"
+                       [src]="getImageUrl(c.id!)"
+                       (error)="handleImageError($event, c.id!)"
+                       class="claim-thumbnail"
+                       (click)="openImageModal(c.id!)"
+                       alt="Claim image">
+                  <span *ngIf="!c.imagePath" class="no-image-placeholder">
+                    <i class="bi bi-image fs-4 text-muted"></i>
+                  </span>
+                  <span *ngIf="c.imagePath && !getImageUrl(c.id!) && !isImageLoading(c.id!)"
+                        class="error-placeholder">
+                    <i class="bi bi-image-slash fs-4 text-danger"></i>
+                  </span>
+                </div>
+                </td>
+
+              <!-- Titre -->
+              <td class="px-3 py-3 fw-semibold">{{ c.title }} </td>
+
+              <!-- Priorité -->
+              <td class="px-3 py-3">
+                <span class="badge" [ngClass]="getPriorityBadgeClass(c.priority)">
+                  <i class="bi" [ngClass]="getPriorityIcon(c.priority)"></i>
+                  {{ getPriorityLabel(c.priority) }}
+                </span>
+                </td>
+
+              <!-- Statut -->
+              <td class="px-3 py-3">
+                <span class="badge" [ngClass]="getStatusBadgeClass(c.status)">
+                  <i class="bi" [ngClass]="getStatusIcon(c.status)"></i>
+                  {{ getStatusLabel(c.status) }}
+                </span>
+                </td>
+
+              <!-- Reporter -->
+              <td class="px-3 py-3">
+                <i class="bi bi-person me-1 text-muted"></i>{{ c.reportedBy }}
+                </td>
+
+              <!-- Date -->
+              <td class="px-3 py-3">
+                <i class="bi bi-calendar3 me-1 text-muted"></i>
+                <span class="small">{{ c.reportedDate | date:'dd/MM/yyyy' }}</span>
+                </td>
+
+              <!-- Actions -->
+              <td class="px-3 py-3 text-center">
+                <div class="btn-group btn-group-sm" role="group">
+                  <button *ngIf="c.status=='ASSIGNED'" class="btn btn-outline-primary"
+                          (click)="startClaim(c)" title="Démarrer">
+                    <i class="bi bi-play-fill"></i>
+                  </button>
+                  <button *ngIf="c.status=='IN_PROGRESS'" class="btn btn-outline-warning"
+                          (click)="openForm(c, 'resolve')" title="Résoudre">
+                    <i class="bi bi-check-lg"></i>
+                  </button>
+                  <button class="btn btn-outline-info" (click)="exportClaimPDF(c)" title="Export PDF">
+                    <i class="bi bi-file-earmark-pdf"></i>
+                  </button>
+                </div>
+                </td>
+              </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PAGINATION -->
+    <div class="card-footer bg-white border-0 py-3 px-4">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div class="text-muted small">
+          Affichage de <strong>{{ (currentPage - 1) * pageSize + 1 }}</strong> à
+          <strong>{{ Math.min(currentPage * pageSize, filteredClaims.length) }}</strong>
+          sur <strong>{{ filteredClaims.length }}</strong> réclamation(s)
+        </div>
+        <nav aria-label="Page navigation">
+          <ul class="pagination mb-0">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <a class="page-link" (click)="changePage(currentPage - 1)" href="javascript:void(0)">
+                <i class="bi bi-chevron-left"></i>
+              </a>
+            </li>
+            <li *ngFor="let page of getPageNumbers()" class="page-item" [class.active]="page === currentPage">
+              <a class="page-link" (click)="changePage(page)" href="javascript:void(0)">{{ page }}</a>
+            </li>
+            <li class="page-item" [class.disabled]="currentPage === totalPages">
+              <a class="page-link" (click)="changePage(currentPage + 1)" href="javascript:void(0)">
+                <i class="bi bi-chevron-right"></i>
+              </a>
+            </li>
+          </ul>
+        </nav>
+        <div class="d-flex align-items-center gap-2">
+          <span class="text-muted small">Lignes par page:</span>
+          <select class="form-select form-select-sm" style="width: 70px;" [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+            <option [value]="5">5</option>
+            <option [value]="10">10</option>
+            <option [value]="20">20</option>
+            <option [value]="50">50</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUCUNE RÉCLAMATION -->
+  <div *ngIf="!loading && claims.length === 0" class="text-center py-5">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body py-5">
+        <i class="bi bi-inbox display-1 text-muted"></i>
+        <h3 class="mt-3 text-muted">Aucune réclamation</h3>
+        <p class="text-muted">Aucune réclamation n'a été enregistrée dans le système.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUCUN RÉSULTAT APRÈS FILTRES -->
+  <div *ngIf="!loading && claims.length > 0 && filteredClaims.length === 0" class="text-center py-5">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body py-5">
+        <i class="bi bi-filter display-1 text-muted"></i>
+        <h3 class="mt-3 text-muted">Aucun résultat</h3>
+        <p class="text-muted">Aucune réclamation ne correspond à vos filtres.</p>
+        <button class="btn btn-outline-secondary mt-3" (click)="resetFilters()">
+          <i class="bi bi-arrow-counterclockwise me-2"></i>Réinitialiser
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL POUR ASSIGN/RESOLVE -->
+  <div class="modal fade" [class.show]="editingClaim && editForm" [style.display]="editingClaim && editForm ? 'block' : 'none'"
+       tabindex="-1" style="background: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header" style="background: linear-gradient(135deg, #1e3c72 0%, #0f2b4a 100%);">
+          <h5 class="modal-title text-white">
+            <i class="bi" [ngClass]="editingType==='assign' ? 'bi-person-plus' : 'bi-check2-circle'"></i>
+            {{ editingType==='assign' ? 'Assigner la réclamation' : 'Résoudre la réclamation' }}
+          </h5>
+          <button type="button" class="btn-close btn-close-white" (click)="cancelEdit()"></button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="editForm" (ngSubmit)="submitEdit()">
+            <div *ngIf="editingType === 'assign'">
+              <div class="mb-3">
+                <label class="form-label fw-semibold">
+                  <i class="bi bi-person me-1"></i>Assigné à
+                </label>
+                <input type="text" class="form-control" formControlName="assignedTo" placeholder="Email du technicien">
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">
+                  <i class="bi bi-calendar me-1"></i>Date estimée
+                </label>
+                <input type="date" class="form-control" formControlName="estimatedResolutionDate">
+              </div>
+            </div>
+
+            <div *ngIf="editingType === 'resolve'">
+              <div class="mb-3">
+                <label class="form-label fw-semibold">
+                  <i class="bi bi-tools me-1"></i>Action prise
+                </label>
+                <input type="text" class="form-control" formControlName="actionTaken" placeholder="Action corrective">
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">
+                  <i class="bi bi-check2-circle me-1"></i>Résolution
+                </label>
+                <input type="text" class="form-control" formControlName="resolution" placeholder="Solution apportée">
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">
+                  <i class="bi bi-calendar-check me-1"></i>Date réelle
+                </label>
+                <input type="date" class="form-control" formControlName="actualResolutionDate">
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+              <button type="button" class="btn btn-outline-secondary" (click)="cancelEdit()">Annuler</button>
+              <button type="submit" class="btn btn-primary">Valider</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL POUR AFFICHER L'IMAGE -->
+  <div class="modal fade" [class.show]="showImageModal" [style.display]="showImageModal ? 'block' : 'none'"
+       tabindex="-1" style="background: rgba(0,0,0,0.8);">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content bg-transparent border-0">
+        <div class="modal-body text-end p-0">
+          <button type="button" class="btn-close btn-close-white mb-2" (click)="closeImageModal()"></button>
+          <img [src]="modalImageUrl" alt="Claim image" class="img-fluid rounded-3 shadow-lg">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

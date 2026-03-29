@@ -1,0 +1,345 @@
+<div class="container-fluid px-4 py-4">
+  <!-- HEADER GRADIENT -->
+  <div class="card border-0 shadow-lg mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+          <h1 class="text-white mb-2">
+            <i class="bi bi-file-earmark-plus me-2"></i>
+            {{ isEditMode ? 'Modifier cahier des charges' : 'Nouveau cahier des charges' }}
+          </h1>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+              <li class="breadcrumb-item"><a routerLink="/charge-sheets/list" class="text-white text-decoration-none">Liste des cahiers</a></li>
+              <li class="breadcrumb-item active text-white-50">{{ isEditMode ? 'Modification' : 'Création' }}</li>
+            </ol>
+          </nav>
+        </div>
+        <a routerLink="/charge-sheets/list" class="btn btn-light">
+          <i class="bi bi-arrow-left me-2"></i>Retour
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORMULAIRE -->
+  <form [formGroup]="chargeSheetForm" (ngSubmit)="onSubmit()">
+
+    <!-- ALERTE ERREUR -->
+    <div *ngIf="error" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      {{ error }}
+      <button type="button" class="btn-close" (click)="error = ''"></button>
+    </div>
+
+    <!-- ALERTES INFO -->
+    <div *ngIf="isEditMode && currentStatus === 'DRAFT'" class="alert alert-info alert-dismissible fade show shadow-sm">
+      <i class="bi bi-info-circle-fill me-2"></i>
+      Mode édition : Vous pouvez modifier tous les champs et ajouter/supprimer des items.
+    </div>
+
+    <div *ngIf="isEditMode && currentStatus !== 'DRAFT'" class="alert alert-warning alert-dismissible fade show shadow-sm">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      Mode lecture seule : Ce cahier n'est plus en mode brouillon (statut: {{ getStatusLabel(currentStatus) }}). Les modifications sont bloquées.
+    </div>
+
+    <!-- CARTE 1: INFORMATIONS GÉNÉRALES -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-white border-0 pt-4 pb-0">
+        <h5 class="mb-0">
+          <i class="bi bi-building me-2 text-primary"></i>
+          Informations générales
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row g-4">
+          <!-- Plant -->
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">
+              <i class="bi bi-geo-alt me-1 text-muted"></i> PLANT <span class="text-danger">*</span>
+            </label>
+            <select class="form-select" formControlName="plant"
+                    [class.is-invalid]="isFieldInvalid('plant')"
+                    [disabled]="isEditMode && !canEditInEditMode()">
+              <option value="">Sélectionner...</option>
+              <option value="Menzel Hayet">Menzel Hayet</option>
+              <option value="Menzel Bourguiba">Menzel Bourguiba</option>
+              <option value="Bizerte">Bizerte</option>
+              <option value="Tunis">Tunis</option>
+            </select>
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('plant')">Le plant est requis</div>
+          </div>
+
+          <!-- Project -->
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">
+              <i class="bi bi-diagram-3 me-1 text-muted"></i> PROJECT <span class="text-danger">*</span>
+            </label>
+            <select class="form-select" formControlName="project"
+                    [class.is-invalid]="isFieldInvalid('project')"
+                    [disabled]="isEditMode && !canEditInEditMode()">
+              <option value="">Sélectionner...</option>
+              <option value="BMW">BMW</option>
+              <option value="Mercedes">Mercedes</option>
+              <option value="Audi">Audi</option>
+              <option value="Volkswagen">Volkswagen</option>
+              <option value="Porsche">Porsche</option>
+            </select>
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('project')">Le projet est requis</div>
+          </div>
+
+          <!-- Harness Ref -->
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">
+              <i class="bi bi-upc-scan me-1 text-muted"></i> HARNESS REF <span class="text-danger">*</span>
+            </label>
+            <input type="text" class="form-control" formControlName="harnessRef" placeholder="Ex: DOORS"
+                   [readonly]="isEditMode && !canEditInEditMode()">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('harnessRef')">La référence harness est requise</div>
+          </div>
+
+          <!-- Issued By -->
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">
+              <i class="bi bi-person-badge me-1 text-muted"></i> ISSUED BY <span class="text-danger">*</span>
+            </label>
+            <input type="text" class="form-control" formControlName="issuedBy" readonly>
+          </div>
+
+          <!-- Email -->
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">
+              <i class="bi bi-envelope me-1 text-muted"></i> E-MAIL ADDRESS <span class="text-danger">*</span>
+            </label>
+            <input type="email" class="form-control" formControlName="emailAddress"
+                   [readonly]="isEditMode && !canEditInEditMode()">
+          </div>
+
+          <!-- Téléphone -->
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">
+              <i class="bi bi-telephone me-1 text-muted"></i> PHONE NUMBER <span class="text-danger">*</span>
+            </label>
+            <input type="tel" class="form-control" formControlName="phoneNumber" placeholder="12345678"
+                   [readonly]="isEditMode && !canEditInEditMode()">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('phoneNumber')">Numéro de téléphone requis</div>
+          </div>
+
+          <!-- Order Number -->
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">
+              <i class="bi bi-hash me-1 text-muted"></i> ORDER NR. <span class="text-danger">*</span>
+            </label>
+            <input type="text" class="form-control" formControlName="orderNumber" placeholder="Ex: ORD001"
+                   [readonly]="isEditMode && !canEditInEditMode()">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('orderNumber')">Numéro commande requis</div>
+          </div>
+
+          <!-- Cost Center -->
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">
+              <i class="bi bi-cash-stack me-1 text-muted"></i> COST CENTER NUMBER <span class="text-danger">*</span>
+            </label>
+            <input type="text" class="form-control" formControlName="costCenterNumber" placeholder="Ex: CC001"
+                   [readonly]="isEditMode && !canEditInEditMode()">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('costCenterNumber')">Centre de coût requis</div>
+          </div>
+
+          <!-- Date -->
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">
+              <i class="bi bi-calendar me-1 text-muted"></i> DATE <span class="text-danger">*</span>
+            </label>
+            <input type="date" class="form-control" formControlName="date"
+                   [readonly]="isEditMode && !canEditInEditMode()">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('date')">Date requise</div>
+          </div>
+
+          <!-- Delivery Date -->
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">
+              <i class="bi bi-calendar-check me-1 text-muted"></i> PREFERRED DELIVERY DATE <span class="text-danger">*</span>
+            </label>
+            <input type="date" class="form-control" formControlName="preferredDeliveryDate"
+                   [readonly]="isEditMode && !canEditInEditMode()">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('preferredDeliveryDate')">Date livraison requise</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARTE 2: LISTE DES ITEMS -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-white border-0 pt-4 pb-0 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h5 class="mb-0">
+          <i class="bi bi-box-seam me-2 text-primary"></i>
+          Items / Connecteurs
+        </h5>
+        <button type="button" class="btn btn-primary btn-sm" (click)="addNewItem()"
+                [disabled]="(isEditMode && !canEditInEditMode()) || loading">
+          <i class="bi bi-plus-circle me-1"></i> Ajouter un item
+        </button>
+      </div>
+      <div class="card-body" *ngIf="items.length > 0; else noItems">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 40px;">#</th>
+                <th>Samples exist</th>
+                <th>Ways</th>
+                <th>Housing colour</th>
+                <th>Test module exist</th>
+                <th>Housing Ref (Leoni)</th>
+                <th>Housing Ref (Supplier)</th>
+                <th>Reference Seals...</th>
+                <th>Picture</th>
+                <th>Quantity</th>
+                <th style="width: 50px;"></th>
+               </thead>
+            <tbody>
+              <tr *ngFor="let item of items.controls; let i = index" [formGroup]="getItemFormGroup(i)">
+                <td class="fw-semibold">{{ i+1 }}</td>
+
+                <!-- Samples exist -->
+                <td>
+                  <select class="form-select form-select-sm" formControlName="samplesExist"
+                          [disabled]="isEditMode && !canEditInEditMode()">
+                    <option *ngFor="let opt of yesNoOptions" [value]="opt">
+                      {{ opt === 'Yes' ? 'Oui' : 'Non' }}
+                    </option>
+                  </select>
+                </td>
+
+                <!-- Ways -->
+                <td>
+                  <input type="text" class="form-control form-control-sm" formControlName="ways"
+                         [readonly]="isEditMode && !canEditInEditMode()">
+                </td>
+
+                <!-- Housing colour -->
+                <td>
+                  <select class="form-select form-select-sm" formControlName="housingColour"
+                          [disabled]="isEditMode && !canEditInEditMode()">
+                    <option value="">--</option>
+                    <option value="black">Noir</option>
+                    <option value="white">Blanc</option>
+                    <option value="grey">Gris</option>
+                    <option value="green">Vert</option>
+                    <option value="blue">Bleu</option>
+                    <option value="red">Rouge</option>
+                  </select>
+                </td>
+
+                <!-- Test module exist -->
+                <td>
+                  <select class="form-select form-select-sm" formControlName="testModuleExistInDatabase"
+                          [disabled]="isEditMode && !canEditInEditMode()">
+                    <option *ngFor="let opt of yesNoOptions" [value]="opt">
+                      {{ opt === 'Yes' ? 'Oui' : 'Non' }}
+                    </option>
+                  </select>
+                </td>
+
+                <!-- Housing Ref Leoni -->
+                <td>
+                  <input type="text" class="form-control form-control-sm" formControlName="housingReferenceLeoni"
+                         [readonly]="isEditMode && !canEditInEditMode()">
+                </td>
+
+                <!-- Housing Ref Supplier -->
+                <td>
+                  <input type="text" class="form-control form-control-sm" formControlName="housingReferenceSupplierCustomer"
+                         [readonly]="isEditMode && !canEditInEditMode()">
+                </td>
+
+                <!-- Reference Seals -->
+                <td>
+                  <input type="text" class="form-control form-control-sm" formControlName="referenceSealsClipsCableTiesCap"
+                         [readonly]="isEditMode && !canEditInEditMode()">
+                </td>
+
+                <!-- Picture -->
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <div *ngIf="itemImages[i]" class="position-relative">
+                      <img [src]="itemImages[i]" class="img-thumbnail" style="width: 40px; height: 40px; object-fit: cover; cursor: pointer;"
+                           (click)="openImageModal(itemImages[i])">
+                      <button type="button" class="btn-close-sm position-absolute top-0 end-0 bg-danger rounded-circle p-1"
+                              (click)="removeItemImage(i)" *ngIf="canEditInEditMode()"
+                              style="width: 16px; height: 16px; font-size: 10px;">×</button>
+                    </div>
+                    <input type="file" class="form-control form-control-sm" accept="image/*"
+                           (change)="onItemFileSelected($event, i)"
+                           [disabled]="isEditMode && !canEditInEditMode()"
+                           *ngIf="canEditInEditMode()">
+                    <span *ngIf="!itemImages[i] && !canEditInEditMode()" class="text-muted small">Pas d'image</span>
+                  </div>
+                </td>
+
+                <!-- Quantity -->
+                <td>
+                  <input type="number" class="form-control form-control-sm text-center" formControlName="quantityOfTestModules" min="1"
+                         [readonly]="isEditMode && !canEditInEditMode()" style="width: 80px;">
+                </td>
+
+                <!-- Action -->
+                <td>
+                  <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeItem(i)"
+                          *ngIf="items.length > 1 && canEditInEditMode()"
+                          [disabled]="isEditMode && !canEditInEditMode()">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+           </table>
+        </div>
+      </div>
+      <ng-template #noItems>
+        <div class="card-body text-center py-5">
+          <i class="bi bi-inbox display-1 text-muted"></i>
+          <p class="text-muted mt-3 mb-0">Aucun item. Cliquez sur "Ajouter un item" pour commencer.</p>
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- BOUTONS D'ACTION -->
+    <div class="d-flex justify-content-end gap-3">
+      <a class="btn btn-outline-secondary px-4" routerLink="/charge-sheets/list">
+        <i class="bi bi-x-circle me-2"></i>Annuler
+      </a>
+      <button type="submit" class="btn btn-primary px-4"
+              [disabled]="loading || chargeSheetForm.invalid || (isEditMode && !canEditInEditMode())">
+        <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+        <span *ngIf="!loading">
+          <i class="bi bi-check-circle me-2"></i>
+          {{ isEditMode ? 'Mettre à jour' : 'Créer' }} le cahier
+        </span>
+      </button>
+    </div>
+
+  </form>
+</div>
+
+<!-- LOADING OVERLAY -->
+<div *ngIf="loading" class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+     style="background: rgba(0,0,0,0.5); z-index: 9999;">
+  <div class="bg-white rounded-3 p-4 text-center shadow-lg">
+    <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;"></div>
+    <p class="mb-0">Traitement en cours...</p>
+  </div>
+</div>
+
+<!-- MODAL POUR AFFICHER L'IMAGE -->
+<div class="modal fade" #imageModal tabindex="-1" [class.show]="showImageModal"
+     [style.display]="showImageModal ? 'block' : 'none'" style="background: rgba(0,0,0,0.8);">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content bg-transparent border-0">
+      <div class="modal-body text-end p-0">
+        <button type="button" class="btn-close btn-close-white mb-2" (click)="closeImageModal()"></button>
+        <img [src]="modalImageUrl" alt="Connector image" class="img-fluid rounded-3 shadow-lg">
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,209 @@
+<div class="container-fluid px-4 py-4">
+  <!-- HEADER GRADIENT LEONI -->
+  <div class="card border-0 shadow-lg mb-4" style="background: linear-gradient(135deg, #1e3c72 0%, #0f2b4a 100%);">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+          <h2 class="text-white mb-2">
+            <i class="bi bi-clipboard-check me-2"></i>
+            Liste des conformités
+            <span class="badge bg-white text-primary ms-2 fs-6">{{ complianceList.length }}</span>
+          </h2>
+          <p class="text-white-50 mb-0">Gestion et suivi des fiches de conformité</p>
+        </div>
+        <div class="d-flex gap-2">
+          <a routerLink="/compliance/create" class="btn btn-light">
+            <i class="bi bi-plus-circle me-2"></i>Nouvelle fiche
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTRES -->
+  <div class="card border-0 shadow-sm mb-4" *ngIf="complianceList.length > 0">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-5">
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0">
+              <i class="bi bi-search text-muted"></i>
+            </span>
+            <input type="text" class="form-control border-start-0 ps-0"
+                   placeholder="Rechercher par order number, technicien..."
+                   [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()">
+          </div>
+        </div>
+        <div class="col-md-3">
+          <input type="date" class="form-control" [(ngModel)]="dateFilter"
+                 (change)="applyFilters()" placeholder="Filtrer par date">
+        </div>
+        <div class="col-md-4">
+          <button *ngIf="searchTerm || dateFilter" class="btn btn-outline-secondary w-100" (click)="resetFilters()">
+            <i class="bi bi-eraser me-2"></i>Effacer les filtres
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p class="text-muted mt-3">Chargement des fiches de conformité...</p>
+  </div>
+
+  <!-- ERROR -->
+  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    {{ errorMessage }}
+    <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+  </div>
+
+  <!-- TABLEAU DES RÉSULTATS -->
+  <div *ngIf="!isLoading && paginatedCompliances.length > 0" class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="bg-light">
+            <tr>
+              <th class="px-3 py-3" style="width: 70px;">ID</th>
+              <th class="px-3 py-3">Order Number</th>
+              <th class="px-3 py-3">Order Item</th>
+              <th class="px-3 py-3">Technicien</th>
+              <th class="px-3 py-3">Date test</th>
+              <th class="px-3 py-3">Créé le</th>
+              <th class="px-3 py-3 text-center">Actions</th>
+             </thead>
+          <tbody>
+            <tr *ngFor="let compliance of paginatedCompliances">
+              <!-- ID -->
+              <td class="px-3 py-3">
+                <span class="badge bg-primary bg-opacity-10 text-primary fw-semibold">#{{ compliance.id }}</span>
+               </td>
+
+              <!-- Order Number -->
+              <td class="px-3 py-3">
+                <code class="bg-light px-2 py-1 rounded">{{ compliance.orderNumber || '-' }}</code>
+               </td>
+
+              <!-- Order Item -->
+              <td class="px-3 py-3">
+                <span class="fw-semibold">{{ compliance.orderitemNumber || '-' }}</span>
+               </td>
+
+              <!-- Technicien -->
+              <td class="px-3 py-3">
+                <i class="bi bi-person me-1 text-muted"></i>{{ compliance.technicianName || '-' }}
+               </td>
+
+              <!-- Date test -->
+              <td class="px-3 py-3">
+                <i class="bi bi-calendar3 me-1 text-muted"></i>
+                <span class="small">{{ compliance.testDateTime | date:'dd/MM/yyyy' }}</span>
+               </td>
+
+              <!-- Créé le -->
+              <td class="px-3 py-3">
+                <i class="bi bi-clock me-1 text-muted"></i>
+                <span class="small">{{ compliance.createdAt | date:'dd/MM/yyyy' }}</span>
+               </td>
+
+              <!-- Actions -->
+              <td class="px-3 py-3 text-center">
+                <div class="btn-group btn-group-sm" role="group">
+                  <a class="btn btn-outline-warning" [routerLink]="['/compliance', compliance.id, 'edit']" title="Modifier">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  <button class="btn btn-outline-info" (click)="detailCompliance(compliance.id)" title="Détail complet">
+                    <i class="bi bi-file-text"></i>
+                  </button>
+                  <a class="btn btn-outline-danger"
+                     [routerLink]="['/claims/create']"
+                     [queryParams]="{
+                       chargeSheetId: compliance.chargeSheetId,
+                       relatedTo: 'COMPLIANCE',
+                       relatedId: compliance.id
+                     }"
+                     title="Créer réclamation">
+                    <i class="bi bi-exclamation-diamond"></i>
+                  </a>
+                  <button class="btn btn-outline-danger" (click)="deleteCompliance(compliance.id)" title="Supprimer">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+               </td>
+             </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PAGINATION -->
+    <div class="card-footer bg-white border-0 py-3 px-4" *ngIf="totalPages > 1">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div class="text-muted small">
+          Affichage de <strong>{{ (currentPage - 1) * pageSize + 1 }}</strong> à
+          <strong>{{ Math.min(currentPage * pageSize, filteredCompliances.length) }}</strong>
+          sur <strong>{{ filteredCompliances.length }}</strong> fiches
+        </div>
+        <nav aria-label="Page navigation">
+          <ul class="pagination mb-0">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <a class="page-link" (click)="changePage(currentPage - 1)" href="javascript:void(0)">
+                <i class="bi bi-chevron-left"></i>
+              </a>
+            </li>
+            <li *ngFor="let page of getPageNumbers()" class="page-item" [class.active]="page === currentPage">
+              <a class="page-link" (click)="changePage(page)" href="javascript:void(0)">{{ page }}</a>
+            </li>
+            <li class="page-item" [class.disabled]="currentPage === totalPages">
+              <a class="page-link" (click)="changePage(currentPage + 1)" href="javascript:void(0)">
+                <i class="bi bi-chevron-right"></i>
+              </a>
+            </li>
+          </ul>
+        </nav>
+        <div class="d-flex align-items-center gap-2">
+          <span class="text-muted small">Lignes par page:</span>
+          <select class="form-select form-select-sm" style="width: 70px;" [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+            <option [value]="10">10</option>
+            <option [value]="20">20</option>
+            <option [value]="50">50</option>
+            <option [value]="100">100</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMPTY STATE -->
+  <div *ngIf="!isLoading && complianceList.length === 0" class="text-center py-5">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body py-5">
+        <i class="bi bi-folder-x display-1 text-muted"></i>
+        <h3 class="mt-3 text-muted">Aucune fiche disponible</h3>
+        <p class="text-muted">Commencez par créer une nouvelle fiche de conformité.</p>
+        <a routerLink="/compliance/create" class="btn btn-primary mt-3">
+          <i class="bi bi-plus-circle me-2"></i>Créer une fiche
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUCUN RÉSULTAT APRES FILTRES -->
+  <div *ngIf="!isLoading && complianceList.length > 0 && filteredCompliances.length === 0" class="text-center py-5">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body py-5">
+        <i class="bi bi-filter display-1 text-muted"></i>
+        <h3 class="mt-3 text-muted">Aucun résultat</h3>
+        <p class="text-muted">Aucune fiche ne correspond à vos filtres.</p>
+        <button class="btn btn-outline-secondary mt-3" (click)="resetFilters()">
+          <i class="bi bi-arrow-counterclockwise me-2"></i>Réinitialiser
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

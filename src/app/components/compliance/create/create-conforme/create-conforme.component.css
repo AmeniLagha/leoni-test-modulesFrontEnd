@@ -1,0 +1,267 @@
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.card {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* Table styles */
+.table {
+  font-size: 0.8rem;
+}
+
+.table th {
+  font-weight: 600;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  vertical-align: middle;
+  white-space: nowrap;
+  padding: 12px 8px;
+}
+
+.table td {
+  vertical-align: middle;
+  padding: 8px 6px;
+}
+
+.table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Hover row effect */
+.hover-row {
+  transition: all 0.2s ease;
+}
+
+.hover-row:hover {
+  background-color: #f1f5f9;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* Form controls */
+.form-control-sm, .form-select-sm {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s;
+}
+
+.form-control-sm:focus, .form-select-sm:focus {
+  border-color: #1e3c72;
+  box-shadow: 0 0 0 0.2rem rgba(30, 60, 114, 0.25);
+}
+
+.form-control-sm[readonly] {
+  background-color: #f8fafc;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+/* Checkbox styling */
+.form-check-input {
+  width: 1.1rem;
+  height: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.form-check-input:checked {
+  background-color: #1e3c72;
+  border-color: #1e3c72;
+}
+
+.form-check-input:focus {
+  box-shadow: 0 0 0 0.2rem rgba(30, 60, 114, 0.25);
+}
+
+/* Badge info */
+.info-badge {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Buttons */
+.btn {
+  padding: 0.5rem 1.2rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #1e3c72 0%, #0f2b4a 100%);
+  border: none;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(30, 60, 114, 0.4);
+}
+
+.btn-outline-secondary {
+  border: 1px solid #cbd5e1;
+  color: #475569;
+}
+
+.btn-outline-secondary:hover:not(:disabled) {
+  background-color: #f8fafc;
+  border-color: #1e3c72;
+  color: #1e3c72;
+  transform: translateY(-2px);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Header colors */
+.bg-primary {
+  background: linear-gradient(135deg, #1e3c72 0%, #0f2b4a 100%) !important;
+}
+
+.bg-info {
+  background: linear-gradient(135deg, #0e7c7c 0%, #0a5c5c 100%) !important;
+}
+
+.bg-warning {
+  background: linear-gradient(135deg, #e67e22 0%, #d35400 100%) !important;
+  color: white !important;
+}
+
+.bg-success {
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%) !important;
+}
+
+.bg-danger {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%) !important;
+}
+
+.bg-secondary {
+  background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%) !important;
+}
+
+/* Table borders */
+.table-bordered th,
+.table-bordered td {
+  border: 1px solid #e2e8f0;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .container-fluid {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  .table {
+    font-size: 0.7rem;
+  }
+
+  .form-control-sm, .form-select-sm {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+  }
+
+  .btn {
+    padding: 0.4rem 1rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .d-flex.justify-content-between {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .d-flex.gap-2 {
+    justify-content: center;
+  }
+
+  .info-badge {
+    text-align: center;
+  }
+
+  .card-header .d-flex {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+/* Scrollbar */
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Loading spinner */
+.spinner-border {
+  width: 1rem;
+  height: 1rem;
+  border-width: 0.15rem;
+}
+
+/* Text colors for select options */
+.text-success {
+  color: #28a745 !important;
+}
+
+.text-danger {
+  color: #dc3545 !important;
+}
+
+/* Number input arrows */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  opacity: 0.5;
+}
+
+input[type="number"]:hover::-webkit-inner-spin-button,
+input[type="number"]:hover::-webkit-outer-spin-button {
+  opacity: 1;
+}
+
+/* Focus visible */
+:focus-visible {
+  outline: none;
+}

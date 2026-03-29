@@ -1,0 +1,251 @@
+<div class="container-fluid px-4 py-4">
+  <!-- HEADER GRADIENT LEONI -->
+  <div class="card border-0 shadow-lg mb-4" style="background: linear-gradient(135deg, #1e3c72 0%, #0f2b4a 100%);">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+          <h1 class="text-white mb-2">
+            <i class="bi bi-pencil-square me-2"></i>
+            Modifier la conformité
+            <span class="badge bg-white text-primary ms-2 fs-6">#{{ compliance?.id }}</span>
+          </h1>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+              <li class="breadcrumb-item"><a routerLink="/compliance/list" class="text-white text-decoration-none">Liste des conformités</a></li>
+              <li class="breadcrumb-item active text-white-50">Édition</li>
+            </ol>
+          </nav>
+        </div>
+        <button type="button" class="btn btn-outline-light" (click)="goBack()">
+          <i class="bi bi-arrow-left me-2"></i>Retour
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p class="text-muted mt-3">Chargement des données...</p>
+  </div>
+
+  <!-- FORMULAIRE -->
+  <form *ngIf="!isLoading && compliance" (ngSubmit)="submitForm()" class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle mb-0">
+          <thead class="bg-light">
+            <!-- LIGNE 1: En-têtes principaux avec groupes -->
+            <tr class="text-center">
+              <th colspan="5" class="bg-primary text-white">GÉNÉRAL</th>
+              <th colspan="4" class="bg-info text-white">IDENTITY CODE</th>
+              <th colspan="6" class="bg-warning text-dark">TESTS SÉQUENTIELS</th>
+              <th colspan="5" class="bg-success text-white">HOUSING & ATTACHMENTS</th>
+              <th colspan="4" class="bg-danger text-white">ÉLECTRIQUE</th>
+              <th colspan="4" class="bg-secondary text-white">QUALIFICATION</th>
+             </thead>
+          <thead class="bg-light">
+            <!-- LIGNE 2: Sous-en-têtes -->
+            <tr class="text-center small">
+              <!-- Général (5) -->
+              <th>Order Number</th>
+              <th>Order Item</th>
+              <th>Technicien</th>
+              <th>Date test</th>
+              <th>RFID</th>
+
+              <!-- Identity Code (4) -->
+              <th>Leoni Part</th>
+              <th>Index</th>
+              <th>Producer</th>
+              <th>Type</th>
+
+              <!-- Tests séquentiels (6) -->
+              <th>Sequence</th>
+              <th>Coding</th>
+              <th>Secondary</th>
+              <th>Offset (mm)</th>
+              <th>Stable (mm)</th>
+              <th>Displace (mm)</th>
+
+              <!-- Housing & Attachments (5) -->
+              <th>Housing</th>
+              <th>Max Leak</th>
+              <th>Adj Leak</th>
+              <th>Colour</th>
+              <th>Terminal</th>
+
+              <!-- Électrique (4) -->
+              <th>Open Shunts</th>
+              <th>Spacer</th>
+              <th>Special</th>
+              <th>Contact %</th>
+
+              <!-- Qualification (4) -->
+              <th>Qualifié</th>
+              <th>Conditionnel</th>
+              <th>Non qualifié</th>
+              <th>Remarques</th>
+             </thead>
+
+          <tbody>
+            <!-- UNE SEULE LIGNE POUR LA MODIFICATION -->
+            <tr class="hover-row">
+              <!-- Général (5) -->
+              <td>
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="compliance.orderNumber" name="orderNumber" readonly>
+               </td>
+              <td>
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="compliance.orderitemNumber" name="orderitemNumber" placeholder="Order Item">
+               </td>
+               <td>
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="compliance.technicianName" name="technicianName" readonly>
+               </td>
+               <td>
+                <input type="date" class="form-control form-control-sm" [(ngModel)]="compliance.testDateTime" name="testDateTime">
+               </td>
+               <td>
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="compliance.rfidNumber" name="rfidNumber" placeholder="RFID">
+               </td>
+
+              <!-- Identity Code (4) -->
+              <td>
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="compliance.leoniPartNumber" name="leoniPartNumber" placeholder="Leoni Part">
+              </td>
+              <td>
+                <input type="text" class="form-control form-control-sm text-center" [(ngModel)]="compliance.indexValue" name="indexValue" placeholder="Index">
+              </td>
+              <td>
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="compliance.producer" name="producer" placeholder="Producer">
+              </td>
+              <td>
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="compliance.type" name="type" placeholder="Type">
+              </td>
+
+              <!-- Tests séquentiels (6) -->
+              <td>
+                <select class="form-select form-select-sm" [(ngModel)]="compliance.sequenceTestPins" name="sequenceTestPins">
+                  <option value="">--</option>
+                  <option value="OK" class="text-success">✓ OK</option>
+                  <option value="NOK" class="text-danger">✗ NOK</option>
+                </select>
+              </td>
+              <td>
+                <select class="form-select form-select-sm" [(ngModel)]="compliance.codingRequest" name="codingRequest">
+                  <option value="">--</option>
+                  <option value="OK" class="text-success">✓ OK</option>
+                  <option value="NOK" class="text-danger">✗ NOK</option>
+                </select>
+              </td>
+              <td>
+                <select class="form-select form-select-sm" [(ngModel)]="compliance.secondaryLocking" name="secondaryLocking">
+                  <option value="">--</option>
+                  <option value="OK" class="text-success">✓ OK</option>
+                  <option value="NOK" class="text-danger">✗ NOK</option>
+                </select>
+              </td>
+              <td>
+                <input type="number" step="0.01" class="form-control form-control-sm text-end" [(ngModel)]="compliance.offsetTestMm" name="offsetTestMm" placeholder="0.00">
+              </td>
+              <td>
+                <input type="number" step="0.01" class="form-control form-control-sm text-end" [(ngModel)]="compliance.stableOffsetTestMm" name="stableOffsetTestMm" placeholder="0.00">
+              </td>
+              <td>
+                <input type="number" step="0.01" class="form-control form-control-sm text-end" [(ngModel)]="compliance.displacementPathPushBackMm" name="displacementPathPushBackMm" placeholder="0.00">
+              </td>
+
+              <!-- Housing & Attachments (5) -->
+              <td>
+                <select class="form-select form-select-sm" [(ngModel)]="compliance.housingAttachments" name="housingAttachments">
+                  <option value="">--</option>
+                  <option value="OK" class="text-success">✓ OK</option>
+                  <option value="NOK" class="text-danger">✗ NOK</option>
+                </select>
+              </td>
+              <td>
+                <input type="number" step="0.01" class="form-control form-control-sm text-end" [(ngModel)]="compliance.maxLeakTestMbar" name="maxLeakTestMbar" placeholder="0.00">
+              </td>
+              <td>
+                <input type="number" step="0.01" class="form-control form-control-sm text-end" [(ngModel)]="compliance.adjustmentLeakTestMbar" name="adjustmentLeakTestMbar" placeholder="0.00">
+              </td>
+              <td>
+                <select class="form-select form-select-sm" [(ngModel)]="compliance.colourVerification" name="colourVerification">
+                  <option value="">--</option>
+                  <option value="OK" class="text-success">✓ OK</option>
+                  <option value="NOK" class="text-danger">✗ NOK</option>
+                </select>
+              </td>
+              <td>
+                <select class="form-select form-select-sm" [(ngModel)]="compliance.terminalAlignment" name="terminalAlignment">
+                  <option value="">--</option>
+                  <option value="OK" class="text-success">✓ OK</option>
+                  <option value="NOK" class="text-danger">✗ NOK</option>
+                </select>
+              </td>
+
+              <!-- Électrique (4) -->
+              <td>
+                <select class="form-select form-select-sm" [(ngModel)]="compliance.openShuntsAirbag" name="openShuntsAirbag">
+                  <option value="">--</option>
+                  <option value="OK" class="text-success">✓ OK</option>
+                  <option value="NOK" class="text-danger">✗ NOK</option>
+                </select>
+              </td>
+              <td>
+                <select class="form-select form-select-sm" [(ngModel)]="compliance.spacerClosingUnit" name="spacerClosingUnit">
+                  <option value="">--</option>
+                  <option value="OK" class="text-success">✓ OK</option>
+                  <option value="NOK" class="text-danger">✗ NOK</option>
+                </select>
+              </td>
+              <td>
+                <select class="form-select form-select-sm" [(ngModel)]="compliance.specialFunctions" name="specialFunctions">
+                  <option value="">--</option>
+                  <option value="OK" class="text-success">✓ OK</option>
+                  <option value="NOK" class="text-danger">✗ NOK</option>
+                </select>
+              </td>
+              <td>
+                <input type="number" step="0.01" class="form-control form-control-sm text-end" [(ngModel)]="compliance.contactProblemsPercentage" name="contactProblemsPercentage" placeholder="0.00">
+              </td>
+
+              <!-- Qualification (4) -->
+              <td class="text-center">
+                <div class="form-check d-flex justify-content-center">
+                  <input class="form-check-input" type="checkbox" [(ngModel)]="compliance.qualifiedTestModule" name="qualifiedTestModule" id="qualified">
+                </div>
+              </td>
+              <td class="text-center">
+                <div class="form-check d-flex justify-content-center">
+                  <input class="form-check-input" type="checkbox" [(ngModel)]="compliance.conditionallyQualifiedTestModule" name="conditionallyQualifiedTestModule" id="conditionally">
+                </div>
+              </td>
+              <td class="text-center">
+                <div class="form-check d-flex justify-content-center">
+                  <input class="form-check-input" type="checkbox" [(ngModel)]="compliance.notQualifiedTestModule" name="notQualifiedTestModule" id="notqualified">
+                </div>
+              </td>
+              <td>
+                <textarea class="form-control form-control-sm" [(ngModel)]="compliance.remarks" name="remarks" rows="1" placeholder="Remarques..."></textarea>
+              </td>
+             </tr>
+          </tbody>
+         </table>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="card-footer bg-white border-0 py-3 px-4">
+      <div class="d-flex justify-content-end gap-3">
+        <button type="button" class="btn btn-outline-secondary px-4" (click)="goBack()">
+          <i class="bi bi-x-circle me-2"></i>Annuler
+        </button>
+        <button type="submit" class="btn btn-primary px-4">
+          <i class="bi bi-check-circle me-2"></i>Modifier la conformité
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,331 @@
+<div class="container-fluid px-4 py-4">
+  <!-- HEADER GRADIENT LEONI -->
+  <div class="card border-0 shadow-lg mb-4" style="background: linear-gradient(135deg, #1e3c72 0%, #0f2b4a 100%);">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+          <h2 class="text-white mb-2">
+            <i class="bi bi-eye me-2"></i>
+            Détail conformité
+            <span class="badge bg-white text-primary ms-2 fs-6">#{{ compliance?.id }}</span>
+          </h2>
+          <p class="text-white-50 mb-0">Consultation détaillée de la fiche de conformité</p>
+        </div>
+        <div class="d-flex gap-2">
+          <a [routerLink]="['/compliance', compliance?.id, 'edit']" class="btn btn-light">
+            <i class="bi bi-pencil me-2"></i>Modifier
+          </a>
+          <a routerLink="/compliance/list" class="btn btn-outline-light">
+            <i class="bi bi-arrow-left me-2"></i>Retour
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p class="text-muted mt-3">Chargement des détails...</p>
+  </div>
+
+  <!-- ERROR -->
+  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    {{ errorMessage }}
+    <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+  </div>
+
+  <!-- CONTENU -->
+  <div *ngIf="!isLoading && !errorMessage && compliance">
+
+    <!-- CARTE INFORMATIONS GÉNÉRALES -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-white border-0 pt-4 pb-0">
+        <h5 class="mb-0">
+          <i class="bi bi-info-circle me-2 text-primary"></i>
+          Informations Générales
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row g-4">
+          <div class="col-md-4 col-lg-3">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Order Number</label>
+              <div class="fw-semibold"><code>{{ compliance.orderNumber || '-' }}</code></div>
+            </div>
+          </div>
+          <div class="col-md-4 col-lg-3">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Order Item Number</label>
+              <div>{{ compliance.orderitemNumber || '-' }}</div>
+            </div>
+          </div>
+          <div class="col-md-4 col-lg-3">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Technicien</label>
+              <div><i class="bi bi-person me-1"></i>{{ compliance.technicianName || '-' }}</div>
+            </div>
+          </div>
+          <div class="col-md-4 col-lg-3">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Date Test</label>
+              <div><i class="bi bi-calendar3 me-1"></i>{{ compliance.testDateTime | date:'dd/MM/yyyy' }}</div>
+            </div>
+          </div>
+          <div class="col-md-4 col-lg-3">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">RFID</label>
+              <div><i class="bi bi-upc-scan me-1"></i>{{ compliance.rfidNumber || '-' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARTE IDENTITY CODE -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-white border-0 pt-4 pb-0">
+        <h5 class="mb-0">
+          <i class="bi bi-upc-scan me-2 text-info"></i>
+          Identity Code
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row g-4">
+          <div class="col-md-4 col-lg-3">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Leoni Part Number</label>
+              <div><code>{{ compliance.leoniPartNumber || '-' }}</code></div>
+            </div>
+          </div>
+          <div class="col-md-4 col-lg-3">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Index Value</label>
+              <div class="fw-semibold">{{ compliance.indexValue || '-' }}</div>
+            </div>
+          </div>
+          <div class="col-md-4 col-lg-3">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Producer</label>
+              <div>{{ compliance.producer || '-' }}</div>
+            </div>
+          </div>
+          <div class="col-md-4 col-lg-3">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Type</label>
+              <div>{{ compliance.type || '-' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARTE INSPECTION -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-white border-0 pt-4 pb-0">
+        <h5 class="mb-0">
+          <i class="bi bi-clipboard-data me-2 text-success"></i>
+          Inspection
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row g-4">
+          <div class="col-md-4 col-lg-3">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Sequence Test Pins</label>
+              <div><span class="badge" [ngClass]="getStatusBadge(compliance.sequenceTestPins)">{{ compliance.sequenceTestPins || '-' }}</span></div>
+            </div>
+          </div>
+          <div class="col-md-4 col-lg-3">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Coding Request</label>
+              <div><span class="badge" [ngClass]="getStatusBadge(compliance.codingRequest)">{{ compliance.codingRequest || '-' }}</span></div>
+            </div>
+          </div>
+          <div class="col-md-4 col-lg-3">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Secondary Locking</label>
+              <div><span class="badge" [ngClass]="getStatusBadge(compliance.secondaryLocking)">{{ compliance.secondaryLocking || '-' }}</span></div>
+            </div>
+          </div>
+          <div class="col-md-4 col-lg-3">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Offset Test (mm)</label>
+              <div class="fw-semibold">{{ compliance.offsetTestMm || '-' }}</div>
+            </div>
+          </div>
+          <div class="col-md-4 col-lg-3">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Stable Offset (mm)</label>
+              <div class="fw-semibold">{{ compliance.stableOffsetTestMm || '-' }}</div>
+            </div>
+          </div>
+          <div class="col-md-4 col-lg-3">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Push Back (mm)</label>
+              <div class="fw-semibold">{{ compliance.displacementPathPushBackMm || '-' }}</div>
+            </div>
+          </div>
+          <div class="col-md-4 col-lg-3">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Housing Attachments</label>
+              <div><span class="badge" [ngClass]="getStatusBadge(compliance.housingAttachments)">{{ compliance.housingAttachments || '-' }}</span></div>
+            </div>
+          </div>
+          <div class="col-md-4 col-lg-3">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Max Leak (mbar)</label>
+              <div class="fw-semibold">{{ compliance.maxLeakTestMbar || '-' }}</div>
+            </div>
+          </div>
+          <div class="col-md-4 col-lg-3">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Adjustment Leak (mbar)</label>
+              <div class="fw-semibold">{{ compliance.adjustmentLeakTestMbar || '-' }}</div>
+            </div>
+          </div>
+          <div class="col-md-4 col-lg-3">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Colour Verification</label>
+              <div><span class="badge" [ngClass]="getStatusBadge(compliance.colourVerification)">{{ compliance.colourVerification || '-' }}</span></div>
+            </div>
+          </div>
+          <div class="col-md-4 col-lg-3">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Terminal Alignment</label>
+              <div><span class="badge" [ngClass]="getStatusBadge(compliance.terminalAlignment)">{{ compliance.terminalAlignment || '-' }}</span></div>
+            </div>
+          </div>
+          <div class="col-md-4 col-lg-3">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Open Shunts</label>
+              <div><span class="badge" [ngClass]="getStatusBadge(compliance.openShuntsAirbag)">{{ compliance.openShuntsAirbag || '-' }}</span></div>
+            </div>
+          </div>
+          <div class="col-md-4 col-lg-3">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Spacer Closing Unit</label>
+              <div><span class="badge" [ngClass]="getStatusBadge(compliance.spacerClosingUnit)">{{ compliance.spacerClosingUnit || '-' }}</span></div>
+            </div>
+          </div>
+          <div class="col-md-4 col-lg-3">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Special Functions</label>
+              <div><span class="badge" [ngClass]="getStatusBadge(compliance.specialFunctions)">{{ compliance.specialFunctions || '-' }}</span></div>
+            </div>
+          </div>
+          <div class="col-md-4 col-lg-3">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Contact Problems (%)</label>
+              <div class="fw-semibold">{{ compliance.contactProblemsPercentage || '-' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARTE QUALIFICATION -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-white border-0 pt-4 pb-0">
+        <h5 class="mb-0">
+          <i class="bi bi-trophy me-2 text-warning"></i>
+          Qualification Result
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="info-item text-center">
+              <label class="text-muted small text-uppercase fw-semibold">Qualified</label>
+              <div class="mt-2">
+                <span class="badge" [ngClass]="compliance.qualifiedTestModule ? 'bg-success' : 'bg-secondary'">
+                  <i class="bi" [ngClass]="compliance.qualifiedTestModule ? 'bi-check-circle' : 'bi-x-circle'"></i>
+                  {{ compliance.qualifiedTestModule ? 'Qualifié' : 'Non qualifié' }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="info-item text-center">
+              <label class="text-muted small text-uppercase fw-semibold">Conditionally Qualified</label>
+              <div class="mt-2">
+                <span class="badge" [ngClass]="compliance.conditionallyQualifiedTestModule ? 'bg-warning' : 'bg-secondary'">
+                  <i class="bi" [ngClass]="compliance.conditionallyQualifiedTestModule ? 'bi-exclamation-triangle' : 'bi-x-circle'"></i>
+                  {{ compliance.conditionallyQualifiedTestModule ? 'Conditionnel' : 'Non conditionnel' }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="info-item text-center">
+              <label class="text-muted small text-uppercase fw-semibold">Not Qualified</label>
+              <div class="mt-2">
+                <span class="badge" [ngClass]="compliance.notQualifiedTestModule ? 'bg-danger' : 'bg-secondary'">
+                  <i class="bi" [ngClass]="compliance.notQualifiedTestModule ? 'bi-x-octagon' : 'bi-check-circle'"></i>
+                  {{ compliance.notQualifiedTestModule ? 'Non qualifié' : 'OK' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARTE REMARQUES -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-white border-0 pt-4 pb-0">
+        <h5 class="mb-0">
+          <i class="bi bi-chat-dots me-2 text-secondary"></i>
+          Remarques
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="p-3 bg-light rounded">
+          <i class="bi bi-quote me-2 text-muted"></i>
+          {{ compliance.remarks || 'Aucune remarque' }}
+        </div>
+      </div>
+    </div>
+
+    <!-- CARTE INFORMATIONS SYSTÈME -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white border-0 pt-4 pb-0">
+        <h5 class="mb-0">
+          <i class="bi bi-gear me-2 text-secondary"></i>
+          Informations Système
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row g-4">
+          <div class="col-md-3">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Créé par</label>
+              <div><i class="bi bi-person me-1"></i>{{ compliance.createdBy || '-' }}</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Créé le</label>
+              <div><i class="bi bi-calendar me-1"></i>{{ compliance.createdAt | date:'dd/MM/yyyy HH:mm' }}</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Modifié par</label>
+              <div><i class="bi bi-person me-1"></i>{{ compliance.updatedBy || '-' }}</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Modifié le</label>
+              <div><i class="bi bi-calendar me-1"></i>{{ compliance.updatedAt | date:'dd/MM/yyyy HH:mm' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

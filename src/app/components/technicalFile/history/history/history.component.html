@@ -1,0 +1,45 @@
+<h2>Historique des modifications</h2>
+
+<table *ngIf="history.length > 0">
+  <thead>
+    <tr>
+      <th>Champ</th>
+      <th>Ancienne valeur</th>
+      <th>Nouvelle valeur</th>
+      <th>Modifié par</th>
+      <th>Date</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr *ngFor="let h of history">
+      <td>{{ h.fieldName }}</td>
+      <td class="old">{{ h.oldValue }}</td>
+      <td class="new">{{ h.newValue }}</td>
+      <td>{{ h.modifiedBy }}</td>
+      <td>{{ h.modifiedAt | date:'short' }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<p *ngIf="history.length === 0">Aucune modification</p>
+<h2>Historique des modifications</h2>
+
+<div *ngIf="history.length > 0" class="timeline">
+
+  <div *ngFor="let h of history" class="timeline-item">
+    <div class="timeline-header">
+      <span class="field">{{ h.fieldName }}</span>
+      <span class="date">{{ h.modifiedAt | date:'short' }}</span>
+    </div>
+
+    <div class="timeline-body">
+      <div class="old"><strong>Ancien:</strong> {{ h.oldValue || '—' }}</div>
+      <div class="new"><strong>Nouveau:</strong> {{ h.newValue || '—' }}</div>
+      <div class="user"><em>Modifié par:</em> {{ h.modifiedBy }}</div>
+    </div>
+  </div>
+
+</div>
+
+<p *ngIf="history.length === 0">Aucune modification</p>

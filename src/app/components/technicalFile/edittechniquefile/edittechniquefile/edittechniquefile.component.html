@@ -1,0 +1,163 @@
+<div class="tech-file-container">
+
+  <!-- ===== HEADER ===== -->
+  <div class="page-header">
+    <h1>
+      <i class="bi bi-pencil-square"></i>
+      {{ isItemMode ? 'Modifier un item' : 'Modifier un dossier' }}
+    </h1>
+    <div class="breadcrumb">
+      <a routerLink="/technical-files/list">📋 Dossiers techniques</a>
+      <i class="bi bi-chevron-right"></i>
+      <span class="current">{{ isItemMode ? '🔧 Item #' + itemId : '📁 Dossier #' + id }}</span>
+    </div>
+  </div>
+
+  <!-- ===== INFORMATIONS ===== -->
+  <div *ngIf="isItemMode" class="info-banner" style="background: #eef2ff; color: #1e3a5f; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; border-left: 4px solid #1e3a5f;">
+    <i class="bi bi-info-circle" style="font-size: 20px;"></i>
+    <span>Vous modifiez l'item #{{ itemId }} du dossier {{ fileReference }}</span>
+  </div>
+
+  <!-- ===== FORMULAIRE ===== -->
+  <form [formGroup]="form" (ngSubmit)="submit()" class="excel-form-container">
+
+    <!-- ===== TABLEAU UNIQUE AVEC TOUS LES CHAMPS ===== -->
+    <div class="excel-section">
+      <div class="section-header">
+        <h3><i class="bi bi-pencil-square"></i> Modification de l'item</h3>
+      </div>
+
+      <div class="excel-table-container">
+        <table class="excel-table master-table">
+          <!-- EN-TÊTE DU TABLEAU (4 LIGNES) -->
+          <thead>
+            <!-- LIGNE 1: GROUPES PRINCIPAUX -->
+            <tr class="group-header">
+              <th rowspan="4">#</th>
+              <th colspan="3">GÉNÉRAL</th>
+              <th colspan="5">CODE D'IDENTITÉ</th>
+              <th rowspan="4">Ref Push Back</th>
+              <th colspan="6">Verification test raideur pine Push Back</th>
+              <th colspan="6">Verification valeur étanchéité</th>
+              <th colspan="3">Détections</th>
+              <th rowspan="4">Remarques</th>
+            </tr>
+
+            <!-- LIGNE 2: SOUS-GROUPES POUR RAIDEUR ET ÉTANCHÉITÉ -->
+            <tr class="group-header">
+              <th colspan="3"></th>
+              <th colspan="5"></th>
+              <th colspan="3">Raideur des pins</th>
+              <th colspan="3">Displacement path (mm)</th>
+              <th colspan="3">Valeur maximale (mbar)</th>
+              <th colspan="3">Valeur programmée (mbar)</th>
+              <th colspan="3"></th>
+            </tr>
+
+            <!-- LIGNE 3: TITRES DES COLONNES -->
+            <tr class="group-header">
+              <!-- Général -->
+              <th>Position</th>
+              <th>Date</th>
+              <th>Technicien</th>
+
+              <!-- Code d'identité -->
+              <th>X_Code</th>
+              <th>Réf LEONI</th>
+              <th>Index</th>
+              <th>Prod.</th>
+              <th>Type</th>
+
+              <!-- Colonne vide pour Ref Push Back (déjà comptée) -->
+
+              <!-- Raideur et Displacement -->
+              <th>M1</th><th>M2</th><th>M3</th>
+              <th>M1</th><th>M2</th><th>M3</th>
+
+              <!-- Max et Programmé -->
+              <th>M1</th><th>M2</th><th>M3</th>
+              <th>M1</th><th>M2</th><th>M3</th>
+
+              <!-- Détections -->
+              <th>M1</th><th>M2</th><th>M3</th>
+            </tr>
+
+            <!-- LIGNE 4: SOUS-TITRES (VIDES POUR L'ALIGNEMENT) -->
+            <tr class="subgroup-header">
+              <th></th><th></th><th></th>
+              <th></th><th></th><th></th><th></th><th></th>
+              <th></th><th></th><th></th>
+              <th></th><th></th><th></th>
+              <th></th><th></th><th></th>
+              <th></th><th></th><th></th>
+              <th></th><th></th><th></th>
+            </tr>
+          </thead>
+
+          <!-- CORPS DU TABLEAU (UNE SEULE LIGNE) -->
+          <tbody>
+            <tr>
+              <!-- # -->
+              <td class="row-number">1</td>
+
+              <!-- GÉNÉRAL -->
+              <td><input type="text" class="excel-input" formControlName="position" placeholder="A12"></td>
+              <td><input type="date" class="excel-input" formControlName="maintenanceDate"></td>
+              <td><input type="text" class="excel-input" formControlName="technicianName" readonly></td>
+
+              <!-- CODE D'IDENTITÉ -->
+              <td><input type="text" class="excel-input" formControlName="xCode" placeholder="X12345"></td>
+              <td><input type="text" class="excel-input" formControlName="leoniReferenceNumber" placeholder="LEO-001"></td>
+              <td><input type="text" class="excel-input" formControlName="indexValue" placeholder="01"></td>
+              <td><input type="text" class="excel-input" formControlName="producer" placeholder="N/T"></td>
+              <td><input type="text" class="excel-input" formControlName="type" placeholder="T/F"></td>
+
+              <!-- REF PUSH BACK -->
+              <td><input type="text" class="excel-input" formControlName="referencePinePushBack" placeholder="REF-PB"></td>
+
+              <!-- RAIDEUR DES PINS -->
+              <td><input type="text" class="excel-input small-input" formControlName="pinRigidityM1" placeholder="8.5N"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="pinRigidityM2" placeholder="8.7N"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="pinRigidityM3" placeholder="8.6N"></td>
+
+              <!-- DISPLACEMENT PATH -->
+              <td><input type="text" class="excel-input small-input" formControlName="displacementPathM1" placeholder="1.2mm"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="displacementPathM2" placeholder="1.3mm"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="displacementPathM3" placeholder="1.1mm"></td>
+
+              <!-- MAX SEALING -->
+              <td><input type="text" class="excel-input small-input" formControlName="maxSealingValueM1" placeholder="0.5"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="maxSealingValueM2" placeholder="0.5"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="maxSealingValueM3" placeholder="0.5"></td>
+
+              <!-- PROGRAMMED SEALING -->
+              <td><input type="text" class="excel-input small-input" formControlName="programmedSealingValueM1" placeholder="0.6"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="programmedSealingValueM2" placeholder="0.6"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="programmedSealingValueM3" placeholder="0.6"></td>
+
+              <!-- DÉTECTIONS -->
+              <td><input type="text" class="excel-input small-input" formControlName="detectionsM1" placeholder="Activé"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="detectionsM2" placeholder="Activé"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="detectionsM3" placeholder="Désactivé"></td>
+
+              <!-- REMARQUES -->
+              <td><input type="text" class="excel-input" formControlName="remarks" placeholder="ETEDO04-02"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== BOUTONS ===== -->
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="goBack()">
+        <i class="bi bi-x-circle"></i> Annuler
+      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="form.invalid">
+        <i class="bi bi-check-circle"></i> Mettre à jour
+      </button>
+    </div>
+
+  </form>
+</div>

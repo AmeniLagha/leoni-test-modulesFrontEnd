@@ -1,0 +1,651 @@
+<div class="container-fluid px-4 py-4">
+  <!-- HEADER GRADIENT -->
+  <div class="card border-0 shadow-lg mb-4" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+          <h1 class="text-white mb-2">
+            <i class="bi bi-list-check me-2"></i>
+            Tous les items - Cahier #{{ chargeSheet?.id }}
+          </h1>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+              <li class="breadcrumb-item"><a routerLink="/charge-sheets/list" class="text-white text-decoration-none">Cahiers des charges</a></li>
+              <li class="breadcrumb-item"><a [routerLink]="['/charge-sheets', chargeSheetId]" class="text-white text-decoration-none">#{{ chargeSheetId }}</a></li>
+              <li class="breadcrumb-item active text-white-50">Tous les items</li>
+            </ol>
+          </nav>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-light" (click)="goBack()">
+            <i class="bi bi-arrow-left me-2"></i>Retour
+          </button>
+          <button class="btn btn-outline-light" (click)="exportToExcelWithImages()">
+            <i class="bi bi-file-earmark-excel me-2"></i>Export Excel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p class="text-muted mt-3">Chargement des items...</p>
+  </div>
+
+  <!-- ERROR -->
+  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error = null"></button>
+  </div>
+
+  <!-- CONTENU -->
+  <div *ngIf="!loading && !error && chargeSheet">
+
+    <!-- CARTE INFORMATIONS GÉNÉRALES -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-white border-0 pt-4 pb-0">
+        <h5 class="mb-0">
+          <i class="bi bi-info-circle me-2 text-primary"></i>
+          Informations générales
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row g-4">
+          <div class="col-md-3 col-sm-6">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Plant</label>
+              <div class="fw-semibold">{{ chargeSheet.plant }}</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Projet</label>
+              <div class="fw-semibold">{{ chargeSheet.project }}</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Harness Ref</label>
+              <div><code>{{ chargeSheet.harnessRef }}</code></div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Issued By</label>
+              <div>{{ chargeSheet.issuedBy }}</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Email</label>
+              <div><i class="bi bi-envelope me-1"></i>{{ chargeSheet.emailAddress }}</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Téléphone</label>
+              <div><i class="bi bi-telephone me-1"></i>{{ chargeSheet.phoneNumber }}</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">N° Commande</label>
+              <div>{{ chargeSheet.orderNumber }}</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Centre coût</label>
+              <div>{{ chargeSheet.costCenterNumber }}</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Date création</label>
+              <div><i class="bi bi-calendar me-1"></i>{{ chargeSheet.date | date:'dd/MM/yyyy' }}</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Livraison souhaitée</label>
+              <div><i class="bi bi-calendar-check me-1"></i>{{ chargeSheet.preferredDeliveryDate | date:'dd/MM/yyyy' }}</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <div class="info-item">
+              <label class="text-muted small text-uppercase fw-semibold">Statut</label>
+              <span class="badge" [ngClass]="getStatusBadgeClass(chargeSheet.status)">
+                <i class="bi" [ngClass]="getStatusIcon(chargeSheet.status)"></i>
+                {{ chargeSheetService.getStatusLabel(chargeSheet.status) }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tableau style Excel -->
+    <div *ngIf="chargeSheet.items && chargeSheet.items.length > 0;" class="card border-0 shadow-sm">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light">
+          <tr>
+            <th colspan="11">Général</th>
+            <th colspan="16">Housing Tests</th>
+            <th colspan="15">Fastening / Assembly</th>
+            <th colspan="19">Cable / Conduit</th>
+            <th colspan="40">Electrical / Tests</th>
+            <th colspan="2">Prix</th>
+            <th colspan="1">Actions</th>
+          </tr>
+          <!-- Sous-en-tête avec les noms des champs -->
+          <tr>
+            <!-- Général -->
+            <th>ID</th>
+            <th>Item</th>
+            <th>Échant.</th>
+            <th>Voies</th>
+            <th>Couleur</th>
+            <th>Module DB</th>
+            <th>Réf. Leoni</th>
+            <th>Réf. client</th>
+            <th>Réf. joints</th>
+             <!-- Image -->
+            <th>Photo</th>
+            <th>Quantité</th>
+
+            <!-- Housing (16 champs) -->
+            <th>Outside</th>
+            <th>Inside</th>
+            <th>Cover</th>
+            <th>Cover Closed</th>
+            <th>Cap</th>
+            <th>Bayonet</th>
+            <th>Bracket</th>
+            <th>Bracket Open</th>
+            <th>Bracket Closed</th>
+            <th>Latch</th>
+            <th>Slider</th>
+            <th>Slider Open</th>
+            <th>Slider Closed</th>
+            <th>Sec Lock</th>
+            <th>Sec Lock Open</th>
+            <th>Sec Lock Closed</th>
+
+            <!-- Fastening (15 champs) -->
+            <th>Offset</th>
+            <th>PushBack</th>
+            <th>Term Orient</th>
+            <th>Term Diff</th>
+            <th>Ring Term</th>
+            <th>Single Contact</th>
+            <th>HeatShrink</th>
+            <th>OpenShunts</th>
+            <th>FlowTest</th>
+            <th>SolidMetal</th>
+            <th>MetalAdj</th>
+            <th>MetalRails</th>
+            <th>MetalPlates</th>
+            <th>Spacer</th>
+            <th>Spring</th>
+
+            <!-- Cable (19 champs) -->
+            <th>CableTie</th>
+            <th>Tie Left</th>
+            <th>Tie Right</th>
+            <th>Tie Middle</th>
+            <th>Tie L/R</th>
+            <th>Clip</th>
+            <th>Screw</th>
+            <th>Nut</th>
+            <th>Conduit</th>
+            <th>Conduit Closed</th>
+            <th>Channel</th>
+            <th>Channel Closed</th>
+            <th>Grommet</th>
+            <th>Grommet Orient</th>
+            <th>OneSideShield</th>
+            <th>AntennaPres</th>
+            <th>AntennaShield</th>
+            <th>AntennaCore</th>
+            <th>OtherDetect</th>
+
+            <!-- Electrical (40 champs) -->
+            <th>MechCoding</th>
+            <th>ElecCoding</th>
+            <th>Airbag</th>
+            <th>LeakPress</th>
+            <th>LeakVac</th>
+            <th>LeakComplex</th>
+            <th>PinStraight</th>
+            <th>Contrast</th>
+            <th>ColourDetect</th>
+            <th>ColourPrep</th>
+            <th>AttenWith</th>
+            <th>AttenWithout</th>
+            <th>Insulation</th>
+            <th>HVModule</th>
+            <th>KelvinHV</th>
+            <th>ActuatorHV</th>
+            <th>ChargingSys</th>
+            <th>PTU</th>
+            <th>GTU</th>
+            <th>LED</th>
+            <th>TIG</th>
+            <th>LIN</th>
+            <th>CAN</th>
+            <th>ESD</th>
+            <th>FixedBlock</th>
+            <th>MovingBlock</th>
+            <th>Tilt</th>
+            <th>Slide</th>
+            <th>HandAdapter</th>
+            <th>LSM</th>
+            <th>LeoniStd</th>
+            <th>QuickConn</th>
+            <th>TestBoard</th>
+            <th>WEETECH</th>
+            <th>BAK</th>
+            <th>OGC</th>
+            <th>Adaptronic</th>
+            <th>EMDEP</th>
+            <th>LEONI EMO</th>
+            <th>ClipOrient</th>
+
+            <!-- Prix -->
+            <th>Prix unitaire</th>
+            <th>Prix total</th>
+
+
+
+            <!-- Actions -->
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let item of chargeSheet.items; let i = index">
+            <!-- Général -->
+            <td class="fw-semibold text-primary">{{ item.id }}</td>
+            <td><span class="badge bg-secondary"></span>#{{ item.itemNumber }}</td>
+            <td>{{ item.samplesExist === 'Yes' ? 'Oui' : 'Non' }}</td>
+            <td>{{ item.ways || '-' }}</td>
+            <td><span class="badge" [ngClass]="getColourBadge(item.housingColour)">{{ item.housingColour || '-' }}</span></td>
+            <td>{{ item.testModuleExistInDatabase === 'Yes' ? 'Oui' : 'Non' }}</td>
+            <td>{{ item.housingReferenceLeoni || '-' }}</td>
+            <td>{{ item.housingReferenceSupplierCustomer || '-' }}</td>
+            <td>{{ item.referenceSealsClipsCableTiesCap || '-' }}</td>
+             <td>
+              <div *ngIf="itemImages[item.id!]" class="position-relative d-inline-block">
+                <img [src]="itemImages[item.id!]"
+                     alt="Connecteur"
+                    class="img-thumbnail" style="width: 40px; height: 40px; object-fit: cover; cursor: pointer;"
+                     (click)="openImageModal(itemImages[item.id!])">
+              </div>
+              <span *ngIf="!itemImages[item.id!]" class="text-muted">-</span>
+            </td>
+            <td><span class="badge bg-info">{{ item.quantityOfTestModules || 0 }}</span></td>
+
+            <!-- Housing -->
+            <td>{{ formatFieldValue(item, 'outsideHousingExist') }}</td>
+            <td>{{ formatFieldValue(item, 'insideHousingExist') }}</td>
+            <td>{{ formatFieldValue(item, 'coverHoodExist') }}</td>
+            <td>{{ formatFieldValue(item, 'coverHoodClosed') }}</td>
+            <td>{{ formatFieldValue(item, 'capExist') }}</td>
+            <td>{{ formatFieldValue(item, 'bayonetCapExist') }}</td>
+            <td>{{ formatFieldValue(item, 'bracketExist') }}</td>
+            <td>{{ formatFieldValue(item, 'bracketOpen') }}</td>
+            <td>{{ formatFieldValue(item, 'bracketClosed') }}</td>
+            <td>{{ formatFieldValue(item, 'latchWingExist') }}</td>
+            <td>{{ formatFieldValue(item, 'sliderExist') }}</td>
+            <td>{{ formatFieldValue(item, 'sliderOpen') }}</td>
+            <td>{{ formatFieldValue(item, 'sliderClosed') }}</td>
+            <td>{{ formatFieldValue(item, 'secondaryLockExist') }}</td>
+            <td>{{ formatFieldValue(item, 'secondaryLockOpen') }}</td>
+            <td>{{ formatFieldValue(item, 'secondaryLockClosed') }}</td>
+
+            <!-- Fastening -->
+            <td>{{ formatFieldValue(item, 'offsetTest') }}</td>
+            <td>{{ formatFieldValue(item, 'pushBackTest') }}</td>
+            <td>{{ formatFieldValue(item, 'terminalOrientation') }}</td>
+            <td>{{ formatFieldValue(item, 'terminalDifferentiation') }}</td>
+            <td>{{ formatFieldValue(item, 'ringTerminal') }}</td>
+            <td>{{ formatFieldValue(item, 'singleContact') }}</td>
+            <td>{{ formatFieldValue(item, 'heatShrinkExist') }}</td>
+            <td>{{ formatFieldValue(item, 'openShuntsAirbag') }}</td>
+            <td>{{ formatFieldValue(item, 'flowTest') }}</td>
+            <td>{{ formatFieldValue(item, 'solidMetalContour') }}</td>
+            <td>{{ formatFieldValue(item, 'metalContourAdjustable') }}</td>
+            <td>{{ formatFieldValue(item, 'metalRailsFasteningSystem') }}</td>
+            <td>{{ formatFieldValue(item, 'metalPlatesFasteningSystem') }}</td>
+            <td>{{ formatFieldValue(item, 'spacerClosingUnit') }}</td>
+            <td>{{ formatFieldValue(item, 'spring') }}</td>
+
+            <!-- Cable -->
+            <td>{{ formatFieldValue(item, 'cableTieExist') }}</td>
+            <td>{{ formatFieldValue(item, 'cableTieLeft') }}</td>
+            <td>{{ formatFieldValue(item, 'cableTieRight') }}</td>
+            <td>{{ formatFieldValue(item, 'cableTieMiddle') }}</td>
+            <td>{{ formatFieldValue(item, 'cableTieLeftRight') }}</td>
+            <td>{{ formatFieldValue(item, 'clipExist') }}</td>
+            <td>{{ formatFieldValue(item, 'screwExist') }}</td>
+            <td>{{ formatFieldValue(item, 'nutExist') }}</td>
+            <td>{{ formatFieldValue(item, 'convolutedConduitExist') }}</td>
+            <td>{{ formatFieldValue(item, 'convolutedConduitClosed') }}</td>
+            <td>{{ formatFieldValue(item, 'cableChannelExist') }}</td>
+            <td>{{ formatFieldValue(item, 'cableChannelClosed') }}</td>
+            <td>{{ formatFieldValue(item, 'grommetExist') }}</td>
+            <td>{{ formatFieldValue(item,'grommetOrientation' )}}</td>
+            <td>{{ formatFieldValue(item, 'presenceTestOfOneSideConnectedShield') }}</td>
+            <td>{{ formatFieldValue(item, 'antennaOnlyPresenceTest') }}</td>
+            <td>{{ formatFieldValue(item, 'antennaOnlyContactingOfShield') }}</td>
+            <td>{{ formatFieldValue(item, 'antennaContactingOfShieldAndCoreWire') }}</td>
+            <td>{{ formatFieldValue(item, 'otherDetection') }}</td>
+
+            <!-- Electrical -->
+            <td>{{ formatFieldValue(item, 'mechanicalCoding') }}</td>
+            <td>{{ formatFieldValue(item, 'electricalCoding') }}</td>
+            <td>{{ formatFieldValue(item, 'airbagTestViaServiceWindow') }}</td>
+            <td>{{ formatFieldValue(item, 'leakTestPressure') }}</td>
+            <td>{{ formatFieldValue(item, 'leakTestVacuum') }}</td>
+            <td>{{ formatFieldValue(item, 'leakTestComplex') }}</td>
+            <td>{{ formatFieldValue(item, 'pinStraightnessCheck') }}</td>
+            <td>{{ formatFieldValue(item, 'contrastDetectionGreyValueSensor') }}</td>
+            <td>{{ formatFieldValue(item, 'colourDetection') }}</td>
+            <td>{{ formatFieldValue(item, 'colourDetectionPrepared') }}</td>
+            <td>{{ formatFieldValue(item, 'attenuationWithModeScrambler') }}</td>
+            <td>{{ formatFieldValue(item, 'attenuationWithoutModeScrambler') }}</td>
+            <td>{{ formatFieldValue(item, 'insulationResistance') }}</td>
+            <td>{{ formatFieldValue(item, 'highVoltageModule') }}</td>
+            <td>{{ formatFieldValue(item, 'kelvinMeasurementHV') }}</td>
+            <td>{{ formatFieldValue(item, 'actuatorTestHV') }}</td>
+            <td>{{ formatFieldValue(item, 'chargingSystemElectrical') }}</td>
+            <td>{{ formatFieldValue(item, 'ptuPipeTestUnit') }}</td>
+            <td>{{ formatFieldValue(item, 'gtuGrommetTestUnit') }}</td>
+            <td>{{ formatFieldValue(item, 'ledLEDTestModule') }}</td>
+            <td>{{ formatFieldValue(item, 'tigTerminalInsertionGuidance') }}</td>
+            <td>{{ formatFieldValue(item, 'linBusFunctionalityTest') }}</td>
+            <td>{{ formatFieldValue(item, 'canBusFunctionalityTest') }}</td>
+            <td>{{ formatFieldValue(item, 'esdConformModule') }}</td>
+            <td>{{ formatFieldValue(item, 'fixedBlock') }}</td>
+            <td>{{ formatFieldValue(item, 'movingBlock') }}</td>
+            <td>{{ formatFieldValue(item, 'tiltModule') }}</td>
+            <td>{{ formatFieldValue(item, 'slideModule') }}</td>
+            <td>{{ formatFieldValue(item, 'handAdapter') }}</td>
+            <td>{{ formatFieldValue(item, 'lsmLeoniSmartModule') }}</td>
+            <td>{{ formatFieldValue(item, 'leoniStandardTestTable') }}</td>
+            <td>{{ formatFieldValue(item, 'quickConnectionByCanonConnector') }}</td>
+            <td>{{ formatFieldValue(item,'testBoard')}}</td>
+            <td>{{ formatFieldValue(item, 'weetech') }}</td>
+            <td>{{ formatFieldValue(item, 'bak') }}</td>
+            <td>{{ formatFieldValue(item, 'ogc') }}</td>
+            <td>{{ formatFieldValue(item, 'adaptronicHighVoltage') }}</td>
+            <td>{{ formatFieldValue(item, 'emdepHVBananaPlug') }}</td>
+            <td>{{ formatFieldValue(item, 'leoniEMOStandardHV') }}</td>
+            <td>{{formatFieldValue(item,'clipOrientation') }}</td>
+
+            <!-- Prix -->
+            <td>{{ item.unitPrice ? (item.unitPrice | number:'1.2-2') : '-' }}</td>
+            <td>{{ item.totalPrice ? (item.totalPrice | number:'1.2-2') : '-' }}</td>
+
+            <!-- Image -->
+
+
+            <!-- Actions -->
+            <!-- Actions -->
+<td class="actions-cell">
+   <div class="btn-group btn-group-sm">
+    <!-- Fiche conformité - visible si l'utilisateur a la permission -->
+    <button *ngIf="canCreateCompliance"  class="btn btn-outline-success"
+            (click)="goToCreateConforme(item)" title="Fiche conformité">
+       <i class="bi bi-file-earmark-check"></i>
+    </button>
+
+    <div class="btn-group" *ngIf="canCreatetechnicalfile">
+                      <button class="btn btn-outline-warning" (click)="createNewTechnicalFile(item)" title="Nouveau dossier">
+                        <i class="bi bi-plus-circle"></i>
+                      </button>
+                      <button class="btn btn-outline-info" (click)="openAddToExistingModal(item)" title="Ajouter à dossier existant">
+                        <i class="bi bi-folder-plus"></i>
+                      </button>
+                    </div>
+                    <button class="btn btn-outline-secondary" [routerLink]="['/charge-sheets', chargeSheetId, 'receptions']" [queryParams]="{ itemId: item.id }" title="Historique réceptions">
+                      <i class="bi bi-truck"></i>
+                    </button>
+                  </div>
+                </td>
+
+          </tr>
+        </tbody>
+      </table>
+       <ng-template #noItems>
+      <div class="text-center py-5">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body py-5">
+            <i class="bi bi-inbox display-1 text-muted"></i>
+            <h3 class="mt-3 text-muted">Aucun item</h3>
+            <p class="text-muted">Ce cahier des charges ne contient aucun item.</p>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+    </div>
+
+
+  <!-- Modal pour sélectionner un dossier existant -->
+  <div class="modal" [class.show]="showModal" *ngIf="showModal">
+    <!-- ... (contenu de la modal inchangé) ... -->
+  </div>
+</div>
+<!-- Modal pour ajouter à un dossier existant -->
+<div class="modal" [class.show]="showModal" *ngIf="showModal" style="display: block; background: rgba(0,0,0,0.5); position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1050;">
+  <div class="modal-dialog modal-xl" style="margin: 2rem auto; max-width: 1400px;">
+    <div class="modal-content" style="background: white; border-radius: 12px; overflow: hidden;">
+
+      <!-- En-tête -->
+      <div class="modal-header" style="padding: 1rem 1.5rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+        <h5 class="modal-title" style="margin: 0; font-size: 1.2rem; color: #1e293b;">
+          <i class="bi bi-folder-plus" style="margin-right: 0.5rem; color: #3498db;"></i>
+          Ajouter l'item #{{ currentItem?.itemNumber }} à un dossier existant
+        </h5>
+        <button type="button" class="btn-close" (click)="closeModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">×</button>
+      </div>
+
+      <!-- Corps de la modal -->
+      <div class="modal-body" style="padding: 1.5rem; max-height: 80vh; overflow-y: auto;">
+
+        <!-- Étape 1: Sélection du dossier -->
+        <div style="margin-bottom: 2rem;">
+          <h6 style="margin-bottom: 1rem; color: #2c3e50; font-weight: 600;">
+            <span style="background: #3498db; color: white; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; margin-right: 0.5rem; font-size: 0.9rem;">1</span>
+            Sélectionner un dossier
+          </h6>
+
+          <div *ngIf="availableTechnicalFiles.length === 0" class="text-center p-4" style="background: #f8fafc; border-radius: 8px;">
+            <i class="bi bi-folder" style="font-size: 3rem; color: #94a3b8;"></i>
+            <p class="mt-2" style="color: #64748b;">Aucun dossier technique disponible</p>
+            <button class="btn btn-primary" (click)="createNewTechnicalFile(currentItem!)" style="background: #3498db;">
+              <i class="bi bi-plus-circle"></i> Créer un nouveau dossier
+            </button>
+          </div>
+
+          <div *ngIf="availableTechnicalFiles.length > 0" style="display: flex; flex-direction: column; gap: 0.75rem; max-height: 250px; overflow-y: auto;">
+            <div *ngFor="let file of availableTechnicalFiles"
+                 (click)="selectedTechnicalFileId = file.id"
+                 style="display: flex; gap: 1rem; padding: 1rem; border: 2px solid; border-color: {{ selectedTechnicalFileId === file.id ? '#3498db' : '#e2e8f0' }}; border-radius: 8px; cursor: pointer; background: white;">
+              <div>
+                <input type="radio"
+                       name="technicalFile"
+                       [value]="file.id"
+                       [checked]="selectedTechnicalFileId === file.id"
+                       (change)="selectedTechnicalFileId = file.id"
+                       style="width: 18px; height: 18px;">
+              </div>
+              <div style="flex: 1;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                  <span style="font-weight: 600; color: #3498db;">#{{ file.id }}</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; font-size: 0.9rem;">
+                  <span><strong>Réf:</strong> {{ file.reference || '-' }}</span>
+                  <span><strong>Items:</strong> {{ file.itemCount || 0 }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Étape 2: Formulaire (visible seulement si un dossier est sélectionné) -->
+        <div *ngIf="selectedTechnicalFileId" style="border-top: 1px solid #e2e8f0; padding-top: 1.5rem;">
+          <h6 style="margin-bottom: 1rem; color: #2c3e50; font-weight: 600;">
+            <span style="background: #3498db; color: white; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; margin-right: 0.5rem; font-size: 0.9rem;">2</span>
+            Saisir les valeurs pour l'item #{{ currentItem?.itemNumber }}
+          </h6>
+
+          <form [formGroup]="itemForm">
+            <!-- Dans la modal, remplacez tout le contenu du tableau par ceci -->
+<div style="overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
+  <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 1400px;">
+    <thead>
+      <tr style="background: #f1f5f9;">
+        <th rowspan="2" style="padding: 0.75rem; border: 1px solid #e2e8f0;">ID Item</th>
+        <th rowspan="2" style="padding: 0.75rem; border: 1px solid #e2e8f0;">Technicien</th>
+        <th rowspan="2" style="padding: 0.75rem; border: 1px solid #e2e8f0;">Date</th>
+        <th rowspan="2" style="padding: 0.75rem; border: 1px solid #e2e8f0;">X Code</th>
+        <th rowspan="2" style="padding: 0.75rem; border: 1px solid #e2e8f0;">Leoni Ref</th>
+        <th rowspan="2" style="padding: 0.75rem; border: 1px solid #e2e8f0;">Index</th>
+        <th rowspan="2" style="padding: 0.75rem; border: 1px solid #e2e8f0;">Producer</th>
+        <th rowspan="2" style="padding: 0.75rem; border: 1px solid #e2e8f0;">Type</th>
+        <th rowspan="2" style="padding: 0.75rem; border: 1px solid #e2e8f0;">Ref PB</th>
+        <th rowspan="2" style="padding: 0.75rem; border: 1px solid #e2e8f0;">Position</th>
+        <th colspan="3" style="padding: 0.75rem; border: 1px solid #e2e8f0; background: #cbd5e1;">Raideur des pins</th>
+        <th colspan="3" style="padding: 0.75rem; border: 1px solid #e2e8f0; background: #cbd5e1;">Déplacement</th>
+        <th colspan="3" style="padding: 0.75rem; border: 1px solid #e2e8f0; background: #cbd5e1;">Max sealing</th>
+        <th colspan="3" style="padding: 0.75rem; border: 1px solid #e2e8f0; background: #cbd5e1;">Programmed sealing</th>
+        <th colspan="3" style="padding: 0.75rem; border: 1px solid #e2e8f0; background: #cbd5e1;">Détections</th>
+        <th rowspan="2" style="padding: 0.75rem; border: 1px solid #e2e8f0;">Remarques</th>
+      </tr>
+      <tr style="background: #e2e8f0;">
+        <th style="padding: 0.5rem; border: 1px solid #e2e8f0;">M1</th>
+        <th style="padding: 0.5rem; border: 1px solid #e2e8f0;">M2</th>
+        <th style="padding: 0.5rem; border: 1px solid #e2e8f0;">M3</th>
+        <th style="padding: 0.5rem; border: 1px solid #e2e8f0;">M1</th>
+        <th style="padding: 0.5rem; border: 1px solid #e2e8f0;">M2</th>
+        <th style="padding: 0.5rem; border: 1px solid #e2e8f0;">M3</th>
+        <th style="padding: 0.5rem; border: 1px solid #e2e8f0;">M1</th>
+        <th style="padding: 0.5rem; border: 1px solid #e2e8f0;">M2</th>
+        <th style="padding: 0.5rem; border: 1px solid #e2e8f0;">M3</th>
+        <th style="padding: 0.5rem; border: 1px solid #e2e8f0;">M1</th>
+        <th style="padding: 0.5rem; border: 1px solid #e2e8f0;">M2</th>
+        <th style="padding: 0.5rem; border: 1px solid #e2e8f0;">M3</th>
+        <th style="padding: 0.5rem; border: 1px solid #e2e8f0;">M1</th>
+        <th style="padding: 0.5rem; border: 1px solid #e2e8f0;">M2</th>
+        <th style="padding: 0.5rem; border: 1px solid #e2e8f0;">M3</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="padding: 0.5rem; border: 1px solid #e2e8f0; font-weight: 600; color: #3498db;">
+          {{ currentItem?.id }}
+        </td>
+        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">
+          <input type="text" formControlName="technicianName" style="width: 100%; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px;" readonly>
+        </td>
+        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">
+          <input type="date" formControlName="maintenanceDate" style="width: 100%; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px;">
+        </td>
+        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">
+          <input type="text" formControlName="xCode" placeholder="X12345" style="width: 100%; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px;">
+        </td>
+        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">
+          <input type="text" formControlName="leoniReferenceNumber" placeholder="LEO-001" style="width: 100%; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px;" readonly>
+        </td>
+        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">
+          <input type="text" formControlName="indexValue" placeholder="01" style="width: 100%; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px;" readonly>
+        </td>
+        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">
+          <input type="text" formControlName="producer" placeholder="N/T" style="width: 100%; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px;" readonly>
+        </td>
+        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">
+          <input type="text" formControlName="type" placeholder="T/F" style="width: 100%; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px;" readonly>
+        </td>
+        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">
+          <input type="text" formControlName="referencePinePushBack" placeholder="REF-PB" style="width: 100%; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px;">
+        </td>
+        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">
+          <input type="text" formControlName="position" placeholder="A12" style="width: 100%; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px;">
+        </td>
+        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">
+          <input type="text" formControlName="pinRigidityM1" placeholder="8.5" style="width: 100%; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px; text-align: center;">
+        </td>
+        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">
+          <input type="text" formControlName="pinRigidityM2" placeholder="8.7" style="width: 100%; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px; text-align: center;">
+        </td>
+        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">
+          <input type="text" formControlName="pinRigidityM3" placeholder="8.6" style="width: 100%; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px; text-align: center;">
+        </td>
+        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">
+          <input type="text" formControlName="displacementPathM1" placeholder="1.2" style="width: 100%; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px; text-align: center;">
+        </td>
+        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">
+          <input type="text" formControlName="displacementPathM2" placeholder="1.3" style="width: 100%; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px; text-align: center;">
+        </td>
+        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">
+          <input type="text" formControlName="displacementPathM3" placeholder="1.1" style="width: 100%; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px; text-align: center;">
+        </td>
+        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">
+          <input type="text" formControlName="maxSealingValueM1" placeholder="0.5" style="width: 100%; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px; text-align: center;">
+        </td>
+        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">
+          <input type="text" formControlName="maxSealingValueM2" placeholder="0.5" style="width: 100%; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px; text-align: center;">
+        </td>
+        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">
+          <input type="text" formControlName="maxSealingValueM3" placeholder="0.5" style="width: 100%; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px; text-align: center;">
+        </td>
+        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">
+          <input type="text" formControlName="programmedSealingValueM1" placeholder="0.6" style="width: 100%; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px; text-align: center;">
+        </td>
+        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">
+          <input type="text" formControlName="programmedSealingValueM2" placeholder="0.6" style="width: 100%; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px; text-align: center;">
+        </td>
+        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">
+          <input type="text" formControlName="programmedSealingValueM3" placeholder="0.6" style="width: 100%; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px; text-align: center;">
+        </td>
+        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">
+          <input type="text" formControlName="detectionsM1" placeholder="Activé" style="width: 100%; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px; text-align: center;">
+        </td>
+        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">
+          <input type="text" formControlName="detectionsM2" placeholder="Activé" style="width: 100%; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px; text-align: center;">
+        </td>
+        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">
+          <input type="text" formControlName="detectionsM3" placeholder="Désactivé" style="width: 100%; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px; text-align: center;">
+        </td>
+        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">
+          <input type="text" formControlName="remarks" placeholder="Remarques..." style="width: 100%; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px;">
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+            <!-- Boutons -->
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+              <button type="button" class="btn-cancel" (click)="closeModal()" style="padding: 0.6rem 1.2rem; border: 1px solid #cbd5e1; background: white; border-radius: 8px; cursor: pointer;">
+                Annuler
+              </button>
+              <button type="button" class="btn-save" (click)="addToExistingTechnicalFile()" [disabled]="itemForm.invalid" style="padding: 0.6rem 1.2rem; background: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                Ajouter
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,207 @@
+<!-- detailstechfile.component.html -->
+<h2 class="title" *ngIf="item">Détail de l'item #{{ item.itemNumber || item.id }}</h2>
+
+<div class="tech-file-detail-container" *ngIf="item && !loading && !error">
+
+  <!-- Informations du dossier parent (si existe) -->
+  <div class="excel-section" *ngIf="parentFile">
+    <div class="section-header">
+      <h3><i class="bi bi-folder"></i> Dossier parent #{{ parentFile.id }}</h3>
+    </div>
+    <div class="excel-table-container">
+      <table class="excel-table info-table">
+        <thead>
+          <tr>
+            <th>Date Maintenance</th>
+            <th>Technicien</th>
+            <th>X Code</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ parentFile.maintenanceDate | date:'dd/MM/yyyy' }}</td>
+            <td>{{ parentFile.technicianName }}</td>
+            <td>{{ parentFile.xCode || '-' }}</td>
+            <td>
+              <span class="status-badge" [class]="'status-' + (parentFile.status || 'draft').toLowerCase()">
+                {{ parentFile.status || 'DRAFT' }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== INFORMATIONS DE L'ITEM ===== -->
+  <div class="excel-section">
+    <div class="section-header">
+      <h3><i class="bi bi-info-circle"></i> Informations de l'item</h3>
+    </div>
+
+    <div class="excel-table-container">
+      <table class="excel-table item-info-table">
+        <thead>
+          <tr>
+            <th>Position</th>
+            <th>ChargeSheetItemId</th>
+            <th>Créé par</th>
+            <th>Créé le</th>
+            <th>Modifié par</th>
+            <th>Modifié le</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ item.position || '-' }}</td>
+            <td>{{ item.chargeSheetItemId || '-' }}</td>
+            <td>{{ item.createdBy || '-' }}</td>
+            <td>{{ item.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ item.updatedBy || '-' }}</td>
+            <td>{{ item.updatedAt | date:'dd/MM/yyyy HH:mm' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== RAIDURE DES PINS ===== -->
+  <div class="excel-section">
+    <div class="section-header">
+      <h3><i class="bi bi-activity"></i> Raideur des pins</h3>
+    </div>
+    <div class="excel-table-container">
+      <table class="excel-table">
+        <thead>
+          <tr><th>M1</th><th>M2</th><th>M3</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ item.pinRigidityM1 || '-' }}</td>
+            <td>{{ item.pinRigidityM2 || '-' }}</td>
+            <td>{{ item.pinRigidityM3 || '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== DÉPLACEMENT ===== -->
+  <div class="excel-section">
+    <div class="section-header">
+      <h3><i class="bi bi-arrow-left-right"></i> Déplacement</h3>
+    </div>
+    <div class="excel-table-container">
+      <table class="excel-table">
+        <thead>
+          <tr><th>M1</th><th>M2</th><th>M3</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ item.displacementPathM1 || '-' }}</td>
+            <td>{{ item.displacementPathM2 || '-' }}</td>
+            <td>{{ item.displacementPathM3 || '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== MAX SEALING ===== -->
+  <div class="excel-section">
+    <div class="section-header">
+      <h3><i class="bi bi-water"></i> Max sealing</h3>
+    </div>
+    <div class="excel-table-container">
+      <table class="excel-table">
+        <thead>
+          <tr><th>M1</th><th>M2</th><th>M3</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ item.maxSealingValueM1 || '-' }}</td>
+            <td>{{ item.maxSealingValueM2 || '-' }}</td>
+            <td>{{ item.maxSealingValueM3 || '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== PROGRAMMED SEALING ===== -->
+  <div class="excel-section">
+    <div class="section-header">
+      <h3><i class="bi bi-calendar-check"></i> Programmed sealing</h3>
+    </div>
+    <div class="excel-table-container">
+      <table class="excel-table">
+        <thead>
+          <tr><th>M1</th><th>M2</th><th>M3</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ item.programmedSealingValueM1 || '-' }}</td>
+            <td>{{ item.programmedSealingValueM2 || '-' }}</td>
+            <td>{{ item.programmedSealingValueM3 || '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== DÉTECTIONS ===== -->
+  <div class="excel-section">
+    <div class="section-header">
+      <h3><i class="bi bi-eye"></i> Détections</h3>
+    </div>
+    <div class="excel-table-container">
+      <table class="excel-table">
+        <thead>
+          <tr><th>M1</th><th>M2</th><th>M3</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ item.detectionsM1 || '-' }}</td>
+            <td>{{ item.detectionsM2 || '-' }}</td>
+            <td>{{ item.detectionsM3 || '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== REMARQUES ===== -->
+  <div class="excel-section" *ngIf="item.remarks">
+    <div class="section-header">
+      <h3><i class="bi bi-chat"></i> Remarques</h3>
+    </div>
+    <div class="remarks-box">
+      {{ item.remarks }}
+    </div>
+  </div>
+
+  <!-- Boutons d'action -->
+  <div class="form-actions">
+    <button class="btn btn-secondary" (click)="goBack()">
+      <i class="bi bi-arrow-left"></i> Retour
+    </button>
+    <button class="btn btn-primary" (click)="moveToStock()">
+      <i class="bi bi-box"></i> Déplacer en stock
+    </button>
+  </div>
+
+</div>
+
+<!-- Loading -->
+<div *ngIf="loading" class="loading-container">
+  <div class="spinner"></div>
+  <p>Chargement de l'item...</p>
+</div>
+
+<!-- Error -->
+<div *ngIf="error" class="error-container">
+  <i class="bi bi-exclamation-triangle-fill"></i>
+  <p>{{ error }}</p>
+  <button class="btn btn-secondary" (click)="goBack()">Retour</button>
+</div>

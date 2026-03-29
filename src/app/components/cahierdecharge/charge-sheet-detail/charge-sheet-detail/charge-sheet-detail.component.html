@@ -1,0 +1,56 @@
+<div *ngIf="loading" class="loading">Chargement...</div>
+<div *ngIf="error" class="error">{{ error }}</div>
+
+<div *ngIf="!loading && chargeSheet" class="detail-container">
+  <h2>Cahier de Charge - ID: {{ chargeSheet.id }}</h2>
+  <a routerLink="/charge-sheets/list" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i>
+        Retour
+      </a>
+
+  <!-- Section Base -->
+  <h4>Informations de Base</h4>
+  <table class="detail-table">
+    <tbody>
+      <tr *ngFor="let field of getFields(chargeSheet.basic)">
+        <th>{{ formatLabel(field[0]) }}</th>
+        <td>{{ field[1] || '-' }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Section Technique -->
+  <div *ngIf="chargeSheet.tech">
+    <h4>Détails Techniques</h4>
+    <table class="detail-table">
+      <tbody>
+        <tr *ngFor="let field of getFields(chargeSheet.tech)">
+          <th>{{ formatLabel(field[0]) }}
+</th>
+          <td>{{ field[1] || '-' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Autres champs -->
+  <div *ngIf="chargeSheet">
+    <h4>Autres Informations</h4>
+    <table class="detail-table">
+      <tbody>
+       <tr *ngFor="let field of getFields(chargeSheet)">
+  <th>{{ field[0] | titlecase }}</th>
+  <td>
+    <ng-container *ngIf="field[0] === 'realConnectorPicture' && imageUrls[field[0]]">
+      <img [src]="imageUrls[field[0]]" alt="Connecteur" class="detail-image"/>
+    </ng-container>
+    <ng-container *ngIf="field[0] !== 'realConnectorPicture' || !imageUrls[field[0]]">
+      {{ field[1] || '-' }}
+    </ng-container>
+  </td>
+</tr>
+
+      </tbody>
+    </table>
+  </div>
+</div>

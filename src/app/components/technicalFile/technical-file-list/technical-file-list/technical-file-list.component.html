@@ -1,0 +1,402 @@
+<div class="tech-file-container">
+  <!-- ===== HEADER ===== -->
+  <div class="page-header">
+    <h1>
+      <i class="bi bi-folder"></i>
+      Dossiers techniques
+      <span class="badge-count" *ngIf="!loading && filteredFiles.length">{{ filteredFiles.length }}</span>
+    </h1>
+    <div class="header-actions">
+      <button class="btn btn-primary" routerLink="/technical-files/create">
+        <i class="bi bi-plus-circle"></i> Nouveau dossier
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== BARRE DE RECHERCHE ===== -->
+  <div class="search-bar" style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+    <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+      <i class="bi bi-search" style="color: #1e3a5f; font-size: 18px;"></i>
+      <input type="text"
+             class="search-input"
+             [(ngModel)]="searchTerm"
+             (ngModelChange)="applyFilter()"
+             placeholder="Rechercher par référence..."
+             style="flex: 1; padding: 10px 15px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; outline: none; transition: all 0.2s;">
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <span style="background: #f1f5f9; color: #1e293b; padding: 6px 12px; border-radius: 20px; font-size: 13px; display: flex; align-items: center; gap: 5px;">
+        <i class="bi bi-folder"></i> {{ filteredFiles.length }} / {{ technicalFiles.length }}
+      </span>
+      <button class="btn-clear" *ngIf="searchTerm" (click)="clearSearch()"
+              style="background: #fee2e2; color: #b91c1c; border: none; padding: 8px 15px; border-radius: 6px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+        <i class="bi bi-x-circle"></i> Effacer
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== LOADING / ERROR ===== -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Chargement des dossiers techniques...</p>
+  </div>
+
+  <div *ngIf="error" class="error-container">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <span>{{ error }}</span>
+  </div>
+
+  <!-- ===== LISTE DES DOSSIERS ===== -->
+  <div *ngIf="!loading && !error && filteredFiles.length > 0" class="folders-list">
+
+    <!-- Carte pour chaque dossier -->
+    <div *ngFor="let file of filteredFiles" class="folder-card">
+
+      <!-- En-tête du dossier (cliquable) -->
+      <div class="folder-header" [class.expanded]="expandedFolders[file.id]" (click)="toggleFolder(file.id)">
+        <div class="folder-title">
+          <i class="bi" [ngClass]="expandedFolders[file.id] ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
+          <h3>
+            <i class="bi bi-folder2"></i>
+            <!-- Édition inline de la référence -->
+            <span *ngIf="editingRefId !== file.id" class="reference-text">
+              <span [innerHTML]="highlightText(file.reference || 'Sans réf')"></span>
+              <button class="btn-icon-small btn-edit-ref" (click)="startEditReference(file); $event.stopPropagation()" title="Modifier la référence">
+                <i class="bi bi-pencil"></i>
+              </button>
+            </span>
+            <span *ngIf="editingRefId === file.id" class="reference-edit" (click)="$event.stopPropagation()">
+              <input #refInput type="text" [(ngModel)]="editRefValue" class="ref-input"
+                     placeholder="Nouvelle référence"
+                     (keyup.enter)="saveReferenceInline(file.id)"
+                     (keyup.escape)="cancelEditReference()">
+              <button class="btn-icon-small btn-save" (click)="saveReferenceInline(file.id)" title="Enregistrer">
+                <i class="bi bi-check-lg"></i>
+              </button>
+              <button class="btn-icon-small btn-cancel" (click)="cancelEditReference()" title="Annuler">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </span>
+          </h3>
+          <div class="folder-meta">
+            <span><i class="bi bi-person"></i> {{ file.createdBy || '-' }}</span>
+            <span><i class="bi bi-calendar"></i> {{ file.createdAt | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+
+        <!-- Actions sur le dossier -->
+        <div class="folder-actions" (click)="$event.stopPropagation()">
+          <button class="btn-icon btn-delete" (click)="delete(file.id)" title="Supprimer le dossier">
+            <i class="bi bi-trash"></i>
+          </button>
+          <button class="btn-icon btn-history" (click)="historyAuditedFile(file.id)" title="Historique du dossier">
+            <i class="bi bi-journal-check"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Section des items (visible si le dossier est ouvert) -->
+      <div class="items-section" *ngIf="expandedFolders[file.id]">
+        <h4>Items ({{ file.items?.length || 0 }})</h4>
+
+        <!-- Version desktop : tableau Excel -->
+        <div class="items-table-container" *ngIf="file.items && file.items.length > 0">
+          <table class="items-table">
+            <thead>
+              <!-- PREMIÈRE LIGNE D'EN-TÊTE : GROUPES PRINCIPAUX -->
+              <tr class="group-header">
+                <th rowspan="4">#</th>
+                <th colspan="3">Général</th>
+                <th colspan="5">Code d'identité</th>
+                <th colspan="16">Inspection</th>
+                <th rowspan="4">Remarques</th>
+                <th rowspan="4">Statut</th>
+                <th rowspan="4">Actions</th>
+              </tr>
+
+              <!-- DEUXIÈME LIGNE D'EN-TÊTE : SOUS-GROUPES PRINCIPAUX -->
+              <tr class="group-header">
+                <th colspan="3"></th>
+                <th colspan="5"></th>
+                <th colspan="1">Réf. Pine Push Back</th>
+                <th colspan="6">Verification test raideur pine Push Back</th>
+                <th colspan="6">Verification valeur étanchéité</th>
+                <th colspan="3">Les détections</th>
+              </tr>
+
+              <!-- TROISIÈME LIGNE D'EN-TÊTE : SOUS-GROUPES -->
+              <tr class="group-header">
+                <!-- Général -->
+                <th>Position</th>
+                <th>Date d'entretien</th>
+                <th>Nom Technicien</th>
+
+                <!-- Code d'identité -->
+                <th>X_Code</th>
+                <th>N° réf LEONI</th>
+                <th>Index</th>
+                <th>Producteur</th>
+                <th>Type</th>
+
+                <!-- Réf. Pine (colonne seule) -->
+                <th></th>
+
+                <!-- Raideur (2 sous-groupes) -->
+                <th colspan="3">Raideur des pins</th>
+                <th colspan="3">Displacement path</th>
+
+                <!-- Étanchéité (2 sous-groupes) -->
+                <th colspan="3">Valeur maximale</th>
+                <th colspan="3">Valeur programmée</th>
+
+                <!-- Détections -->
+                <th colspan="3"></th>
+              </tr>
+
+              <!-- QUATRIÈME LIGNE D'EN-TÊTE : SOUS-SOUS-GROUPES (M1, M2, M3) -->
+              <tr class="subgroup-header">
+                <!-- Général (colonnes vides) -->
+                <th></th><th></th><th></th>
+
+                <!-- Code d'identité (colonnes vides) -->
+                <th></th><th></th><th></th><th></th><th></th>
+
+                <!-- Réf. Pine (colonne vide) -->
+                <th></th>
+
+                <!-- Raideur des pins -->
+                <th>M1</th><th>M2</th><th>M3</th>
+
+                <!-- Displacement path -->
+                <th>M1</th><th>M2</th><th>M3</th>
+
+                <!-- Valeur maximale étanchéité -->
+                <th>M1</th><th>M2</th><th>M3</th>
+
+                <!-- Valeur programmée étanchéité -->
+                <th>M1</th><th>M2</th><th>M3</th>
+
+                <!-- Détections -->
+                <th>M1</th><th>M2</th><th>M3</th>
+              </tr>
+
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of file.items; let i = index">
+                <!-- # -->
+                <td class="item-number">{{ i + 1 }}</td>
+
+                <!-- GÉNÉRAL -->
+                <td>{{ item.position || '-' }}</td>
+                <td>{{ item.maintenanceDate | date:'dd/MM/yyyy' || '-' }}</td>
+                <td>{{ item.technicianName || '-' }}</td>
+
+                <!-- CODE D'IDENTITÉ -->
+                <td>{{ item.xCode || '-' }}</td>
+                <td>{{ item.leoniReferenceNumber || '-' }}</td>
+                <td>{{ item.indexValue || '-' }}</td>
+                <td>{{ item.producer || '-' }}</td>
+                <td>{{ item.type || '-' }}</td>
+
+                <!-- RÉFÉRENCE PINE PUSH BACK -->
+                <td>{{ item.referencePinePushBack || '-' }}</td>
+
+                <!-- RAIDEUR DES PINS -->
+                <td><span class="value-badge">{{ item.pinRigidityM1 || '-' }}</span></td>
+                <td><span class="value-badge">{{ item.pinRigidityM2 || '-' }}</span></td>
+                <td><span class="value-badge">{{ item.pinRigidityM3 || '-' }}</span></td>
+
+                <!-- DISPLACEMENT PATH -->
+                <td><span class="value-badge">{{ item.displacementPathM1 || '-' }}</span></td>
+                <td><span class="value-badge">{{ item.displacementPathM2 || '-' }}</span></td>
+                <td><span class="value-badge">{{ item.displacementPathM3 || '-' }}</span></td>
+
+                <!-- VALEUR MAXIMALE D'ÉTANCHÉITÉ -->
+                <td><span class="value-badge">{{ item.maxSealingValueM1 || '-' }}</span></td>
+                <td><span class="value-badge">{{ item.maxSealingValueM2 || '-' }}</span></td>
+                <td><span class="value-badge">{{ item.maxSealingValueM3 || '-' }}</span></td>
+
+                <!-- VALEUR PROGRAMMÉE D'ÉTANCHÉITÉ -->
+                <td><span class="value-badge">{{ item.programmedSealingValueM1 || '-' }}</span></td>
+                <td><span class="value-badge">{{ item.programmedSealingValueM2 || '-' }}</span></td>
+                <td><span class="value-badge">{{ item.programmedSealingValueM3 || '-' }}</span></td>
+
+                <!-- DÉTECTIONS -->
+                <td><span class="value-badge">{{ item.detectionsM1 || '-' }}</span></td>
+                <td><span class="value-badge">{{ item.detectionsM2 || '-' }}</span></td>
+                <td><span class="value-badge">{{ item.detectionsM3 || '-' }}</span></td>
+
+                <!-- Remarques -->
+                <td>{{ item.remarks || '-' }}</td>
+                <td>
+                  <span class="status-badge" [ngClass]="getStatusClass(item.validationStatus)">
+                    {{ getStatusLabel(item.validationStatus) }}
+                  </span>
+                  <div class="validation-info" *ngIf="item.validatedByPp">
+                    <small>PP: {{ item.validatedByPp }}<br>{{ item.validatedAtPp | date:'dd/MM/yyyy HH:mm' }}</small>
+                  </div>
+                </td>
+                <!-- Actions -->
+                <!-- Actions -->
+<!-- Actions -->
+<td class="item-actions">
+  <!-- BOUTON VALIDER (conditionnel) -->
+  <button *ngIf="canValidateItem(item)"
+          class="btn-sm btn-validate"
+          (click)="validateItem(item.id)"
+          title="Valider l'item">
+    <i class="bi bi-check-circle-fill"></i> Valider
+  </button>
+
+  <!-- BOUTON MODIFIER (conditionnel) -->
+  <button *ngIf="canEditItem(item)"
+          class="btn-sm btn-edit"
+          (click)="editItem(item.id)"
+          title="Modifier l'item">
+    <i class="bi bi-pencil"></i>
+  </button>
+
+  <!-- BOUTON SUPPRIMER (conditionnel) -->
+  <button *ngIf="canDeleteItem(item)"
+          class="btn-sm btn-delete"
+          (click)="deleteItem(item.id)"
+          title="Supprimer l'item">
+    <i class="bi bi-trash"></i>
+  </button>
+
+  <!-- BOUTON HISTORIQUE (toujours visible) -->
+  <button class="btn-sm btn-history"
+          (click)="historyAuditedItem(item.id)"
+          title="Historique audité">
+    <i class="bi bi-journal-check"></i>
+  </button>
+
+  <!-- BOUTON DÉTAIL (toujours visible) -->
+  <button class="btn-sm btn-detail"
+          (click)="detailItem(item.id)"
+          title="Détail">
+    <i class="bi bi-eye"></i>
+  </button>
+</td> <!-- ← Ceci ferme la cellule des actions -->
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Version mobile : cartes -->
+        <div class="mobile-items" *ngIf="file.items && file.items.length > 0">
+          <div *ngFor="let item of file.items; let i = index" class="mobile-item-card">
+            <div class="mobile-item-header">
+              <span class="item-number">Item #{{ i + 1 }}</span>
+             <div class="mobile-item-actions">
+  <!-- Bouton Valider -->
+  <button *ngIf="canValidateItem(item)"
+          class="btn-icon-small btn-validate"
+          (click)="validateItem(item.id)"
+          title="Valider">
+    <i class="bi bi-check-circle-fill"></i>
+  </button>
+
+  <!-- Bouton Modifier -->
+  <button *ngIf="canEditItem(item)"
+          class="btn-icon-small"
+          (click)="editItem(item.id)"
+          title="Modifier">
+    <i class="bi bi-pencil"></i>
+  </button>
+
+  <!-- Bouton Supprimer -->
+  <button *ngIf="canDeleteItem(item)"
+          class="btn-icon-small"
+          (click)="deleteItem(item.id)"
+          title="Supprimer">
+    <i class="bi bi-trash"></i>
+  </button>
+
+  <!-- Bouton Historique -->
+  <button class="btn-icon-small"
+          (click)="historyAuditedItem(item.id)"
+          title="Historique">
+    <i class="bi bi-journal-check"></i>
+  </button>
+
+  <!-- Bouton Détail -->
+  <button class="btn-icon-small"
+          (click)="detailItem(item.id)"
+          title="Détail">
+    <i class="bi bi-eye"></i>
+  </button>
+</div>
+            </div>
+            <div class="mobile-item-grid">
+                <!-- Statut mobile -->
+              <div class="mobile-status">
+                <strong>Statut:</strong>
+                <span class="status-badge" [ngClass]="getStatusClass(item.validationStatus)">
+                  {{ getStatusLabel(item.validationStatus) }}
+                </span>
+              </div>
+              <div class="mobile-group-title">GÉNÉRAL</div>
+              <div><strong>Position:</strong> {{ item.position || '-' }}</div>
+              <div><strong>Date:</strong> {{ item.maintenanceDate | date:'dd/MM/yyyy' || '-' }}</div>
+              <div><strong>Technicien:</strong> {{ item.technicianName || '-' }}</div>
+
+              <div class="mobile-group-title">CODE D'IDENTITÉ</div>
+              <div><strong>X Code:</strong> {{ item.xCode || '-' }}</div>
+              <div><strong>Réf. LEONI:</strong> {{ item.leoniReferenceNumber || '-' }}</div>
+              <div><strong>Index:</strong> {{ item.indexValue }}</div>
+              <div><strong>Producteur:</strong> {{ item.producer || '-' }}</div>
+              <div><strong>Type:</strong> {{ item.type || '-' }}</div>
+
+              <div class="mobile-group-title">RÉFÉRENCE PINE PUSH BACK</div>
+              <div><strong>Réf. Pine:</strong> {{ item.referencePinePushBack || '-' }}</div>
+
+              <div class="mobile-group-title">VERIFICATION TEST RAIDEUR PINE PUSH BACK</div>
+              <div><strong>Raideur M1/M2/M3:</strong> {{ item.pinRigidityM1 || '-' }}/{{ item.pinRigidityM2 || '-' }}/{{ item.pinRigidityM3 || '-' }}</div>
+              <div><strong>Déplacement M1/M2/M3:</strong> {{ item.displacementPathM1 || '-' }}/{{ item.displacementPathM2 || '-' }}/{{ item.displacementPathM3 || '-' }}</div>
+
+              <div class="mobile-group-title">VERIFICATION VALEUR ÉTANCHÉITÉ</div>
+              <div><strong>Max M1/M2/M3:</strong> {{ item.maxSealingValueM1 || '-' }}/{{ item.maxSealingValueM2 || '-' }}/{{ item.maxSealingValueM3 || '-' }}</div>
+              <div><strong>Prog M1/M2/M3:</strong> {{ item.programmedSealingValueM1 || '-' }}/{{ item.programmedSealingValueM2 || '-' }}/{{ item.programmedSealingValueM3 || '-' }}</div>
+
+              <div class="mobile-group-title">DÉTECTIONS</div>
+              <div><strong>Détections M1/M2/M3:</strong> {{ item.detectionsM1 || '-' }}/{{ item.detectionsM2 || '-' }}/{{ item.detectionsM3 || '-' }}</div>
+
+              <div><strong>Remarques:</strong> {{ item.remarks || '-' }}</div>
+              <!-- Info validation mobile -->
+              <div class="validation-info-mobile" *ngIf="item.validatedByPp">
+                <hr>
+                <small><strong>Validé PP:</strong> {{ item.validatedByPp }} ({{ item.validatedAtPp | date:'dd/MM/yyyy HH:mm' }})</small>
+              </div>
+            </div>
+          </div>
+      </div>
+
+        <!-- Message si aucun item -->
+        <div class="no-items-message" *ngIf="!file.items || file.items.length === 0">
+          <i class="bi bi-inbox"></i> Aucun item dans ce dossier
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== AUCUN RÉSULTAT ===== -->
+  <div *ngIf="!loading && !error && technicalFiles.length > 0 && filteredFiles.length === 0" class="empty-state">
+    <i class="bi bi-search"></i>
+    <h3>Aucun résultat</h3>
+    <p>Aucun dossier ne correspond à la recherche "{{ searchTerm }}"</p>
+    <button class="btn btn-primary" (click)="clearSearch()">
+      <i class="bi bi-arrow-counterclockwise"></i> Réinitialiser
+    </button>
+  </div>
+
+  <!-- ===== AUCUN DOSSIER ===== -->
+  <div *ngIf="!loading && !error && technicalFiles.length === 0" class="empty-state">
+    <i class="bi bi-folder"></i>
+    <h3>Aucun dossier technique</h3>
+    <p>Commencez par créer votre premier dossier technique.</p>
+    <button class="btn btn-primary" routerLink="/technical-files/create">
+      <i class="bi bi-plus-circle"></i> Créer un dossier
+    </button>
+  </div>
+</div>

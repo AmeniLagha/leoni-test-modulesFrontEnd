@@ -1,0 +1,278 @@
+<div class="container-fluid px-4 py-4">
+  <!-- HEADER GRADIENT LEONI -->
+  <div class="card border-0 shadow-lg mb-4" style="background: linear-gradient(135deg, #1e3c72 0%, #0f2b4a 100%);">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+          <h2 class="text-white mb-2">
+            <i class="bi bi-people me-2"></i>
+            Gestion des utilisateurs
+            <span class="badge bg-white text-primary ms-2 fs-6">{{ filteredUsers.length }}</span>
+          </h2>
+          <p class="text-white-50 mb-0">Gestion et suivi des utilisateurs du système LEONI</p>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-light" (click)="exportAllUsers()">
+            <i class="bi bi-file-earmark-spreadsheet me-2"></i>Exporter tout
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BARRE DE RECHERCHE -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-8">
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0">
+              <i class="bi bi-search text-muted"></i>
+            </span>
+            <input type="text" class="form-control border-start-0 ps-0"
+                   placeholder="Rechercher par nom, email, matricule..."
+                   [(ngModel)]="searchTerm"
+                   (input)="applyFilter()">
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="d-flex gap-2 justify-content-end">
+            <span class="badge bg-light text-dark px-3 py-2">
+              <i class="bi bi-people me-1"></i> {{ filteredUsers.length }} utilisateur(s)
+            </span>
+            <button *ngIf="searchTerm" class="btn btn-outline-danger btn-sm" (click)="clearSearch()">
+              <i class="bi bi-x-circle me-1"></i>Effacer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p class="text-muted mt-3">Chargement des utilisateurs...</p>
+  </div>
+
+  <!-- ERROR -->
+  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error = ''"></button>
+  </div>
+
+  <!-- TABLEAU DES UTILISATEURS -->
+  <div *ngIf="!loading && filteredUsers.length > 0" class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="bg-light">
+            <tr>
+              <th class="px-3 py-3" style="width: 70px;">ID</th>
+              <th class="px-3 py-3">Utilisateur</th>
+              <th class="px-3 py-3">Email</th>
+              <th class="px-3 py-3">Matricule</th>
+              <th class="px-3 py-3">Projet</th>
+              <th class="px-3 py-3">Rôle</th>
+              <th class="px-3 py-3 text-center">Actions</th>
+             </thead>
+          <tbody>
+            <tr *ngFor="let user of paginatedUsers()">
+              <!-- ID -->
+              <td class="px-3 py-3">
+                <span class="badge bg-primary bg-opacity-10 text-primary fw-semibold">#{{ user.id }}</span>
+                </td>
+
+              <!-- Utilisateur -->
+              <td class="px-3 py-3">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="avatar-circle">
+                    <span class="avatar-text">{{ user.firstname?.charAt(0) }}{{ user.lastname?.charAt(0) }}</span>
+                  </div>
+                  <div>
+                    <div class="fw-semibold">{{ user.firstname }} {{ user.lastname }}</div>
+                  </div>
+                </div>
+                </td>
+
+              <!-- Email -->
+              <td class="px-3 py-3">
+                <i class="bi bi-envelope me-1 text-muted"></i>{{ user.email }}
+                </td>
+
+              <!-- Matricule -->
+              <td class="px-3 py-3">
+                <code class="bg-light px-2 py-1 rounded">{{ user.matricule }}</code>
+                </td>
+
+              <!-- Projet -->
+              <td class="px-3 py-3">
+                <span class="badge bg-info bg-opacity-10 text-info">{{ user.projet }}</span>
+                </td>
+
+              <!-- Rôle -->
+              <td class="px-3 py-3">
+                <span class="badge" [ngClass]="getRoleBadgeClass(user.role)">
+                  <i class="bi" [ngClass]="getRoleIcon(user.role)"></i>
+                  {{ getRoleLabel(user.role) }}
+                </span>
+                </td>
+
+              <!-- Actions -->
+              <td class="px-3 py-3 text-center">
+                <div class="btn-group btn-group-sm" role="group">
+                  <button class="btn btn-outline-primary" (click)="editUser(user)" title="Modifier">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-outline-success" (click)="exportUser(user)" title="Exporter">
+                    <i class="bi bi-download"></i>
+                  </button>
+                  <button class="btn btn-outline-danger" (click)="deleteUser(user)" title="Supprimer">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+                </td>
+              </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PAGINATION -->
+    <div class="card-footer bg-white border-0 py-3 px-4" *ngIf="totalPages() > 1">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div class="text-muted small">
+          Page <strong>{{ currentPage }}</strong> sur <strong>{{ totalPages() }}</strong>
+        </div>
+        <nav aria-label="Page navigation">
+          <ul class="pagination mb-0">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <a class="page-link" (click)="previousPage()" href="javascript:void(0)">
+                <i class="bi bi-chevron-left"></i>
+              </a>
+            </li>
+            <li *ngFor="let page of pagesArray()" class="page-item" [class.active]="page === currentPage">
+              <a class="page-link" (click)="goToPage(page)" href="javascript:void(0)">{{ page }}</a>
+            </li>
+            <li class="page-item" [class.disabled]="currentPage === totalPages()">
+              <a class="page-link" (click)="nextPage()" href="javascript:void(0)">
+                <i class="bi bi-chevron-right"></i>
+              </a>
+            </li>
+          </ul>
+        </nav>
+        <div class="d-flex align-items-center gap-2">
+          <span class="text-muted small">Lignes par page:</span>
+          <select class="form-select form-select-sm" style="width: 70px;" [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+            <option [value]="5">5</option>
+            <option [value]="10">10</option>
+            <option [value]="20">20</option>
+            <option [value]="50">50</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUCUN UTILISATEUR -->
+  <div *ngIf="!loading && filteredUsers.length === 0" class="text-center py-5">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body py-5">
+        <i class="bi bi-people display-1 text-muted"></i>
+        <h3 class="mt-3 text-muted">Aucun utilisateur trouvé</h3>
+        <p class="text-muted">Aucun utilisateur ne correspond à votre recherche.</p>
+        <button *ngIf="searchTerm" class="btn btn-outline-primary mt-3" (click)="clearSearch()">
+          <i class="bi bi-arrow-counterclockwise me-2"></i>Réinitialiser
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE MODIFICATION -->
+  <div class="modal fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header" style="background: linear-gradient(135deg, #1e3c72 0%, #0f2b4a 100%);">
+          <h5 class="modal-title text-white">
+            <i class="bi bi-pencil-square me-2"></i>Modifier l'utilisateur
+          </h5>
+          <button type="button" class="btn-close btn-close-white" (click)="closeModal()"></button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="editForm" (ngSubmit)="saveUpdate()">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold small text-muted text-uppercase">Prénom</label>
+                <input type="text" class="form-control" formControlName="firstname" placeholder="Prénom">
+                <div class="invalid-feedback" *ngIf="editForm.get('firstname')?.invalid && editForm.get('firstname')?.touched">
+                  Prénom requis
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold small text-muted text-uppercase">Nom</label>
+                <input type="text" class="form-control" formControlName="lastname" placeholder="Nom">
+                <div class="invalid-feedback" *ngIf="editForm.get('lastname')?.invalid && editForm.get('lastname')?.touched">
+                  Nom requis
+                </div>
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold small text-muted text-uppercase">Email</label>
+                <input type="email" class="form-control" formControlName="email" placeholder="exemple@leoni.com">
+                <div class="invalid-feedback" *ngIf="editForm.get('email')?.invalid && editForm.get('email')?.touched">
+                  <span *ngIf="editForm.get('email')?.errors?.['required']">Email requis</span>
+                  <span *ngIf="editForm.get('email')?.errors?.['email']">Email invalide</span>
+                </div>
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold small text-muted text-uppercase">Matricule</label>
+                <input type="text" class="form-control" formControlName="matricule" placeholder="Matricule">
+                <div class="invalid-feedback" *ngIf="editForm.get('matricule')?.invalid && editForm.get('matricule')?.touched">
+                  Matricule requis
+                </div>
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold small text-muted text-uppercase">Projet</label>
+                <select class="form-select" formControlName="projet">
+                  <option value="" disabled>Sélectionner un projet</option>
+                  <option value="BMW">BMW</option>
+                  <option value="Mercedes">Mercedes</option>
+                  <option value="Audi">Audi</option>
+                  <option value="Porsche">Porsche</option>
+                  <option value="Volkswagen">Volkswagen</option>
+                </select>
+                <div class="invalid-feedback" *ngIf="editForm.get('projet')?.invalid && editForm.get('projet')?.touched">
+                  Projet requis
+                </div>
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold small text-muted text-uppercase">Rôle</label>
+                <select class="form-select" formControlName="role">
+                  <option value="" disabled>Sélectionner un rôle</option>
+                  <option value="ADMIN">Administrateur</option>
+                  <option value="ING">Ingénieur</option>
+                  <option value="PT">Technologie Production</option>
+                  <option value="PP">Préparation Production</option>
+                  <option value="MC">Maintenance Corrective</option>
+                  <option value="MP">Maintenance Préventive</option>
+                </select>
+                <div class="invalid-feedback" *ngIf="editForm.get('role')?.invalid && editForm.get('role')?.touched">
+                  Rôle requis
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-3 mt-4">
+              <button type="button" class="btn btn-outline-secondary" (click)="closeModal()">Annuler</button>
+              <button type="submit" class="btn btn-primary" [disabled]="editForm.invalid">
+                <i class="bi bi-check-circle me-2"></i>Enregistrer
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -7,12 +7,55 @@
       <span class="badge-count" *ngIf="!loading && filteredFiles.length">{{ filteredFiles.length }}</span>
     </h1>
     <div class="header-actions">
-      <button class="btn btn-primary" routerLink="/technical-files/create">
-        <i class="bi bi-plus-circle"></i> Nouveau dossier
+      <button class="btn btn-success" (click)="exportAllToExcel()" title="Exporter tous les dossiers">
+    <i class="bi bi-file-earmark-excel"></i> Exporter tout
+  </button>
+    </div>
+  </div>
+<!-- ===== FILTRES PAR PÉRIODE ===== -->
+<div class="filters-section" style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px 20px; margin-bottom: 20px;">
+  <div class="row g-3 align-items-end">
+    <div class="col-md-3">
+      <label class="form-label fw-semibold small text-muted text-uppercase">
+        <i class="bi bi-calendar-year me-1"></i>Année
+      </label>
+      <select class="form-select" (change)="filterByYear($event)" [value]="yearFilter">
+        <option value="">📅 Toutes les années</option>
+        <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label fw-semibold small text-muted text-uppercase">
+        <i class="bi bi-calendar-month me-1"></i>Mois
+      </label>
+      <select class="form-select" (change)="filterByMonth($event)" [value]="monthFilter">
+        <option value="">📅 Tous les mois</option>
+        <option *ngFor="let month of availableMonths" [value]="month.value">{{ month.label }}</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <button *ngIf="hasActiveFilters()" class="btn btn-outline-secondary w-100" (click)="resetFilters()">
+        <i class="bi bi-eraser me-2"></i>Réinitialiser
       </button>
     </div>
   </div>
-
+  
+  <!-- Afficher les filtres actifs -->
+  <div class="mt-3 d-flex flex-wrap gap-2" *ngIf="hasActiveFilters()">
+    <span class="badge bg-light text-dark p-2" *ngIf="searchTerm">
+      <i class="bi bi-search me-1"></i>Recherche: "{{ searchTerm }}"
+      <i class="bi bi-x-circle-fill ms-2 text-danger" style="cursor: pointer;" (click)="searchTerm=''; applyFilters()"></i>
+    </span>
+    <span class="badge bg-light text-dark p-2" *ngIf="yearFilter">
+      <i class="bi bi-calendar-year me-1"></i>Année: {{ yearFilter }}
+      <i class="bi bi-x-circle-fill ms-2 text-danger" style="cursor: pointer;" (click)="yearFilter=''; applyFilters()"></i>
+    </span>
+    <span class="badge bg-light text-dark p-2" *ngIf="monthFilter">
+      <i class="bi bi-calendar-month me-1"></i>Mois: {{ getMonthLabel(monthFilter) }}
+      <i class="bi bi-x-circle-fill ms-2 text-danger" style="cursor: pointer;" (click)="monthFilter=''; applyFilters()"></i>
+    </span>
+  </div>
+</div>
   <!-- ===== BARRE DE RECHERCHE ===== -->
   <div class="search-bar" style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
     <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
@@ -89,6 +132,9 @@
           <button class="btn-icon btn-delete" (click)="delete(file.id)" title="Supprimer le dossier">
             <i class="bi bi-trash"></i>
           </button>
+          <button class="btn-icon btn-export" (click)="exportOneToExcel(file)" title="Exporter le dossier">
+    <i class="bi bi-file-earmark-excel"></i>
+  </button>
           <button class="btn-icon btn-history" (click)="historyAuditedFile(file.id)" title="Historique du dossier">
             <i class="bi bi-journal-check"></i>
           </button>

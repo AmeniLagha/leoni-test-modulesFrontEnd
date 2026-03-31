@@ -151,3 +151,17 @@
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
+.badge.bg-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.badge.bg-warning {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.badge.bg-success {
+  background-color: #28a745;
+  color: white;
+}

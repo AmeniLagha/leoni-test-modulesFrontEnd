@@ -142,6 +142,7 @@
             <th colspan="19">Cable / Conduit</th>
             <th colspan="40">Electrical / Tests</th>
             <th colspan="2">Prix</th>
+            <th colspan="1">Quantité reçue</th>
             <th colspan="1">Actions</th>
           </tr>
           <!-- Sous-en-tête avec les noms des champs -->
@@ -261,7 +262,7 @@
             <!-- Prix -->
             <th>Prix unitaire</th>
             <th>Prix total</th>
-
+            <th>Quantité reçue</th>
 
 
             <!-- Actions -->
@@ -394,17 +395,25 @@
             <td>{{ item.unitPrice ? (item.unitPrice | number:'1.2-2') : '-' }}</td>
             <td>{{ item.totalPrice ? (item.totalPrice | number:'1.2-2') : '-' }}</td>
 
-            <!-- Image -->
+            <td class="text-center">
+  <span *ngIf="item.id" class="badge" 
+        [ngClass]="getReceivedQuantity(item.id) === 0 ? 'bg-danger' : 
+                   (getReceivedQuantity(item.id) >= (item.quantityOfTestModules || 0) ? 'bg-success' : 'bg-warning')">
+    {{ getReceivedQuantity(item.id) }} / {{ item.quantityOfTestModules || 0 }}
+  </span>
+  <span *ngIf="!item.id" class="badge bg-secondary">-</span>
+</td>
 
 
-            <!-- Actions -->
             <!-- Actions -->
 <td class="actions-cell">
    <div class="btn-group btn-group-sm">
-    <!-- Fiche conformité - visible si l'utilisateur a la permission -->
-    <button *ngIf="canCreateCompliance"  class="btn btn-outline-success"
-            (click)="goToCreateConforme(item)" title="Fiche conformité">
-       <i class="bi bi-file-earmark-check"></i>
+    <button *ngIf="canCreateCompliance && item.id" 
+            class="btn btn-outline-success"
+            [class.btn-warning]="hasExistingCompliance(item.id)"
+            [title]="hasExistingCompliance(item.id) ? 'Des fiches existent déjà' : 'Créer fiche de conformité'"
+            (click)="goToCreateConforme(item)">
+       <i class="bi" [ngClass]="hasExistingCompliance(item.id) ? 'bi-exclamation-triangle' : 'bi-file-earmark-check'"></i>
     </button>
 
     <div class="btn-group" *ngIf="canCreatetechnicalfile">

@@ -17,7 +17,7 @@
           <button *ngIf="canCreate" class="btn btn-light" routerLink="/charge-sheets/create">
             <i class="bi bi-plus-circle me-2"></i>Nouveau cahier
           </button>
-          <button *ngIf="isAdmin()" class="btn btn-outline-light" (click)="exportAllToExcel()"
+          <button  class="btn btn-outline-light" (click)="exportAllToExcel()"
                   [disabled]="!chargeSheets.length">
             <i class="bi bi-file-earmark-excel me-2"></i>Exporter tout
           </button>
@@ -26,54 +26,102 @@
     </div>
   </div>
 
-  <!-- FILTRES AVANCÉS -->
-  <div class="card border-0 shadow-sm mb-4" *ngIf="chargeSheets.length">
-    <div class="card-body">
-      <div class="row g-3 align-items-end">
-        <div class="col-md-4">
-          <label class="form-label fw-semibold small text-muted text-uppercase">
-            <i class="bi bi-search me-1"></i>Recherche
-          </label>
-          <div class="input-group">
-            <span class="input-group-text bg-white border-end-0">
-              <i class="bi bi-search text-muted"></i>
-            </span>
-            <input type="text" class="form-control border-start-0 ps-0"
-                   placeholder="Projet, plant, ID, référence..."
-                   (keyup)="applyFilter($event)" [value]="searchTerm">
-          </div>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label fw-semibold small text-muted text-uppercase">
-            <i class="bi bi-funnel me-1"></i>Statut
-          </label>
-          <select class="form-select" (change)="filterByStatus($event)" [value]="statusFilter">
-            <option value="">📊 Tous les statuts</option>
-            <option value="DRAFT">📝 Brouillon</option>
-            <option value="VALIDATED_ING">✅ Validé ING</option>
-            <option value="TECH_FILLED">⚙️ Technique en cours</option>
-            <option value="VALIDATED_PT">🔧 Validé PT</option>
-            <option value="SENT_TO_SUPPLIER">🚚 Envoyé fournisseur</option>
-            <option value="RECEIVED_FROM_SUPPLIER">📦 Réception partielle</option>
-            <option value="COMPLETED">🎯 Terminé</option>
-          </select>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label fw-semibold small text-muted text-uppercase">
-            <i class="bi bi-calendar me-1"></i>Date
-          </label>
-          <input type="date" class="form-control" [(ngModel)]="dateFilter"
-                 (change)="applyDateFilter()" placeholder="Filtrer par date">
-        </div>
-        <div class="col-md-2">
-          <button *ngIf="searchTerm || statusFilter || dateFilter"
-                  class="btn btn-outline-secondary w-100" (click)="resetFilters()">
-            <i class="bi bi-eraser me-2"></i>Effacer
-          </button>
+ <!-- FILTRES AVANCÉS -->
+<div class="card border-0 shadow-sm mb-4" *ngIf="chargeSheets.length">
+  <div class="card-body">
+    <div class="row g-3 align-items-end">
+      <div class="col-md-3">
+        <label class="form-label fw-semibold small text-muted text-uppercase">
+          <i class="bi bi-search me-1"></i>Recherche
+        </label>
+        <div class="input-group">
+          <span class="input-group-text bg-white border-end-0">
+            <i class="bi bi-search text-muted"></i>
+          </span>
+          <input type="text" class="form-control border-start-0 ps-0"
+                 placeholder="Projet, plant, ID, référence..."
+                 (keyup)="applyFilter($event)" [value]="searchTerm">
         </div>
       </div>
+      <div class="col-md-2">
+        <label class="form-label fw-semibold small text-muted text-uppercase">
+          <i class="bi bi-funnel me-1"></i>Statut
+        </label>
+        <select class="form-select" (change)="filterByStatus($event)" [value]="statusFilter">
+          <option value="">📊 Tous les statuts</option>
+          <option value="DRAFT">📝 Brouillon</option>
+          <option value="VALIDATED_ING">✅ Validé ING</option>
+          <option value="TECH_FILLED">⚙️ Technique en cours</option>
+          <option value="VALIDATED_PT">🔧 Validé PT</option>
+          <option value="SENT_TO_SUPPLIER">🚚 Envoyé fournisseur</option>
+          <option value="RECEIVED_FROM_SUPPLIER">📦 Réception partielle</option>
+          <option value="COMPLETED">🎯 Terminé</option>
+        </select>
+      </div>
+      
+      <!-- ✅ NOUVEAU : Filtre par année -->
+      <div class="col-md-2">
+        <label class="form-label fw-semibold small text-muted text-uppercase">
+          <i class="bi bi-calendar-year me-1"></i>Année
+        </label>
+        <select class="form-select" (change)="filterByYear($event)" [value]="yearFilter">
+          <option value="">📅 Toutes les années</option>
+          <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
+        </select>
+      </div>
+      
+      <!-- ✅ NOUVEAU : Filtre par mois -->
+      <div class="col-md-2">
+        <label class="form-label fw-semibold small text-muted text-uppercase">
+          <i class="bi bi-calendar-month me-1"></i>Mois
+        </label>
+        <select class="form-select" (change)="filterByMonth($event)" [value]="monthFilter">
+          <option value="">📅 Tous les mois</option>
+          <option *ngFor="let month of availableMonths" [value]="month.value">{{ month.label }}</option>
+        </select>
+      </div>
+      
+      <div class="col-md-2">
+        <label class="form-label fw-semibold small text-muted text-uppercase">
+          <i class="bi bi-calendar me-1"></i>Date exacte
+        </label>
+        <input type="date" class="form-control" [(ngModel)]="dateFilter"
+               (change)="applyDateFilter()" placeholder="Filtrer par date">
+      </div>
+      
+      <div class="col-md-1">
+        <button *ngIf="searchTerm || statusFilter || dateFilter || monthFilter || yearFilter"
+                class="btn btn-outline-secondary w-100" (click)="resetFilters()">
+          <i class="bi bi-eraser me-2"></i>Effacer
+        </button>
+      </div>
+    </div>
+    
+    <!-- ✅ Afficher les filtres actifs -->
+    <div class="mt-3 d-flex flex-wrap gap-2" *ngIf="searchTerm || statusFilter || dateFilter || monthFilter || yearFilter">
+      <span class="badge bg-light text-dark p-2" *ngIf="searchTerm">
+        <i class="bi bi-search me-1"></i>Recherche: "{{ searchTerm }}"
+        <i class="bi bi-x-circle-fill ms-2 text-danger" style="cursor: pointer;" (click)="searchTerm=''; applyFilters()"></i>
+      </span>
+     <span class="badge bg-light text-dark p-2" *ngIf="statusFilter">
+  <i class="bi bi-funnel me-1"></i>Statut: {{ getStatusLabelFromString(statusFilter) }}
+  <i class="bi bi-x-circle-fill ms-2 text-danger" style="cursor: pointer;" (click)="statusFilter=''; applyFilters()"></i>
+</span>
+      <span class="badge bg-light text-dark p-2" *ngIf="yearFilter">
+        <i class="bi bi-calendar-year me-1"></i>Année: {{ yearFilter }}
+        <i class="bi bi-x-circle-fill ms-2 text-danger" style="cursor: pointer;" (click)="yearFilter=''; applyFilters()"></i>
+      </span>
+      <span class="badge bg-light text-dark p-2" *ngIf="monthFilter">
+        <i class="bi bi-calendar-month me-1"></i>Mois: {{ getMonthLabel(monthFilter) }}
+        <i class="bi bi-x-circle-fill ms-2 text-danger" style="cursor: pointer;" (click)="monthFilter=''; applyFilters()"></i>
+      </span>
+      <span class="badge bg-light text-dark p-2" *ngIf="dateFilter">
+        <i class="bi bi-calendar me-1"></i>Date: {{ dateFilter | date:'dd/MM/yyyy' }}
+        <i class="bi bi-x-circle-fill ms-2 text-danger" style="cursor: pointer;" (click)="dateFilter=''; applyFilters()"></i>
+      </span>
     </div>
   </div>
+</div>
 
   <!-- LOADING -->
   <div *ngIf="loading" class="text-center py-5">
@@ -271,7 +319,7 @@
                     </a>
 
                     <!-- Excel -->
-                    <button *ngIf="isAdmin()" class="btn btn-sm btn-outline-success"
+                    <button  class="btn btn-sm btn-outline-success"
                             (click)="exportOneToExcel(sheet)" title="Export Excel">
                       <i class="bi bi-file-earmark-excel"></i>
                     </button>

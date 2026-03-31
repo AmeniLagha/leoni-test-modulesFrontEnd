@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { UserService } from '../../../../../services/UserService';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'app-utilisateur',
@@ -153,31 +155,152 @@ export class UtilisateurComponent implements OnInit {
     }
   }
 
+  
+  // ==================== EXPORT EXCEL AVEC STYLES ====================
+
+  /**
+   * Export un utilisateur spécifique vers Excel avec mise en forme
+   */
   exportUser(user: any) {
-    const csv = this.convertToCSV([user]);
-    this.downloadCSV(csv, `user_${user.id}.csv`);
+    const data = [this.formatUserForExport(user)];
+    this.exportToExcel(data, `Utilisateur_${user.firstname}_${user.lastname}.xlsx`, 'Liste des Utilisateurs');
   }
 
+  /**
+   * Export tous les utilisateurs filtrés vers Excel avec mise en forme
+   */
   exportAllUsers() {
-    const csv = this.convertToCSV(this.filteredUsers);
-    this.downloadCSV(csv, 'users.csv');
+    const data = this.filteredUsers.map(user => this.formatUserForExport(user));
+    this.exportToExcel(data, 'Liste_Utilisateurs.xlsx', 'Liste des Utilisateurs');
   }
 
-  convertToCSV(data: any[]) {
-    if (!data.length) return '';
-    const headers = Object.keys(data[0]);
-    const rows = data.map(u =>
-      headers.map(h => `"${u[h] || ''}"`).join(',')
-    );
-    return [headers.join(','), ...rows].join('\n');
+  /**
+   * Formate un utilisateur pour l'export
+   */
+  private formatUserForExport(user: any): any {
+    return {
+      'ID': user.id,
+      'Prénom': user.firstname || '-',
+      'Nom': user.lastname || '-',
+      'Email': user.email || '-',
+      'Matricule': user.matricule || '-',
+      'Projet': user.projet || '-',
+      'Rôle': this.getRoleLabel(user.role || '')
+    };
   }
 
-  downloadCSV(csv: string, filename: string) {
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = filename;
-    link.click();
+  /**
+   * Export les données vers Excel avec styles
+   */
+  private exportToExcel(data: any[], fileName: string, sheetName: string) {
+    // Créer une feuille de calcul à partir des données
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    
+    // Définir la largeur des colonnes
+    const colWidths = [
+      { wch: 8 },   // ID
+      { wch: 15 },  // Prénom
+      { wch: 15 },  // Nom
+      { wch: 25 },  // Email
+      { wch: 12 },  // Matricule
+      { wch: 15 },  // Projet
+      { wch: 20 } // Rôle
+       
+    ];
+    worksheet['!cols'] = colWidths;
+    
+    // Appliquer les styles
+    const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:I1');
+    
+    // Style pour l'en-tête (première ligne)
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
+      if (!worksheet[cellAddress]) continue;
+      
+      worksheet[cellAddress].s = {
+        fill: {
+          fgColor: { rgb: "2E86C1" }  // Fond bleu
+        },
+        font: {
+          bold: true,
+          color: { rgb: "FFFFFF" },   // Texte blanc
+          sz: 12
+        },
+        alignment: {
+          horizontal: "center",
+          vertical: "center"
+        },
+        border: {
+          top: { style: "thin", color: { rgb: "FFFFFF" } },
+          bottom: { style: "thin", color: { rgb: "FFFFFF" } },
+          left: { style: "thin", color: { rgb: "FFFFFF" } },
+          right: { style: "thin", color: { rgb: "FFFFFF" } }
+        }
+      };
+    }
+    
+    // Appliquer les styles pour les lignes de données
+    for (let R = 1; R <= range.e.r; ++R) {
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+        if (!worksheet[cellAddress]) continue;
+        
+        // Alterner les couleurs des lignes
+        const isEvenRow = R % 2 === 0;
+        
+        worksheet[cellAddress].s = {
+          fill: {
+            fgColor: { rgb: isEvenRow ? "F8F9F9" : "FFFFFF" }  // Lignes gris clair alternées
+          },
+          font: {
+            sz: 11
+          },
+          alignment: {
+            vertical: "center"
+          },
+          border: {
+            top: { style: "thin", color: { rgb: "E0E0E0" } },
+            bottom: { style: "thin", color: { rgb: "E0E0E0" } },
+            left: { style: "thin", color: { rgb: "E0E0E0" } },
+            right: { style: "thin", color: { rgb: "E0E0E0" } }
+          }
+        };
+        
+        // Style spécial pour la colonne Rôle
+        const colLetter = XLSX.utils.encode_col(C);
+        if (colLetter === 'G') { // Colonne Rôle (index 6)
+          const roleValue = worksheet[cellAddress].v;
+          if (roleValue === 'Administrateur') {
+            worksheet[cellAddress].s.font = { color: { rgb: "C0392B" }, bold: true };
+          } else if (roleValue === 'Ingénieur') {
+            worksheet[cellAddress].s.font = { color: { rgb: "2980B9" }, bold: true };
+          } else if (roleValue === 'Technologie Production') {
+            worksheet[cellAddress].s.font = { color: { rgb: "16A085" }, bold: true };
+          } else if (roleValue === 'Préparation Production') {
+            worksheet[cellAddress].s.font = { color: { rgb: "F39C12" }, bold: true };
+          }
+        }
+        
+        // Style spécial pour la colonne Statut
+        if (colLetter === 'H') { // Colonne Statut (index 7)
+          const statusValue = worksheet[cellAddress].v;
+          if (statusValue === 'Actif') {
+            worksheet[cellAddress].s.font = { color: { rgb: "27AE60" }, bold: true };
+          } else {
+            worksheet[cellAddress].s.font = { color: { rgb: "E74C3C" }, bold: true };
+          }
+        }
+      }
+    }
+    
+    // Créer un classeur et ajouter la feuille
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+    
+    // Générer le fichier Excel
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    saveAs(blob, fileName);
   }
 
   getRoleLabel(role: string): string {

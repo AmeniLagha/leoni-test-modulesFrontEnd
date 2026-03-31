@@ -53,6 +53,9 @@ export class ChargeSheetItemsViewComponent implements OnInit {
     { key: 'price', label: 'Prix', fields: ['unitPrice', 'totalPrice'] }
   ];
 
+  // Ajoutez ces propriétés dans la classe
+existingCompliances: Map<number, boolean> = new Map(); // Pour suivre les items qui ont déjà des fiches
+
   constructor(
     private route: ActivatedRoute,
     public router: Router,
@@ -1051,8 +1054,30 @@ showComplianceModal = false;
 selectedItemForCompliance: ChargeSheetItemDto | null = null;
 complianceToCreate: PrepareCompliance | null = null;
 
+// Vérifier si des fiches de conformité existent déjà pour cet item
+checkExistingCompliances(itemId: number): void {
+  if (!itemId) return;
+  
+  this.complianceService.getComplianceByItem(itemId).subscribe({
+    next: (compliances) => {
+      if (compliances && compliances.length > 0) {
+        this.existingCompliances.set(itemId, true);
+      } else {
+        this.existingCompliances.set(itemId, false);
+      }
+    },
+    error: (err) => {
+      console.error('Erreur vérification conformités:', err);
+      this.existingCompliances.set(itemId, false);
+    }
+  });
+}
+// Vérifier si un item a déjà des fiches de conformité
+hasExistingCompliance(itemId: number): boolean {
+  if (!itemId) return false;  // ✅ Retourne false si pas d'ID
+  return this.existingCompliances.get(itemId) || false;
+}
 // Ajoutez cette méthode pour charger les quantités reçues
-// Dans charge-sheet-items-view.component.ts
 loadReceivedQuantities(): void {
   if (!this.chargeSheetId) return;
 
@@ -1065,6 +1090,13 @@ loadReceivedQuantities(): void {
         totals.set(itemId, current + h.quantityReceived);
       });
       this.receivedQuantities = totals;
+      
+      // ✅ Vérifier pour chaque item si des fiches de conformité existent
+      this.chargeSheet?.items.forEach(item => {
+        if (item.id) {
+          this.checkExistingCompliances(item.id);
+        }
+      });
     },
     error: (err) => {
       console.error('Erreur chargement quantités reçues:', err);
@@ -1092,16 +1124,37 @@ loadChargeSheet(): void {
 }
 
 getReceivedQuantity(itemId: number): number {
+  if (!itemId) return 0;
   return this.receivedQuantities.get(itemId) || 0;
 }
-
-// Modifiez cette méthode
-// REMPLACEZ votre méthode goToCreateConforme existante par celle-ci
-// Dans charge-sheet-items-view.component.ts
+// Modifiez cette méthode pour vérifier la réception et les fiches existantes
 goToCreateConforme(item: ChargeSheetItemDto): void {
   if (!this.chargeSheetId || !item.id) return;
 
-  // Rediriger vers la page dédiée
+  const quantityOrdered = item.quantityOfTestModules || 0;
+  const quantityReceived = this.getReceivedQuantity(item.id);
+
+  // ✅ Vérification 1: Est-ce que la quantité a été reçue ?
+  if (quantityReceived === 0) {
+    alert(`❌ Impossible de créer une fiche de conformité pour l'item ${item.itemNumber}.\n\nAucun module n'a encore été reçu pour cet item.`);
+    return;
+  }
+
+  // ✅ Vérification 2: Est-ce que la quantité reçue est suffisante ?
+  if (quantityReceived < quantityOrdered) {
+    alert(`⚠️ Attention: Seulement ${quantityReceived} module(s) reçu(s) sur ${quantityOrdered} commandé(s).\n\nVous pouvez créer des fiches pour les modules déjà reçus.`);
+    // On continue quand même car il y a eu au moins une réception
+  }
+
+  // ✅ Vérification 3: Est-ce que des fiches existent déjà ?
+  if (this.hasExistingCompliance(item.id)) {
+    const confirmCreate = confirm(`⚠️ Des fiches de conformité existent déjà pour l'item ${item.itemNumber}.\n\nVoulez-vous créer des fiches supplémentaires ?`);
+    if (!confirmCreate) {
+      return;
+    }
+  }
+
+  // Rediriger vers la page de création
   this.router.navigate([
     '/compliance',
     'charge-sheets',
@@ -1111,7 +1164,6 @@ goToCreateConforme(item: ChargeSheetItemDto): void {
     'create-conforme'
   ]);
 }
-// Nouvelle méthode pour créer les fiches
 
 // Ajoutez cette méthode dans la classe ChargeSheetItemsViewComponent
 

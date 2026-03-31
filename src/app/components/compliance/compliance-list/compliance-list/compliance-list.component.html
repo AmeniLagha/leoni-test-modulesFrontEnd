@@ -12,40 +12,93 @@
           <p class="text-white-50 mb-0">Gestion et suivi des fiches de conformité</p>
         </div>
         <div class="d-flex gap-2">
-          <a routerLink="/compliance/create" class="btn btn-light">
-            <i class="bi bi-plus-circle me-2"></i>Nouvelle fiche
-          </a>
+            <button class="btn btn-light" (click)="exportAllToExcel()">
+              <i class="bi bi-file-earmark-excel me-2"></i>Exporter
+            </button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- FILTRES -->
-  <div class="card border-0 shadow-sm mb-4" *ngIf="complianceList.length > 0">
-    <div class="card-body">
-      <div class="row g-3">
-        <div class="col-md-5">
-          <div class="input-group">
-            <span class="input-group-text bg-white border-end-0">
-              <i class="bi bi-search text-muted"></i>
-            </span>
-            <input type="text" class="form-control border-start-0 ps-0"
-                   placeholder="Rechercher par order number, technicien..."
-                   [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()">
-          </div>
-        </div>
-        <div class="col-md-3">
-          <input type="date" class="form-control" [(ngModel)]="dateFilter"
-                 (change)="applyFilters()" placeholder="Filtrer par date">
-        </div>
-        <div class="col-md-4">
-          <button *ngIf="searchTerm || dateFilter" class="btn btn-outline-secondary w-100" (click)="resetFilters()">
-            <i class="bi bi-eraser me-2"></i>Effacer les filtres
-          </button>
+<div class="card border-0 shadow-sm mb-4" *ngIf="complianceList.length > 0">
+  <div class="card-body">
+    <div class="row g-3 align-items-end">
+      <div class="col-md-3">
+        <label class="form-label fw-semibold small text-muted text-uppercase">
+          <i class="bi bi-search me-1"></i>Recherche
+        </label>
+        <div class="input-group">
+          <span class="input-group-text bg-white border-end-0">
+            <i class="bi bi-search text-muted"></i>
+          </span>
+          <input type="text" class="form-control border-start-0 ps-0"
+                 placeholder="Order number, technicien..."
+                 [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()">
         </div>
       </div>
+      
+      <!-- Filtre par année -->
+      <div class="col-md-2">
+        <label class="form-label fw-semibold small text-muted text-uppercase">
+          <i class="bi bi-calendar-year me-1"></i>Année
+        </label>
+        <select class="form-select" (change)="filterByYear($event)" [value]="yearFilter">
+          <option value="">📅 Toutes les années</option>
+          <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
+        </select>
+      </div>
+      
+      <!-- Filtre par mois -->
+      <div class="col-md-2">
+        <label class="form-label fw-semibold small text-muted text-uppercase">
+          <i class="bi bi-calendar-month me-1"></i>Mois
+        </label>
+        <select class="form-select" (change)="filterByMonth($event)" [value]="monthFilter">
+          <option value="">📅 Tous les mois</option>
+          <option *ngFor="let month of availableMonths" [value]="month.value">{{ month.label }}</option>
+        </select>
+      </div>
+      
+      <!-- Filtre par date exacte -->
+      <div class="col-md-2">
+        <label class="form-label fw-semibold small text-muted text-uppercase">
+          <i class="bi bi-calendar me-1"></i>Date exacte
+        </label>
+        <input type="date" class="form-control" [(ngModel)]="dateFilter"
+               (change)="applyFilters()">
+      </div>
+      
+      <!-- Bouton effacer -->
+      <div class="col-md-2">
+        <button *ngIf="searchTerm || dateFilter || monthFilter || yearFilter"
+                class="btn btn-outline-secondary w-100" (click)="resetFilters()">
+          <i class="bi bi-eraser me-2"></i>Effacer
+        </button>
+      </div>
+    </div>
+    
+    <!-- Afficher les filtres actifs -->
+    <div class="mt-3 d-flex flex-wrap gap-2" *ngIf="searchTerm || dateFilter || monthFilter || yearFilter">
+      <span class="badge bg-light text-dark p-2" *ngIf="searchTerm">
+        <i class="bi bi-search me-1"></i>Recherche: "{{ searchTerm }}"
+        <i class="bi bi-x-circle-fill ms-2 text-danger" style="cursor: pointer;" (click)="searchTerm=''; applyFilters()"></i>
+      </span>
+      <span class="badge bg-light text-dark p-2" *ngIf="yearFilter">
+        <i class="bi bi-calendar-year me-1"></i>Année: {{ yearFilter }}
+        <i class="bi bi-x-circle-fill ms-2 text-danger" style="cursor: pointer;" (click)="yearFilter=''; applyFilters()"></i>
+      </span>
+      <span class="badge bg-light text-dark p-2" *ngIf="monthFilter">
+        <i class="bi bi-calendar-month me-1"></i>Mois: {{ getMonthLabel(monthFilter) }}
+        <i class="bi bi-x-circle-fill ms-2 text-danger" style="cursor: pointer;" (click)="monthFilter=''; applyFilters()"></i>
+      </span>
+      <span class="badge bg-light text-dark p-2" *ngIf="dateFilter">
+        <i class="bi bi-calendar me-1"></i>Date: {{ dateFilter | date:'dd/MM/yyyy' }}
+        <i class="bi bi-x-circle-fill ms-2 text-danger" style="cursor: pointer;" (click)="dateFilter=''; applyFilters()"></i>
+      </span>
     </div>
   </div>
+</div>
 
   <!-- LOADING -->
   <div *ngIf="isLoading" class="text-center py-5">
@@ -133,6 +186,10 @@
                   <button class="btn btn-outline-danger" (click)="deleteCompliance(compliance.id)" title="Supprimer">
                     <i class="bi bi-trash"></i>
                   </button>
+                  <!-- ✅ NOUVEAU BOUTON EXPORT INDIVIDUEL -->
+    <button class="btn btn-outline-success" (click)="exportOneToExcel(compliance)" title="Exporter">
+      <i class="bi bi-file-earmark-excel"></i>
+    </button>
                 </div>
                </td>
              </tr>

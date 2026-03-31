@@ -51,6 +51,7 @@ orderitemNumber: string;
   rfidNumber: string;
   leoniPartNumber: string;
   producer: string;
+   indexValue: number; 
   type: string;
   sequenceTestPins: string;
   codingRequest: string;

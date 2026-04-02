@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ComplianceDisplay, ComplianceDto, PrepareCompliance } from '../models/compliance.model';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ComplianceService {
-  private apiUrl = 'http://localhost:8081/api/v1/compliance'; // URL backend Spring Boot
+  private apiUrl = `${environment.apiUrl}/api/v1/compliance`; // URL backend Spring Boot
 
   constructor(private http: HttpClient) {}
 

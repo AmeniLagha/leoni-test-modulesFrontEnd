@@ -3,10 +3,11 @@ import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { AuthService } from './auth.service';
 import { UploadResponse } from '../models/charge-sheet.model';
+import { environment } from '../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class UploadService {
-  private apiUrl = 'http://localhost:8081/api/v1/charge-sheets';
+  private apiUrl = `${environment.apiUrl}/api/v1/charge-sheets`;
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 

@@ -14,10 +14,11 @@ import {
   ReceptionHistoryDto
 } from '../models/charge-sheet.model';
 import { ProjectStats } from '../models/stats.model';
+import { environment } from '../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class ChargeSheetService {
-  private apiUrl = 'http://localhost:8081/api/v1/charge-sheets';
+  private apiUrl = `${environment.apiUrl}/api/v1/charge-sheets`;
 
   constructor(
     private http: HttpClient,

@@ -46,7 +46,7 @@ export class ChargeSheetListComponent implements OnInit {
     { value: '11', label: 'Novembre' },
     { value: '12', label: 'Décembre' }
   ];
-  
+
   availableYears: number[] = [];
   // Pagination
   currentPage: number = 1;
@@ -71,7 +71,7 @@ export class ChargeSheetListComponent implements OnInit {
     private excelExportService: ExcelExportService,
     private uploadService: UploadService,
     private router: Router,
-    
+
   ) {}
 
   ngOnInit(): void {
@@ -82,11 +82,11 @@ export class ChargeSheetListComponent implements OnInit {
 generateAvailableYears(): void {
   const years = new Set<number>();
   const currentYear = new Date().getFullYear();
-  
+
   // Ajouter l'année courante et l'année précédente
   years.add(currentYear);
   years.add(currentYear - 1);
-  
+
   // Si vous avez des cahiers plus anciens, ajouter aussi
   this.chargeSheets.forEach(sheet => {
     if (sheet.createdAt) {
@@ -94,7 +94,7 @@ generateAvailableYears(): void {
       years.add(year);
     }
   });
-  
+
   this.availableYears = Array.from(years).sort((a, b) => b - a);
 }
   // ============ PERMISSIONS ============
@@ -117,6 +117,9 @@ generateAvailableYears(): void {
   isAdmin(): boolean {
     return this.authService.getUserRole() === 'ADMIN';
   }
+  isPT(): boolean{
+    return this.authService.getUserRole() ==='PT'
+  }
 
   // ============ CHARGEMENT DES DONNÉES ============
   fetchChargeSheets(): void {
@@ -125,7 +128,7 @@ generateAvailableYears(): void {
       next: (data: ChargeSheetComplete[]) => {
         this.chargeSheets = data;
         this.applyFilters();
-         this.generateAvailableYears(); 
+         this.generateAvailableYears();
         this.loadReceivedQuantitiesForAllSheets();
         this.loading = false;
       },
@@ -229,7 +232,7 @@ generateAvailableYears(): void {
         return false;
       }
     }
-    
+
     // ✅ NOUVEAU : Filtre par année
     if (this.yearFilter && sheet.createdAt) {
       const sheetYear = new Date(sheet.createdAt).getFullYear();
@@ -551,7 +554,7 @@ private async loadItemImagesForSheet(chargeSheet: ChargeSheetComplete): Promise<
         alert('Impossible de charger les détails du cahier');
         return;
       }
-      
+
       await this.exportSingleChargeSheetToExcel(fullSheet);
     } catch (err: any) {
       console.error('Erreur chargement détails:', err);
@@ -602,7 +605,7 @@ private async loadItemImagesForSheet(chargeSheet: ChargeSheetComplete): Promise<
           const worksheet = workbook.addWorksheet(sheetName);
           await this.populateChargeSheetWorksheet(worksheet, fullSheet);
           successCount++;
-          
+
           // Ajouter au sommaire
           const row = summarySheet.addRow([
             fullSheet.id,
@@ -612,7 +615,7 @@ private async loadItemImagesForSheet(chargeSheet: ChargeSheetComplete): Promise<
             this.chargeSheetService.getStatusLabel(fullSheet.status) || fullSheet.status,
             fullSheet.items?.length || 0
           ]);
-          
+
           // Ajouter un lien hypertexte vers l'onglet
           const cell = row.getCell(1);
           cell.value = { text: fullSheet.id.toString(), hyperlink: `#${sheetName}!A1` };
@@ -626,7 +629,7 @@ private async loadItemImagesForSheet(chargeSheet: ChargeSheetComplete): Promise<
           worksheet.addRow(['']);
           worksheet.addRow(['Ce cahier ne contient aucun item à exporter.']);
           successCount++;
-          
+
           const row = summarySheet.addRow([
             fullSheet.id,
             fullSheet.harnessRef || '-',
@@ -635,7 +638,7 @@ private async loadItemImagesForSheet(chargeSheet: ChargeSheetComplete): Promise<
             this.chargeSheetService.getStatusLabel(fullSheet.status) || fullSheet.status,
             0
           ]);
-          
+
           const cell = row.getCell(1);
           cell.value = { text: fullSheet.id.toString(), hyperlink: `#${sheetName}!A1` };
           cell.font = { color: { argb: 'FF2E86C1' }, underline: true };
@@ -688,7 +691,7 @@ private async loadItemImagesForSheet(chargeSheet: ChargeSheetComplete): Promise<
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Items');
     await this.populateChargeSheetWorksheet(worksheet, chargeSheet);
-    
+
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'

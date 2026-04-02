@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { StockModule } from '../models/stock-module.model';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StockService {
 
-  private apiUrl = 'http://localhost:8081/api/v1/stock'; // à adapter selon ton backend
+  private apiUrl = `${environment.apiUrl}/api/v1/stock`; // à adapter selon ton backend
 
   constructor(private http: HttpClient) {}
 private getAuthHeaders(): HttpHeaders {

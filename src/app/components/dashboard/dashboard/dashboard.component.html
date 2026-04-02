@@ -57,8 +57,8 @@
 
             <!-- 👥 GESTION DES UTILISATEURS (ADMIN ONLY) -->
             <li class="nav-item dropdown" *ngIf="hasPermission(['admin:readuser'])">
-              <a class="nav-link d-flex align-items-center dropdown-toggle" href="#" 
-                 (click)="toggleUserDropdown($event)" 
+              <a class="nav-link d-flex align-items-center dropdown-toggle" href="#"
+                 (click)="toggleUserDropdown($event)"
                  [class.show]="isUserDropdownOpen">
                 <i class="bi bi-people me-2"></i>
                 Utilisateurs
@@ -78,7 +78,7 @@
             </li>
 
             <!-- 📄 Cahiers des charges -->
-            <li class="nav-item" *ngIf="hasPermission(['charge_sheet:basic:read'])">
+           <li class="nav-item" >
               <a class="nav-link d-flex align-items-center" routerLink="/charge-sheets/list" routerLinkActive="active">
                 <i class="bi bi-files me-2"></i>
                 Cahiers des charges
@@ -103,7 +103,7 @@
 
             <!-- 🔧 Maintenance -->
             <li class="nav-item dropdown" *ngIf="hasPermission(['maintenance:read'])">
-              <a class="nav-link d-flex align-items-center dropdown-toggle" href="#" 
+              <a class="nav-link d-flex align-items-center dropdown-toggle" href="#"
                  (click)="toggleMaintenanceDropdown($event)">
                 <i class="bi bi-wrench me-2"></i>
                 Maintenance

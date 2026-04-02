@@ -12,13 +12,14 @@ import {
   UpdateTechnicalFileDto,
   UpdateItemDto
 } from "../models/technical-file.model";
+import { environment } from "../environments/environment";
 
 @Injectable({
   providedIn: 'root'
 })
 export class TechnicalFileService {
 
-  private api = 'http://localhost:8081/api/v1/technical-files';
+  private api = `${environment.apiUrl}/api/v1/technical-files`;
 
   constructor(private http: HttpClient) {}
 

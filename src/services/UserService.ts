@@ -4,18 +4,19 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { User } from '../models/auth.model';
 import { AuthService } from './auth.service';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'http://localhost:8081/api/v1/users';
+  private apiUrl = `${environment.apiUrl}/api/v1/users`;
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
 getUsers(): Observable<User[]> {
   const token = this.authService.getAccessToken();
-  return this.http.get<User[]>(`${this.apiUrl}/getUsers`, {
+  return this.http.get<User[]>(`${this.apiUrl}`, {
     headers: {
       Authorization: `Bearer ${token}`
     }

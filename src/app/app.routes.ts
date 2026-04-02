@@ -30,8 +30,8 @@ import { StockListComponent } from './components/stock-list/stock-list.component
 import { ReceptionComponent } from './components/cahierdecharge/reception/reception.component';
 import { ReceptionListComponent } from './components/cahierdecharge/reception-list/reception-list.component';
 import { ReceptionlistglobalComponent } from './components/cahierdecharge/receptionlistglobal/receptionlistglobal.component';
-import { ResetPasswordComponent } from './components/login/reset-password.component/reset-password.component.component';
 import { ChatbotComponent } from './components/chatbot/chatbot.component';
+import { ResetPasswordComponent } from './components/login/reset-password/reset-password.component.component';
 
 export const routes: Routes = [
   // Public routes

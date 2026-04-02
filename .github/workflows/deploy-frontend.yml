@@ -12,10 +12,10 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4            # Mise à jour v4
     
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4          # Mise à jour v4
       with:
         node-version: '20'
         cache: 'npm'
@@ -33,7 +33,7 @@ jobs:
       run: npm test -- --watch=false --browsers=ChromeHeadless
     
     - name: Upload build artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4     # Mise à jour v4 (CORRECTION PRINCIPALE)
       with:
         name: frontend-build
         path: dist/
@@ -45,19 +45,19 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4            # Mise à jour v4
     
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
+      uses: docker/setup-buildx-action@v3  # Mise à jour v3
     
     - name: Login to Docker Hub
-      uses: docker/login-action@v2
+      uses: docker/login-action@v3         # Mise à jour v3
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
     
     - name: Build and push Docker image
-      uses: docker/build-push-action@v4
+      uses: docker/build-push-action@v5    # Mise à jour v5
       with:
         context: .
         push: true
@@ -68,20 +68,20 @@ jobs:
     - name: Image digest
       run: echo "Image pushed successfully"
 
-  deploy:
-    needs: docker-build
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-    
-    steps:
-    - name: Deploy to server
-      uses: appleboy/ssh-action@v0.1.5
-      with:
-        host: ${{ secrets.SERVER_HOST }}
-        username: ${{ secrets.SERVER_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        script: |
-          cd /opt/leoni-app
-          docker-compose pull frontend
-          docker-compose up -d frontend
-          docker system prune -f
+  # deploy:  # Désactivé - à activer quand vous aurez un serveur
+  #   needs: docker-build
+  #   runs-on: ubuntu-latest
+  #   if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+  #   
+  #   steps:
+  #   - name: Deploy to server
+  #     uses: appleboy/ssh-action@v1.2.0    # Mise à jour version stable
+  #     with:
+  #       host: ${{ secrets.SERVER_HOST }}
+  #       username: ${{ secrets.SERVER_USER }}
+  #       key: ${{ secrets.SSH_PRIVATE_KEY }}
+  #       script: |
+  #         cd /opt/leoni-app
+  #         docker-compose pull frontend
+  #         docker-compose up -d frontend
+  #         docker system prune -f

@@ -27,7 +27,7 @@ jobs:
       run: npm run lint || true
     
     - name: Build
-      run: npm run build -- --configuration production
+      run: npm run build -- --configuration docker
     
     - name: Run tests
       run: npm test -- --watch=false --browsers=ChromeHeadless

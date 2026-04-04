@@ -1,325 +1,639 @@
-<div class="dashboard-wrapper">
-  <!-- Top Navigation Bar -->
-  <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm"
-    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-    <div class="container-fluid px-4">
-      <a class="navbar-brand d-flex align-items-center" href="#">
-        <img src="assets/leonilogo.png" alt="Leoni" height="40" class="me-2">
-        <span class="fw-bold">Leoni Test Module System</span>
-      </a>
+<!-- dashboard.component.html - Version organisée et propre -->
 
-      <button class="navbar-toggler" type="button" (click)="toggleNavbar()">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-     <div class="collapse navbar-collapse" [class.show]="isNavbarOpen" id="navbarNav">
-  <ul class="navbar-nav ms-auto align-items-center">
-    <li class="nav-item dropdown" (click)="toggleUserMenuDropdown($event)">
-      <a class="nav-link dropdown-toggle d-flex align-items-center" href="javascript:void(0)" role="button">
-        <div class="avatar-circle me-2">
-          <span class="avatar-text">{{ userEmail.charAt(0).toUpperCase() }}</span>
+<div class="leoni-dashboard">
+  <!-- ==================== TOP NAVIGATION BAR ==================== -->
+  <nav class="leoni-navbar">
+    <div class="nav-container">
+      <!-- Logo -->
+      <div class="nav-brand">
+        <div class="leoni-logo-3d">
+          <div class="logo-ring">
+            <svg viewBox="0 0 120 120" class="logo-svg">
+              <defs>
+                <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#00D4FF"/>
+                  <stop offset="100%" style="stop-color:#0052CC"/>
+                </linearGradient>
+                <filter id="glow">
+                  <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                  <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+              <circle cx="60" cy="60" r="55" stroke="url(#logoGrad)" stroke-width="2" fill="none" stroke-dasharray="200" stroke-dashoffset="50"/>
+              <path d="M35 60 L50 45 L65 55 L85 35 L90 40 L65 65 L50 55 L40 65 Z" fill="url(#logoGrad)" filter="url(#glow)"/>
+              <circle cx="60" cy="60" r="8" fill="white"/>
+              <path d="M60 52 L60 68 M52 60 L68 60" stroke="white" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <span class="brand-name">LEONI</span>
+            <span class="brand-sub">Industrial Intelligence</span>
+          </div>
         </div>
-        <span class="d-none d-md-block">{{ userEmail | slice:0:20 }}</span>
-      </a>
-      <ul class="dropdown-menu" [class.show]="isUserMenuOpen" style="position: absolute; right: 0; top: 100%; z-index: 1000;">
-        <li><span class="dropdown-item-text fw-bold">Rôle: {{ getUserRoleLabel(userRole) }}</span></li>
-        <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item text-danger" (click)="logout($event)">
-          <i class="bi bi-box-arrow-right me-2"></i>Déconnexion
-        </a></li>
-      </ul>
-    </li>
-  </ul>
+      </div>
+
+      <!-- Actions Navbar -->
+      <div class="nav-actions" [class.open]="isNavbarOpen">
+        <div class="system-health">
+          <div class="health-indicator">
+            <svg width="20" height="20" viewBox="0 0 20 20">
+              <circle cx="10" cy="10" r="8" fill="none" stroke="#00D4FF" stroke-width="1.5"/>
+              <circle cx="10" cy="10" r="4" fill="#00FF88" opacity="0.8">
+                <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite"/>
+              </circle>
+            </svg>
+            <span>Système opérationnel</span>
+          </div>
+        </div>
+
+        <div class="nav-notifications">
+  <button class="notif-btn" (click)="goToNotifications()">
+    <i class="bi bi-bell"></i>
+    <span class="notif-dot" *ngIf="notificationCount > 0">
+      <span class="notif-count">{{ notificationCount > 99 ? '99+' : notificationCount }}</span>
+    </span>
+
+  </button>
 </div>
+
+        <!-- User Menu -->
+        <div class="user-menu" (click)="toggleUserMenuDropdown($event)">
+          <div class="user-avatar">
+            <span class="avatar-initial">{{ userEmail.charAt(0).toUpperCase() }}</span>
+            <div class="avatar-ring"></div>
+          </div>
+          <div class="user-info">
+            <span class="user-name">{{ userEmail.split('@')[0] }}</span>
+            <span class="user-role">{{ getUserRoleLabel(userRole) }}</span>
+          </div>
+          <i class="bi bi-chevron-down"></i>
+        </div>
+
+        <!-- Dropdown -->
+        <div class="dropdown-menu user-dropdown" [class.show]="isUserMenuOpen">
+          <div class="dropdown-header">
+            <div class="dropdown-avatar">{{ userEmail.charAt(0).toUpperCase() }}</div>
+            <div class="dropdown-user-info">
+              <h6>{{ userEmail.split('@')[0] }}</h6>
+              <small>{{ getUserRoleLabel(userRole) }}</small>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" (click)="logout($event)">
+            <i class="bi bi-box-arrow-right"></i> Déconnexion
+          </a>
+        </div>
+      </div>
     </div>
   </nav>
 
-  <div class="container-fluid">
-    <div class="row">
-      <!-- Sidebar -->
-      <nav class="col-md-3 col-lg-2 d-md-block sidebar shadow-sm">
-        <div class="position-sticky pt-3">
-          <div class="user-info-card text-center mb-4 p-3">
-            <div class="avatar-circle-large mx-auto mb-2">
-              <span class="avatar-text-large">{{ userEmail.charAt(0).toUpperCase() }}</span>
-            </div>
-            <h6 class="mb-0">{{ userEmail | slice:0:20 }}</h6>
-            <small class="text-muted">{{ getUserRoleLabel(userRole) }}</small>
+  <!-- ==================== LAYOUT PRINCIPAL ==================== -->
+  <div class="leoni-layout">
+
+    <!-- ==================== SIDEBAR ==================== -->
+    <aside class="leoni-sidebar" [class.collapsed]="isSidebarCollapsed">
+      <!-- User Card -->
+      <div class="sidebar-user-card">
+        <div class="user-card-glow"></div>
+        <div class="user-avatar-large">
+          <span>{{ userEmail.charAt(0).toUpperCase() }}</span>
+        </div>
+        <h5>{{ userFirstName || userEmail.split('@')[0] }}</h5>
+        <span class="user-badge">{{ getUserRoleLabel(userRole) }}</span>
+        <div class="user-stats">
+          <div class="stat">
+            <span class="stat-value">{{ activeUsers }}</span>
+            <span class="stat-label">Connectés</span>
           </div>
-
-          <ul class="nav flex-column">
-            <li class="nav-item">
-              <a class="nav-link d-flex align-items-center" routerLink="/dashboard" routerLinkActive="active">
-                <i class="bi bi-speedometer2 me-2"></i>
-                Tableau de bord
-              </a>
-            </li>
-
-            <!-- 👥 GESTION DES UTILISATEURS (ADMIN ONLY) -->
-            <li class="nav-item dropdown" *ngIf="hasPermission(['admin:readuser'])">
-              <a class="nav-link d-flex align-items-center dropdown-toggle" href="#"
-                 (click)="toggleUserDropdown($event)"
-                 [class.show]="isUserDropdownOpen">
-                <i class="bi bi-people me-2"></i>
-                Utilisateurs
-              </a>
-              <ul class="dropdown-menu shadow-sm" [class.show]="isUserDropdownOpen" style="display: block; position: static;">
-                <li>
-                  <a class="dropdown-item d-flex align-items-center" routerLink="/listeuser" routerLinkActive="active">
-                    <i class="bi bi-list-ul me-2"></i>Liste des utilisateurs
-                  </a>
-                </li>
-                <li *ngIf="hasPermission(['admin:createuser'])">
-                  <a class="dropdown-item d-flex align-items-center" routerLink="/register" routerLinkActive="active">
-                    <i class="bi bi-person-plus me-2"></i>Nouvel utilisateur
-                  </a>
-                </li>
-              </ul>
-            </li>
-
-            <!-- 📄 Cahiers des charges -->
-           <li class="nav-item" >
-              <a class="nav-link d-flex align-items-center" routerLink="/charge-sheets/list" routerLinkActive="active">
-                <i class="bi bi-files me-2"></i>
-                Cahiers des charges
-              </a>
-            </li>
-
-            <!-- ✅ Conformité -->
-            <li class="nav-item" *ngIf="hasPermission(['compliance:read'])">
-              <a class="nav-link d-flex align-items-center" routerLink="/compliance/list" routerLinkActive="active">
-                <i class="bi bi-check2-square me-2"></i>
-                Conformité
-              </a>
-            </li>
-
-            <!-- 📁 Dossiers techniques -->
-            <li class="nav-item" *ngIf="hasPermission(['technical_file:read'])">
-              <a class="nav-link d-flex align-items-center" routerLink="/technical-files/list" routerLinkActive="active">
-                <i class="bi bi-folder me-2"></i>
-                Dossiers techniques
-              </a>
-            </li>
-
-            <!-- 🔧 Maintenance -->
-            <li class="nav-item dropdown" *ngIf="hasPermission(['maintenance:read'])">
-              <a class="nav-link d-flex align-items-center dropdown-toggle" href="#"
-                 (click)="toggleMaintenanceDropdown($event)">
-                <i class="bi bi-wrench me-2"></i>
-                Maintenance
-              </a>
-              <ul class="dropdown-menu shadow-sm" [class.show]="isMaintenanceDropdownOpen" style="display: block; position: static;">
-                <li><a class="dropdown-item" routerLink="/maintenance/corrective">Corrective</a></li>
-                <li><a class="dropdown-item" routerLink="/maintenance/preventive">Préventive</a></li>
-              </ul>
-            </li>
-
-            <!-- 📦 Stock -->
-            <li class="nav-item" *ngIf="hasPermission(['stock:read'])">
-              <a class="nav-link d-flex align-items-center" routerLink="/stock" routerLinkActive="active">
-                <i class="bi bi-box-seam me-2"></i>
-                Stock
-              </a>
-            </li>
-
-            <!-- 🚚 Réception -->
-            <li class="nav-item" *ngIf="hasPermission(['reception:read'])">
-              <a class="nav-link d-flex align-items-center" routerLink="/reception" routerLinkActive="active">
-                <i class="bi bi-truck me-2"></i>
-                Réception
-              </a>
-            </li>
-
-            <!-- 💬 Réclamations -->
-            <li class="nav-item" *ngIf="hasPermission(['claim:read'])">
-              <a class="nav-link d-flex align-items-center" routerLink="/claims/list" routerLinkActive="active">
-                <i class="bi bi-chat-dots me-2"></i>
-                Réclamations
-              </a>
-            </li>
-
-            <!-- 📊 Statistiques (Admin) -->
-            <li class="nav-item" *ngIf="userRole === 'ADMIN'">
-              <a class="nav-link d-flex align-items-center" routerLink="/statistique" routerLinkActive="active">
-                <i class="bi bi-graph-up me-2"></i>
-                Statistiques
-              </a>
-            </li>
-            <!-- 🤖 Chatbot (Admin) -->
-            <li class="nav-item" *ngIf="userRole === 'ADMIN'">
-              <a class="nav-link d-flex align-items-center" routerLink="/chat" routerLinkActive="active">
-                <i class="bi bi-robot me-2"></i>
-                ChatBot
-              </a>
-            </li>
-          </ul>
-
-          <!-- Footer Sidebar -->
-          <div class="sidebar-footer mt-auto p-3">
-            <small class="text-muted">© 2026 Leoni Tunisia</small>
+          <div class="stat-divider"></div>
+          <div class="stat">
+            <span class="stat-value">{{ chargeSheetCount }}</span>
+            <span class="stat-label">Projets</span>
           </div>
         </div>
+      </div>
+
+      <!-- Navigation Menu -->
+      <nav class="sidebar-nav">
+        <ul>
+          <li>
+            <a routerLink="/dashboard" routerLinkActive="active" class="nav-item-leoni">
+              <i class="bi bi-speedometer2"></i>
+              <span>Dashboard</span>
+              <span class="nav-indicator"></span>
+            </a>
+          </li>
+
+          <li *ngIf="hasPermission(['admin:readuser'])">
+            <a (click)="toggleSubMenu('users')" class="nav-item-leoni has-submenu">
+              <i class="bi bi-people"></i>
+              <span>Utilisateurs</span>
+              <i class="bi bi-chevron-right submenu-arrow"></i>
+            </a>
+            <ul class="submenu" [class.open]="openSubmenu === 'users'">
+              <li><a routerLink="/listeuser"><i class="bi bi-list-ul"></i> Liste</a></li>
+              <li *ngIf="hasPermission(['admin:createuser'])"><a routerLink="/register"><i class="bi bi-person-plus"></i> Nouveau</a></li>
+            </ul>
+          </li>
+
+          <li>
+            <a routerLink="/charge-sheets/list" routerLinkActive="active" class="nav-item-leoni">
+              <i class="bi bi-files"></i>
+              <span>Cahiers des charges</span>
+            </a>
+          </li>
+
+          <li *ngIf="hasPermission(['compliance:read'])">
+            <a routerLink="/compliance/list" routerLinkActive="active" class="nav-item-leoni">
+              <i class="bi bi-check2-square"></i>
+              <span>Conformité</span>
+            </a>
+          </li>
+
+          <li *ngIf="hasPermission(['technical_file:read'])">
+            <a routerLink="/technical-files/list" routerLinkActive="active" class="nav-item-leoni">
+              <i class="bi bi-folder"></i>
+              <span>Dossiers techniques</span>
+            </a>
+          </li>
+
+          <li *ngIf="hasPermission(['maintenance:read'])">
+            <a (click)="toggleSubMenu('maintenance')" class="nav-item-leoni has-submenu">
+              <i class="bi bi-wrench"></i>
+              <span>Maintenance</span>
+              <i class="bi bi-chevron-right submenu-arrow"></i>
+            </a>
+            <ul class="submenu" [class.open]="openSubmenu === 'maintenance'">
+              <li><a routerLink="/maintenance/corrective"><i class="bi bi-tools"></i> Corrective</a></li>
+              <li><a routerLink="/maintenance/preventive"><i class="bi bi-calendar-check"></i> Préventive</a></li>
+            </ul>
+          </li>
+
+          <li class="nav-divider"></li>
+
+          <li *ngIf="hasPermission(['stock:read'])">
+            <a routerLink="/stock" routerLinkActive="active" class="nav-item-leoni">
+              <i class="bi bi-box-seam"></i>
+              <span>Stock</span>
+            </a>
+          </li>
+
+          <li *ngIf="hasPermission(['reception:read'])">
+            <a routerLink="/reception" routerLinkActive="active" class="nav-item-leoni">
+              <i class="bi bi-truck"></i>
+              <span>Réception</span>
+            </a>
+          </li>
+
+          <li *ngIf="hasPermission(['claim:read'])">
+            <a routerLink="/claims/list" routerLinkActive="active" class="nav-item-leoni">
+              <i class="bi bi-chat-dots"></i>
+              <span>Réclamations</span>
+            </a>
+          </li>
+
+          <li class="nav-divider" *ngIf="userRole === 'ADMIN'"></li>
+
+          <li *ngIf="userRole === 'ADMIN'">
+            <a routerLink="/statistique" routerLinkActive="active" class="nav-item-leoni">
+              <i class="bi bi-graph-up"></i>
+              <span>Statistiques</span>
+            </a>
+          </li>
+
+          <li *ngIf="userRole === 'ADMIN'">
+            <a routerLink="/chat" routerLinkActive="active" class="nav-item-leoni">
+              <i class="bi bi-robot"></i>
+              <span>ChatBot IA</span>
+              <i class="bi bi-stars ai-badge"></i>
+            </a>
+          </li>
+        </ul>
       </nav>
 
-      <!-- Main Content -->
-      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-        <!-- Welcome Banner -->
-        <div class="welcome-banner fade-in-up">
-          <div class="row align-items-center">
-            <div class="col-md-8">
-              <h2 class="mb-1">Bienvenue, {{ userFirstName || userEmail.split('@')[0] }} !</h2>
-              <p class="mb-0 text-white-50">Voici un résumé de votre activité sur la plateforme</p>
+      <!-- Footer Sidebar -->
+      <div class="sidebar-footer">
+        <div class="footer-logo">
+          <svg width="30" height="30" viewBox="0 0 100 100">
+            <path d="M20 50 L40 30 L60 50 L80 30" stroke="#00D4FF" stroke-width="2" fill="none"/>
+            <circle cx="50" cy="50" r="15" stroke="#0052CC" stroke-width="2" fill="none"/>
+          </svg>
+        </div>
+        <span>© 2026 LEONI Group</span>
+        <small>Industrial Intelligence Platform</small>
+      </div>
+    </aside>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <main class="leoni-main">
+
+      <!-- Hero Banner -->
+      <div class="hero-banner">
+        <div class="hero-content">
+          <div class="hero-text">
+            <h1>Bienvenue, <span class="highlight">{{ userFirstName || userEmail.split('@')[0] }}</span></h1>
+            <p>Plateforme de gestion industrielle intelligente</p>
+            <div class="hero-stats">
+              <div class="hero-stat">
+                <i class="bi bi-calendar"></i>
+                <span>{{ today | date:'EEEE dd MMMM yyyy' }}</span>
+              </div>
+              <div class="hero-stat">
+                <i class="bi bi-clock"></i>
+                <span>{{ today | date:'HH:mm' }}</span>
+              </div>
             </div>
-            <div class="col-md-4 text-md-end mt-3 mt-md-0">
-              <span class="badge bg-light text-dark px-3 py-2">
-                <i class="bi bi-calendar me-1"></i> {{ today | date:'dd/MM/yyyy' }}
+          </div>
+          <div class="hero-decoration">
+            <div class="decoration-circle"></div>
+            <div class="decoration-line"></div>
+            <div class="decoration-dots"></div>
+          </div>
+        </div>
+      </div>
+  <!-- ==================== NOTIFICATIONS TECHNIQUES ==================== -->
+      <div class="notifications-section" *ngIf="technicalNotifications.length > 0">
+        <div class="section-header">
+          <h3>
+            <i class="bi bi-bell-fill"></i>
+            Alertes techniques
+            <span class="notif-badge">{{ technicalNotifications.length }}</span>
+          </h3>
+          <span class="section-line"></span>
+          <button class="clear-notif-btn" (click)="clearNotifications()">
+            <i class="bi bi-check2-all"></i> Tout marquer comme lu
+          </button>
+        </div>
+
+        <div class="notifications-list">
+          <div class="notification-item" *ngFor="let notif of technicalNotifications"
+               [class.critical]="notif.priority === 'CRITICAL'"
+               [class.high]="notif.priority === 'HIGH'"
+               [class.medium]="notif.priority === 'MEDIUM'">
+            <div class="notif-icon">
+              <i class="bi" [class.bi-exclamation-triangle-fill]="notif.priority === 'CRITICAL'"
+                 [class.bi-exclamation-circle-fill]="notif.priority === 'HIGH'"
+                 [class.bi-info-circle-fill]="notif.priority === 'MEDIUM'"></i>
+            </div>
+            <div class="notif-content">
+              <div class="notif-title">{{ notif.title }}</div>
+              <div class="notif-description">{{ notif.description }}</div>
+              <div class="notif-meta">
+                <span class="notif-project" *ngIf="notif.project">
+                  <i class="bi bi-folder"></i> Projet: {{ notif.project }}
+                </span>
+                <span class="notif-days" [class.critical]="notif.daysWithoutUpdate > 30"
+                      [class.high]="notif.daysWithoutUpdate > 14 && notif.daysWithoutUpdate <= 30">
+                  <i class="bi bi-calendar"></i> {{ notif.daysWithoutUpdate }} jours sans modification
+                </span>
+                <span class="notif-date">
+                  <i class="bi bi-clock"></i> {{ notif.createdAt | date:'dd/MM/yyyy HH:mm' }}
+                </span>
+              </div>
+            </div>
+            <div class="notif-action">
+              <button class="btn-view" (click)="viewTechnicalItem(notif.id)">
+                <i class="bi bi-eye"></i> Voir
+              </button>
+              <button class="btn-dismiss" (click)="dismissNotification(notif.id)">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Version simplifiée quand il n'y a pas de notifications -->
+      <div class="notifications-section empty" *ngIf="!isLoadingNotifications && technicalNotifications.length === 0 && userRole !== 'ADMIN'">
+        <div class="section-header">
+          <h3>
+            <i class="bi bi-bell-slash"></i>
+            Alertes techniques
+          </h3>
+          <span class="section-line"></span>
+        </div>
+        <div class="empty-notifications">
+          <i class="bi bi-check-circle-fill"></i>
+          <p>Aucune alerte technique en attente</p>
+          <small>Tous les items techniques sont à jour</small>
+        </div>
+      </div>
+      <!-- ==================== STATS GRID ==================== -->
+      <div class="stats-grid">
+        <!-- Carte Cahiers des charges -->
+        <div class="stat-card-leoni" *ngIf="hasPermission(['charge_sheet:basic:read'])">
+          <div class="card-icon">
+            <i class="bi bi-files"></i>
+            <div class="icon-bg"></div>
+          </div>
+          <div class="card-info">
+            <h3>{{ chargeSheetCount }}</h3>
+            <p>Cahiers des charges</p>
+            <div class="card-trend" [class.positive]="monthlyVariation?.trend === 'hausse'"
+                 [class.negative]="monthlyVariation?.trend === 'baisse'">
+              <i [class]="getVariationIcon(monthlyVariation?.trend || 'stable')"></i>
+              <span *ngIf="monthlyVariation">{{ getVariationSign(monthlyVariation.variation) }}{{ monthlyVariation.variation }}%</span>
+              <span *ngIf="!monthlyVariation">0%</span>
+            </div>
+          </div>
+          <div class="card-progress">
+            <div class="progress-bar" style="width: 75%"></div>
+          </div>
+        </div>
+
+        <!-- Carte Conformité -->
+        <div class="stat-card-leoni" *ngIf="hasPermission(['compliance:read'])">
+          <div class="card-icon success">
+            <i class="bi bi-check2-square"></i>
+            <div class="icon-bg"></div>
+          </div>
+          <div class="card-info">
+            <h3>{{ complianceCount }}</h3>
+            <p>Conformité</p>
+            <div class="card-trend" [class.positive]="complianceVariation?.trend === 'hausse'"
+                 [class.negative]="complianceVariation?.trend === 'baisse'">
+              <i [class]="getVariationIcon(complianceVariation?.trend || 'stable')"></i>
+              <span *ngIf="complianceVariation">{{ getVariationSign(complianceVariation.variation) }}{{ complianceVariation.variation }}%</span>
+              <span *ngIf="!complianceVariation">0%</span>
+            </div>
+          </div>
+          <div class="card-progress">
+            <div class="progress-bar" style="width: 60%"></div>
+          </div>
+        </div>
+
+        <!-- Carte Réclamations -->
+        <div class="stat-card-leoni" *ngIf="hasPermission(['claim:read'])">
+          <div class="card-icon warning">
+            <i class="bi bi-chat-dots"></i>
+            <div class="icon-bg"></div>
+          </div>
+          <div class="card-info">
+            <h3>{{ claimsCount }}</h3>
+            <p>Réclamations</p>
+            <div class="card-trend" [class.positive]="claimVariation?.trend === 'hausse'"
+         [class.negative]="claimVariation?.trend === 'baisse'">
+      <i [class]="getVariationIcon(claimVariation?.trend || 'stable')"></i>
+      <span *ngIf="claimVariation">{{ getVariationSign(claimVariation.variation) }}{{ claimVariation.variation }}%</span>
+      <span *ngIf="!claimVariation">0%</span>
+    </div>
+  </div>
+  <div class="card-progress">
+    <div class="progress-bar" style="width: 45%"></div>
+  </div>
+        </div>
+
+
+      </div>
+
+      <!-- ==================== SÉLECTEURS ADMIN ==================== -->
+      <div class="admin-selectors" *ngIf="userRole === 'ADMIN'">
+        <!-- Sélecteur Cahiers -->
+        <div class="project-selector">
+          <label>📋 Vue Cahiers :</label>
+          <select [(ngModel)]="selectedProject" (change)="onProjectChange()" class="form-control">
+            <option value="ALL">📊 Tous les projets</option>
+            <option value="FORD">Ford</option>
+            <option value="Mercedes">Mercedes</option>
+            <option value="BMW">BMW</option>
+            <option value="Audi">Audi</option>
+            <option value="Porsche">Porsche</option>
+          </select>
+        </div>
+
+        <!-- Sélecteur Conformité -->
+        <div class="project-selector">
+          <label>✅ Vue Conformité :</label>
+          <select [(ngModel)]="selectedComplianceProject" (change)="onComplianceProjectChange()" class="form-control">
+            <option value="ALL">📊 Tous les projets</option>
+            <option value="FORD">Ford</option>
+            <option value="Mercedes">Mercedes</option>
+            <option value="BMW">BMW</option>
+            <option value="Audi">Audi</option>
+            <option value="Porsche">Porsche</option>
+          </select>
+        </div>
+      </div>
+      <!-- dashboard.component.html - Ajoutez dans admin-selectors -->
+
+<!-- Sélecteur Réclamations -->
+<div class="project-selector" *ngIf="userRole === 'ADMIN'">
+  <label>⚠️ Vue Réclamations :</label>
+  <select [(ngModel)]="selectedClaimProject" (change)="onClaimProjectChange()" class="form-control">
+    <option value="ALL">📊 Tous les projets</option>
+    <option value="FORD">Ford</option>
+    <option value="Mercedes">Mercedes</option>
+    <option value="BMW">BMW</option>
+    <option value="Audi">Audi</option>
+    <option value="Porsche">Porsche</option>
+  </select>
+</div>
+
+      <!-- ==================== CARTE VARIATION CAHIERS ==================== -->
+      <!-- Chargement -->
+      <div class="variation-card" *ngIf="isLoadingVariation">
+        <div class="variation-header">
+          <div class="header-left">
+            <i class="bi bi-graph-up"></i>
+            <h3>Évolution des créations de cahiers</h3>
+          </div>
+        </div>
+        <div class="loading-spinner">
+          <div class="spinner"></div>
+          <p>Chargement des données...</p>
+        </div>
+      </div>
+
+      <!-- Contenu -->
+      <div class="variation-card" *ngIf="monthlyVariation && monthlyVariation.currentMonth">
+        <div class="variation-header">
+          <div class="header-left">
+            <i class="bi bi-graph-up"></i>
+            <h3>Évolution des créations de cahiers</h3>
+          </div>
+          <button class="info-btn" (click)="showVariationDetails = !showVariationDetails">
+            <i class="bi bi-info-circle"></i>
+          </button>
+        </div>
+
+        <div class="variation-content">
+          <div class="months-compare">
+            <div class="month-card current">
+              <span class="month-label">{{ monthlyVariation.currentMonth | date:'MMMM yyyy' }}</span>
+              <span class="month-count">{{ monthlyVariation.currentMonthCount }}</span>
+              <span class="month-sub">cahiers créés</span>
+            </div>
+            <div class="variation-arrow" [class.positive]="monthlyVariation.trend === 'hausse'"
+                 [class.negative]="monthlyVariation.trend === 'baisse'">
+              <i [class]="getVariationIcon(monthlyVariation.trend)"></i>
+              <span class="variation-percent" [class.positive]="monthlyVariation.trend === 'hausse'"
+                    [class.negative]="monthlyVariation.trend === 'baisse'">
+                {{ getVariationSign(monthlyVariation.variation) }}{{ monthlyVariation.variation }}%
+              </span>
+            </div>
+            <div class="month-card previous">
+              <span class="month-label">{{ monthlyVariation.previousMonth | date:'MMMM yyyy' }}</span>
+              <span class="month-count">{{ monthlyVariation.previousMonthCount }}</span>
+              <span class="month-sub">cahiers créés</span>
+            </div>
+          </div>
+
+          <div class="variation-details" *ngIf="showVariationDetails">
+            <div class="detail-row">
+              <span class="detail-label">📊 Formule :</span>
+              <code class="detail-value">{{ monthlyVariation.formula }}</code>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">💡 Interprétation :</span>
+              <span class="detail-value">{{ monthlyVariation.interpretation }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">📈 Tendance :</span>
+              <span class="detail-value" [class.positive]="monthlyVariation.trend === 'hausse'"
+                     [class.negative]="monthlyVariation.trend === 'baisse'">
+                {{ monthlyVariation.trend === 'hausse' ? '📈 Hausse' : monthlyVariation.trend === 'baisse' ? '📉 Baisse' : '➡️ Stable' }}
               </span>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Stats Cards -->
-        <div class="row g-4 mb-4">
-          <div class="col-md-6 col-lg-3" *ngIf="hasPermission(['charge_sheet:basic:read'])">
-            <div class="stat-card stat-card-primary">
-              <div class="stat-icon">
-                <i class="bi bi-files"></i>
-              </div>
-              <div class="stat-info">
-                <h3 class="mb-0">{{ chargeSheetCount }}</h3>
-                <p class="mb-0">Cahiers des charges</p>
-              </div>
-              <div class="stat-progress">
-                <div class="progress-bar" style="width: 75%"></div>
-              </div>
-            </div>
+      <!-- ==================== COMPARAISON PERSONNALISÉE ==================== -->
+      <div class="custom-comparison">
+        <div class="section-header">
+          <h3>
+            <i class="bi bi-calendar-range"></i>
+            Comparaison personnalisée
+          </h3>
+          <span class="section-line"></span>
+        </div>
+
+        <div class="comparison-controls">
+          <div class="month-selector">
+            <label>Mois 1</label>
+            <input type="month" class="form-control" [(ngModel)]="selectedMonth1" (change)="loadCustomVariation()">
           </div>
-
-          <div class="col-md-6 col-lg-3" *ngIf="hasPermission(['compliance:read'])">
-            <div class="stat-card stat-card-success">
-              <div class="stat-icon">
-                <i class="bi bi-check2-square"></i>
-              </div>
-              <div class="stat-info">
-                <h3 class="mb-0">{{ complianceCount }}</h3>
-                <p class="mb-0">Fiches conformité</p>
-              </div>
-              <div class="stat-progress">
-                <div class="progress-bar" style="width: 60%"></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-md-6 col-lg-3" *ngIf="hasPermission(['claim:read'])">
-            <div class="stat-card stat-card-warning">
-              <div class="stat-icon">
-                <i class="bi bi-chat-dots"></i>
-              </div>
-              <div class="stat-info">
-                <h3 class="mb-0">{{ claimsCount }}</h3>
-                <p class="mb-0">Réclamations</p>
-              </div>
-              <div class="stat-progress">
-                <div class="progress-bar" style="width: 45%"></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-md-6 col-lg-3">
-            <div class="stat-card stat-card-info">
-              <div class="stat-icon">
-                <i class="bi bi-people"></i>
-              </div>
-              <div class="stat-info">
-                <h3 class="mb-0">{{ activeUsers }}</h3>
-                <p class="mb-0">Utilisateurs actifs</p>
-              </div>
-              <div class="stat-progress">
-                <div class="progress-bar" style="width: 85%"></div>
-              </div>
-            </div>
+          <div class="month-selector">
+            <label>Mois 2</label>
+            <input type="month" class="form-control" [(ngModel)]="selectedMonth2" (change)="loadCustomVariation()">
           </div>
         </div>
 
-        <!-- Quick Actions -->
-        <div class="card border-0 shadow-sm mb-4 fade-in-up" style="animation-delay: 0.1s">
-          <div class="card-body p-4">
-            <h5 class="card-title mb-3">
-              <i class="bi bi-lightning-charge me-2 text-primary"></i>
-              Actions rapides
-            </h5>
-            <div class="row g-3">
-              <div class="col-md-3" *ngIf="hasPermission(['charge_sheet:basic:create'])">
-                <button class="btn btn-outline-primary w-100 py-2" routerLink="/charge-sheets/create">
-                  <i class="bi bi-plus-circle me-2"></i>Nouveau cahier
-                </button>
-              </div>
-              <div class="col-md-3" *ngIf="hasPermission(['compliance:create'])">
-                <button class="btn btn-outline-success w-100 py-2" routerLink="/compliance/create">
-                  <i class="bi bi-plus-circle me-2"></i>Nouvelle conformité
-                </button>
-              </div>
-              <div class="col-md-3" *ngIf="hasPermission(['technical_file:create'])">
-                <button class="btn btn-outline-info w-100 py-2" routerLink="/technical-files/create">
-                  <i class="bi bi-plus-circle me-2"></i>Nouveau dossier
-                </button>
-              </div>
-              <div class="col-md-3" *ngIf="hasPermission(['claim:create'])">
-                <button class="btn btn-outline-warning w-100 py-2" routerLink="/claims/create">
-                  <i class="bi bi-plus-circle me-2"></i>Nouvelle réclamation
-                </button>
-              </div>
+        <div class="comparison-result" *ngIf="customVariationResult && !customVariationResult.error">
+          <div class="result-stats">
+            <div class="result-item">
+              <span class="result-label">{{ customVariationResult.month1 | date:'MMMM yyyy' }}</span>
+              <span class="result-value">{{ customVariationResult.month1Count }}</span>
+            </div>
+            <div class="result-arrow" [class.positive]="customVariationResult.trend === 'hausse'"
+                 [class.negative]="customVariationResult.trend === 'baisse'">
+              <i [class]="getVariationIcon(customVariationResult.trend)"></i>
+              <span [class.positive]="customVariationResult.trend === 'hausse'"
+                    [class.negative]="customVariationResult.trend === 'baisse'">
+                {{ getVariationSign(customVariationResult.variation) }}{{ customVariationResult.variation }}%
+              </span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">{{ customVariationResult.month2 | date:'MMMM yyyy' }}</span>
+              <span class="result-value">{{ customVariationResult.month2Count }}</span>
             </div>
           </div>
-        </div>
-
-        <!-- Permissions List -->
-        <div class="card border-0 shadow-sm fade-in-up" style="animation-delay: 0.2s">
-          <div class="card-body p-4">
-            <h5 class="card-title mb-3">
-              <i class="bi bi-shield-check me-2 text-primary"></i>
-              Vos permissions
-            </h5>
-            <div class="row g-2">
-              <div class="col-md-4 col-lg-3" *ngFor="let permission of userPermissions">
-                <span class="badge bg-light text-dark px-3 py-2 d-flex align-items-center">
-                  <i class="bi bi-check-circle-fill text-success me-2" style="font-size: 0.8rem;"></i>
-                  {{ formatPermissionName(permission) }}
-                </span>
-              </div>
-            </div>
+          <div class="result-formula">
+            <code>{{ customVariationResult.formula }}</code>
           </div>
         </div>
-
-        <!-- Router Outlet for child routes -->
-        <div class="mt-4" *ngIf="!isDashboardRoute()">
-          <router-outlet></router-outlet>
+        <div class="comparison-result empty" *ngIf="customVariationResult?.error">
+          <p class="text-muted">{{ customVariationResult.error }}</p>
         </div>
-      </main>
-    </div>
+      </div>
+
+      <!-- ==================== ACTIONS RAPIDES ==================== -->
+      <div class="actions-section">
+        <div class="section-header">
+          <h3>
+            <i class="bi bi-lightning-charge"></i>
+            Actions rapides
+          </h3>
+          <span class="section-line"></span>
+        </div>
+        <div class="actions-grid">
+          <button *ngIf="hasPermission(['charge_sheet:basic:create'])" class="action-btn" routerLink="/charge-sheets/create">
+            <i class="bi bi-plus-circle"></i>
+            <span>Nouveau cahier</span>
+          </button>
+         
+        </div>
+      </div>
+
+      <!-- ==================== PERMISSIONS ==================== -->
+      <div class="permissions-section">
+        <div class="section-header">
+          <h3>
+            <i class="bi bi-shield-check"></i>
+            Permissions système
+          </h3>
+          <span class="section-line"></span>
+        </div>
+        <div class="permissions-grid">
+          <div class="permission-tag" *ngFor="let permission of userPermissions">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>{{ formatPermissionName(permission) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Router Outlet -->
+      <div class="router-outlet" *ngIf="!isDashboardRoute()">
+        <router-outlet></router-outlet>
+      </div>
+    </main>
   </div>
 </div>
 
-<div class="chatbot-container">
-  <button class="chatbot-toggle" (click)="toggleChat()">
-    <i class="bi bi-chat-dots-fill"></i>
+<!-- ==================== CHATBOT ==================== -->
+<div class="leoni-chatbot">
+  <button class="chat-trigger" (click)="toggleChat()">
+    <div class="trigger-icon">
+      <i class="bi bi-robot"></i>
+    </div>
+    <div class="trigger-pulse"></div>
+    <span class="trigger-text">Assistant LEONI</span>
   </button>
 
-  <div class="chat-window" *ngIf="isOpen">
-    <div class="chat-header">
-      <h5><i class="bi bi-robot me-2"></i>Assistant IA LEONI</h5>
-      <button class="btn-close" (click)="closeChat()"></button>
+  <div class="chat-panel" *ngIf="isOpen">
+    <div class="chat-panel-header">
+      <div class="header-avatar">
+        <i class="bi bi-robot"></i>
+        <div class="avatar-status"></div>
+      </div>
+      <div class="header-info">
+        <h4>LEONI Assistant</h4>
+        <p>Support technique • IA avancée</p>
+      </div>
+      <button class="close-chat" (click)="closeChat()">
+        <i class="bi bi-x-lg"></i>
+      </button>
     </div>
 
     <div class="chat-messages" #messagesContainer>
-      <div *ngFor="let msg of messages" class="message" [class.user-message]="msg.isUser" [class.bot-message]="!msg.isUser">
-        <div class="message-content">
+      <div *ngFor="let msg of messages" class="chat-message" [class.user]="msg.isUser" [class.bot]="!msg.isUser">
+        <div class="message-avatar" *ngIf="!msg.isUser">
+          <i class="bi bi-robot"></i>
+        </div>
+        <div class="message-bubble">
           <div class="message-text" [innerHTML]="formatMessage(msg.text)"></div>
           <div class="message-time">{{ msg.timestamp | date:'HH:mm' }}</div>
         </div>
+        <div class="message-avatar user-avatar" *ngIf="msg.isUser">
+          <span>{{ userEmail.charAt(0).toUpperCase() }}</span>
+        </div>
       </div>
-      <div *ngIf="isLoading" class="message bot-message">
-        <div class="message-content">
+      <div *ngIf="isLoading" class="chat-message bot">
+        <div class="message-avatar"><i class="bi bi-robot"></i></div>
+        <div class="message-bubble">
           <div class="typing-indicator">
             <span></span><span></span><span></span>
           </div>
@@ -327,17 +641,19 @@
       </div>
     </div>
 
-    <div class="chat-input">
-      <input type="text" [(ngModel)]="userInput" (keyup.enter)="sendMessage()" placeholder="Posez votre question..." [disabled]="isLoading">
-      <button (click)="sendMessage()" [disabled]="!userInput || isLoading">
-        <i class="bi bi-send"></i>
-      </button>
-    </div>
-
-    <div class="chat-suggestions">
-      <button *ngFor="let suggestion of suggestions" (click)="askSuggestion(suggestion)" class="suggestion-btn">
-        {{ suggestion }}
-      </button>
+    <div class="chat-input-area">
+      <div class="input-wrapper">
+        <input type="text" [(ngModel)]="userInput" (keyup.enter)="sendMessage()"
+               placeholder="Posez votre question..." [disabled]="isLoading">
+        <button (click)="sendMessage()" [disabled]="!userInput || isLoading">
+          <i class="bi bi-send"></i>
+        </button>
+      </div>
+      <div class="suggestions">
+        <button *ngFor="let suggestion of suggestions" (click)="askSuggestion(suggestion)">
+          {{ suggestion }}
+        </button>
+      </div>
     </div>
   </div>
 </div>

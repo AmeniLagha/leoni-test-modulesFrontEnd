@@ -1,0 +1,112 @@
+<!-- components/notifications-page/notifications-page.component.html -->
+<div class="notifications-page">
+  <div class="page-header">
+    <div class="header-content">
+      <button class="back-btn" routerLink="/dashboard">
+        <i class="bi bi-arrow-left"></i> Retour
+      </button>
+      <h1>
+        <i class="bi bi-bell-fill"></i>
+        Notifications
+      </h1>
+      <p>Suivez les alertes techniques et les rappels</p>
+    </div>
+    <div class="header-actions">
+      <button class="refresh-btn" (click)="loadNotifications()" [disabled]="isLoading">
+        <i class="bi bi-arrow-repeat" [class.spinning]="isLoading"></i>
+        Actualiser
+      </button>
+      <button class="clear-all-btn" (click)="clearAllNotifications()" *ngIf="notifications.length > 0">
+        <i class="bi bi-trash"></i> Tout effacer
+      </button>
+    </div>
+  </div>
+
+  <!-- Statistiques -->
+  <div class="stats-cards">
+    <div class="stat-card" [class.active]="filterType === 'all'" (click)="filterType = 'all'">
+      <div class="stat-icon"><i class="bi bi-bell"></i></div>
+      <div class="stat-info">
+        <span class="stat-value">{{ getTotalCount() }}</span>
+        <span class="stat-label">Total</span>
+      </div>
+    </div>
+    <div class="stat-card critical" [class.active]="filterType === 'critical'" (click)="filterType = 'critical'">
+      <div class="stat-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+      <div class="stat-info">
+        <span class="stat-value">{{ getCriticalCount() }}</span>
+        <span class="stat-label">Critique</span>
+      </div>
+    </div>
+    <div class="stat-card high" [class.active]="filterType === 'high'" (click)="filterType = 'high'">
+      <div class="stat-icon"><i class="bi bi-exclamation-circle-fill"></i></div>
+      <div class="stat-info">
+        <span class="stat-value">{{ getHighCount() }}</span>
+        <span class="stat-label">Haute</span>
+      </div>
+    </div>
+    <div class="stat-card medium" [class.active]="filterType === 'medium'" (click)="filterType = 'medium'">
+      <div class="stat-icon"><i class="bi bi-info-circle-fill"></i></div>
+      <div class="stat-info">
+        <span class="stat-value">{{ getMediumCount() }}</span>
+        <span class="stat-label">Moyenne</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Liste des notifications -->
+  <div class="notifications-list" *ngIf="!isLoading">
+    <div class="notification-item" *ngFor="let notif of getFilteredNotifications()"
+         [class.critical]="notif.priority === 'CRITICAL'"
+         [class.high]="notif.priority === 'HIGH'"
+         [class.medium]="notif.priority === 'MEDIUM'">
+      <div class="notif-icon" [style.backgroundColor]="getPriorityColor(notif.priority) + '20'">
+        <i [class]="getPriorityIcon(notif.priority)" [style.color]="getPriorityColor(notif.priority)"></i>
+      </div>
+      <div class="notif-content">
+        <div class="notif-header">
+          <span class="notif-title">{{ notif.title }}</span>
+          <span class="notif-badge" [class.critical]="notif.priority === 'CRITICAL'"
+                [class.high]="notif.priority === 'HIGH'"
+                [class.medium]="notif.priority === 'MEDIUM'">
+            {{ notif.priority }}
+          </span>
+        </div>
+        <div class="notif-description">{{ notif.description }}</div>
+        <div class="notif-meta">
+          <span class="notif-project">
+            <i class="bi bi-folder"></i> Projet: {{ notif.project }}
+          </span>
+          <span class="notif-days">
+            <i class="bi bi-calendar"></i> {{ notif.daysWithoutUpdate }} jours sans modification
+          </span>
+          <span class="notif-date">
+            <i class="bi bi-clock"></i> {{ notif.createdAt | date:'dd/MM/yyyy HH:mm' }}
+          </span>
+        </div>
+      </div>
+      <div class="notif-actions">
+        <button class="btn-view" (click)="viewTechnicalItem(notif.id)">
+          <i class="bi bi-eye"></i> Voir
+        </button>
+        <button class="btn-dismiss" (click)="dismissNotification(notif.id)">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="getFilteredNotifications().length === 0">
+      <i class="bi bi-check-circle-fill"></i>
+      <h3>Aucune notification</h3>
+      <p>Tous les items techniques sont à jour</p>
+      <button class="btn-home" routerLink="/dashboard">
+        <i class="bi bi-house"></i> Retour au dashboard
+      </button>
+    </div>
+  </div>
+
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Chargement des notifications...</p>
+  </div>
+</div>

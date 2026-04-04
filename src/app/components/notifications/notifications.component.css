@@ -1,0 +1,365 @@
+/* components/notifications-page/notifications-page.component.css */
+.notifications-page {
+  padding: 2rem;
+  background: #0A0E1A;
+  min-height: 100vh;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.back-btn {
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  color: #00D4FF;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.back-btn:hover {
+  background: rgba(0, 212, 255, 0.2);
+}
+
+.header-content h1 {
+  color: white;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.header-content h1 i {
+  color: #00D4FF;
+}
+
+.header-content p {
+  color: #A0A0B0;
+  margin: 0;
+  width: 100%;
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.refresh-btn, .clear-all-btn {
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  color: #00D4FF;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.clear-all-btn {
+  background: rgba(255, 68, 68, 0.1);
+  color: #FF4444;
+  border-color: rgba(255, 68, 68, 0.2);
+}
+
+.clear-all-btn:hover {
+  background: rgba(255, 68, 68, 0.2);
+}
+
+.refresh-btn:hover:not(:disabled) {
+  background: rgba(0, 212, 255, 0.2);
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Stats Cards */
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: linear-gradient(135deg, #0F1525 0%, #0A0E1A 100%);
+  border-radius: 16px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+}
+
+.stat-card.active {
+  border-color: #00D4FF;
+  background: rgba(0, 212, 255, 0.05);
+}
+
+.stat-card.critical.active {
+  border-color: #FF4444;
+}
+
+.stat-card.high.active {
+  border-color: #FFA500;
+}
+
+.stat-card.medium.active {
+  border-color: #FFD700;
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 212, 255, 0.1);
+}
+
+.stat-icon i {
+  font-size: 1.5rem;
+  color: #00D4FF;
+}
+
+.stat-card.critical .stat-icon i {
+  color: #FF4444;
+}
+
+.stat-card.high .stat-icon i {
+  color: #FFA500;
+}
+
+.stat-card.medium .stat-icon i {
+  color: #FFD700;
+}
+
+.stat-info {
+  flex: 1;
+}
+
+.stat-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: #A0A0B0;
+}
+
+/* Notifications List */
+.notifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.notification-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #0F1525 0%, #0A0E1A 100%);
+  border-radius: 12px;
+  transition: all 0.3s;
+  border-left: 4px solid transparent;
+}
+
+.notification-item.critical {
+  border-left-color: #FF4444;
+  background: rgba(255, 68, 68, 0.05);
+}
+
+.notification-item.high {
+  border-left-color: #FFA500;
+  background: rgba(255, 165, 0, 0.03);
+}
+
+.notification-item.medium {
+  border-left-color: #FFD700;
+  background: rgba(255, 215, 0, 0.02);
+}
+
+.notification-item:hover {
+  transform: translateX(5px);
+}
+
+.notif-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.notif-icon i {
+  font-size: 1.25rem;
+}
+
+.notif-content {
+  flex: 1;
+}
+
+.notif-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.notif-title {
+  font-weight: 600;
+  color: white;
+  font-size: 1rem;
+}
+
+.notif-badge {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  font-weight: bold;
+}
+
+.notif-badge.critical {
+  background: rgba(255, 68, 68, 0.2);
+  color: #FF4444;
+}
+
+.notif-badge.high {
+  background: rgba(255, 165, 0, 0.2);
+  color: #FFA500;
+}
+
+.notif-badge.medium {
+  background: rgba(255, 215, 0, 0.2);
+  color: #FFD700;
+}
+
+.notif-description {
+  font-size: 0.85rem;
+  color: #A0A0B0;
+  margin-bottom: 0.5rem;
+}
+
+.notif-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.7rem;
+  color: #666;
+  flex-wrap: wrap;
+}
+
+.notif-meta i {
+  margin-right: 0.25rem;
+}
+
+.notif-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.notif-actions button {
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-view {
+  background: rgba(0, 212, 255, 0.1);
+  border: none;
+  color: #00D4FF;
+}
+
+.btn-view:hover {
+  background: rgba(0, 212, 255, 0.2);
+}
+
+.btn-dismiss {
+  background: rgba(255, 68, 68, 0.1);
+  border: none;
+  color: #FF4444;
+}
+
+.btn-dismiss:hover {
+  background: rgba(255, 68, 68, 0.2);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem;
+  background: linear-gradient(135deg, #0F1525 0%, #0A0E1A 100%);
+  border-radius: 20px;
+}
+
+.empty-state i {
+  font-size: 4rem;
+  color: #00FF88;
+  margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+  color: #A0A0B0;
+  margin-bottom: 1.5rem;
+}
+
+.btn-home {
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 12px;
+  padding: 0.5rem 1rem;
+  color: #00D4FF;
+  cursor: pointer;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 4rem;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(0, 212, 255, 0.1);
+  border-top-color: #00D4FF;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}

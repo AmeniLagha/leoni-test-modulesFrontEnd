@@ -32,6 +32,7 @@ import { ReceptionListComponent } from './components/cahierdecharge/reception-li
 import { ReceptionlistglobalComponent } from './components/cahierdecharge/receptionlistglobal/receptionlistglobal.component';
 import { ChatbotComponent } from './components/chatbot/chatbot.component';
 import { ResetPasswordComponent } from './components/login/reset-password/reset-password.component.component';
+import { NotificationsComponent } from './components/notifications/notifications.component';
 
 export const routes: Routes = [
   // Public routes
@@ -241,7 +242,7 @@ export const routes: Routes = [
   {
     path:'reception',
     component:ReceptionlistglobalComponent,
-    canActivate:[authGuard]
+    canActivate:[authGuard, permissionGuard(['reception:read'])]
   },
   // Ajoutez cette route dans votre configuration
 {
@@ -253,6 +254,11 @@ export const routes: Routes = [
   path: 'charge-sheets/:id/receptions',
   component:ReceptionListComponent,
   canActivate: [authGuard]
+},
+{
+  path:'notifications',
+  component:NotificationsComponent,
+  canActivate:[authGuard]
 },
 
   // Catch-all route

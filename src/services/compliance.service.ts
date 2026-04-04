@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ComplianceDisplay, ComplianceDto, PrepareCompliance } from '../models/compliance.model';
 import { environment } from '../environments/environment';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,14 +11,14 @@ import { environment } from '../environments/environment';
 export class ComplianceService {
   private apiUrl = `${environment.apiUrl}/api/v1/compliance`; // URL backend Spring Boot
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private authService: AuthService ) {}
 
-private getAuthHeaders(): HttpHeaders {
-  const token = localStorage.getItem('access_token'); // ⚡ correct
-  return new HttpHeaders({
-    'Authorization': `Bearer ${token}`
-  });
-}
+ private getAuthHeaders(): HttpHeaders {
+    const token = this.authService.getAccessToken(); // ⚡ Utilisez authService
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+  }
 
 
   // Créer une fiche de conformité
@@ -77,4 +78,32 @@ getComplianceByItem(itemId: number): Observable<ComplianceDto[]> {
 
   return this.http.get<ComplianceDto[]>(`${this.apiUrl}/item/${itemId}`, { headers: this.getAuthHeaders() });
 }
+  // ============ NOUVELLES MÉTHODES POUR LES STATISTIQUES ============
+
+  /** Récupérer la variation entre deux mois spécifiques pour les conformités */
+  getVariationBetweenMonths(month1: string, month2: string, project?: string): Observable<any> {
+    let url = `${this.apiUrl}/stats/monthly-variation?month1=${month1}&month2=${month2}`;
+    if (project && project !== 'ALL') {
+      url += `&project=${project}`;
+    }
+    return this.http.get<any>(url, { headers: this.getAuthHeaders() });
+  }
+
+  /** Récupérer la variation entre les deux derniers mois pour les conformités */
+  getLastTwoMonthsVariation(project?: string): Observable<any> {
+    let url = `${this.apiUrl}/stats/last-two-months`;
+    if (project && project !== 'ALL') {
+      url += `?project=${project}`;
+    }
+    return this.http.get<any>(url, { headers: this.getAuthHeaders() });
+  }
+
+  /** Récupérer les statistiques mensuelles des conformités */
+  getMonthlyComplianceStats(months: number = 6, project?: string): Observable<any> {
+    let url = `${this.apiUrl}/stats/monthly-stats?months=${months}`;
+    if (project && project !== 'ALL') {
+      url += `&project=${project}`;
+    }
+    return this.http.get<any>(url, { headers: this.getAuthHeaders() });
+  }
 }

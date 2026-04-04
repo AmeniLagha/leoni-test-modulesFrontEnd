@@ -13,7 +13,7 @@ import {
   ReceptionHistory,
   ReceptionHistoryDto
 } from '../models/charge-sheet.model';
-import { ProjectStats } from '../models/stats.model';
+import { MonthlyVariation, ProjectStats } from '../models/stats.model';
 import { environment } from '../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -251,6 +251,49 @@ getReceptionHistory(sheetId: number): Observable<ReceptionHistoryDto[]> {
 getAllReceptions(): Observable<ReceptionHistoryDto[]> {
   const token = this.authService.getAccessToken();
   return this.http.get<ReceptionHistoryDto[]>(`${this.apiUrl}/receptions/all`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+}
+// charge-sheet.service.ts - Ajoutez/modifiez ces méthodes
+
+/** Récupérer la variation entre deux mois spécifiques */
+getVariationBetweenMonths(month1: string, month2: string, project?: string): Observable<any> {
+  const token = this.authService.getAccessToken();
+  let url = `${this.apiUrl}/stats/monthly-variation?month1=${month1}&month2=${month2}`;
+  if (project) {
+    url += `&project=${project}`;
+  }
+  return this.http.get<any>(url, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+}
+
+/** Récupérer les statistiques de création mensuelles */
+getMonthlyCreationStats(months: number = 6, project?: string): Observable<any> {
+  const token = this.authService.getAccessToken();
+  let url = `${this.apiUrl}/stats/monthly-creation?months=${months}`;
+  if (project) {
+    url += `&project=${project}`;
+  }
+  return this.http.get<any>(url, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+}
+
+/** Récupérer la variation entre les deux derniers mois */
+getLastTwoMonthsVariation(project?: string): Observable<any> {
+  const token = this.authService.getAccessToken();
+  let url = `${this.apiUrl}/stats/last-two-months`;
+  if (project) {
+    url += `?project=${project}`;
+  }
+  return this.http.get<any>(url, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+}
+getLastTwoMonthsVariationGlobal(): Observable<any> {
+  const token = this.authService.getAccessToken();
+  return this.http.get<any>(`${this.apiUrl}/stats/last-two-months?project=ALL`, {
     headers: { Authorization: `Bearer ${token}` }
   });
 }

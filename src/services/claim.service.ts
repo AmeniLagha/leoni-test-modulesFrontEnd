@@ -59,5 +59,23 @@ export class ClaimService {
       headers: this.getAuthHeaders()
     });
   }
+// claim.service.ts - Ajoutez ces méthodes
 
+/** Récupérer la variation entre les deux derniers mois pour les réclamations */
+getLastTwoMonthsVariation(project?: string): Observable<any> {
+  let url = `${this.api}/stats/last-two-months`;
+  if (project && project !== 'ALL') {
+    url += `?project=${project}`;
+  }
+  return this.http.get<any>(url, { headers: this.getAuthHeaders() });
+}
+
+/** Récupérer la variation entre deux mois spécifiques pour les réclamations */
+getVariationBetweenMonths(month1: string, month2: string, project?: string): Observable<any> {
+  let url = `${this.api}/stats/monthly-variation?month1=${month1}&month2=${month2}`;
+  if (project && project !== 'ALL') {
+    url += `&project=${project}`;
+  }
+  return this.http.get<any>(url, { headers: this.getAuthHeaders() });
+}
 }

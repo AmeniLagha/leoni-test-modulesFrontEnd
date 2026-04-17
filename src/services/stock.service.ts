@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { StockModule } from '../models/stock-module.model';
+import { CreateStockModuleDto, StockModule } from '../models/stock-module.model';
 import { environment } from '../environments/environment';
+import { Site } from '../models/site.model';
 
 @Injectable({
   providedIn: 'root'
@@ -51,4 +52,42 @@ moveItemToStock(technicalFileItemId: number): Observable<any> {
     { headers: this.getAuthHeaders() }
   );
 }
+ // ✅ Créer un nouveau module en stock
+  createStockModule(dto: CreateStockModuleDto): Observable<StockModule> {
+    return this.http.post<StockModule>(this.apiUrl, dto, { headers: this.getAuthHeaders() });
+  }
+
+  // Mettre à jour un module
+  updateStockModule(id: number, dto: Partial<CreateStockModuleDto>): Observable<StockModule> {
+    return this.http.put<StockModule>(`${this.apiUrl}/${id}`, dto, { headers: this.getAuthHeaders() });
+  }
+  // stock.service.ts - Ajoutez ces méthodes
+  getStockBySiteName(siteName: string): Observable<StockModule[]> {
+    return this.http.get<StockModule[]>(`${this.apiUrl}/site/${encodeURIComponent(siteName)}`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+getStockBySiteAndProject(siteId: number, projectId: number): Observable<StockModule[]> {
+  return this.http.get<StockModule[]>(`${this.apiUrl}/stock-modules/site/${siteId}/projet/${projectId}`);
+}
+
+getSitesWithStock(): Observable<Site[]> {
+  return this.http.get<Site[]>(`${this.apiUrl}/sites/with-stock`);
+}
+// stock.service.ts - Ajouter ces méthodes
+getPreStockInfo(technicalFileItemId: number): Observable<any> {
+  return this.http.get<any>(
+    `${this.apiUrl}/item/${technicalFileItemId}/pre-stock-info`,
+    { headers: this.getAuthHeaders() }
+  );
+}
+
+moveItemToStockWithInfo(technicalFileItemId: number, stockInfo: any): Observable<any> {
+  return this.http.post<any>(
+    `${this.apiUrl}/move-item/${technicalFileItemId}`,
+    stockInfo,
+    { headers: this.getAuthHeaders() }
+  );
+}
+
 }

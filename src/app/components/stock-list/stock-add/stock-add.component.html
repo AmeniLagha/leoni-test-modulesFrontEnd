@@ -1,0 +1,174 @@
+<!-- stock-add.component.html -->
+<div class="container-fluid px-4 py-4">
+  <!-- HEADER -->
+  <div class="card border-0 shadow-lg mb-4" style="background: linear-gradient(135deg, #1e3c72 0%, #0f2b4a 100%);">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+          <h2 class="text-white mb-2">
+            <i class="bi bi-plus-circle me-2"></i>
+            Ajouter un module au stock
+          </h2>
+          <p class="text-white-50 mb-0">Remplissez le formulaire pour ajouter un nouveau module</p>
+        </div>
+        <a routerLink="/stock" class="btn btn-light">
+          <i class="bi bi-arrow-left me-2"></i>Retour au stock
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORMULAIRE -->
+  <form [formGroup]="stockForm" (ngSubmit)="onSubmit()" class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+
+      <!-- Messages -->
+      <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}
+        <button type="button" class="btn-close" (click)="error = null"></button>
+      </div>
+      <div *ngIf="success" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>{{ success }}
+        <button type="button" class="btn-close" (click)="success = null"></button>
+      </div>
+<!-- stock-add.component.html - Ajouter la section Site -->
+<!-- SECTION 1: INFORMATIONS GÉNÉRALES -->
+<div class="section-card">
+  <h5 class="section-title">
+    <i class="bi bi-building me-2 text-primary"></i>
+    Site
+  </h5>
+  <div class="row g-3">
+    <div class="col-md-6">
+      <label class="form-label fw-semibold">Site *</label>
+      <select class="form-select" formControlName="siteId" [class.is-invalid]="stockForm.get('siteId')?.invalid && stockForm.get('siteId')?.touched">
+        <option [value]="null">Sélectionner un site</option>
+        <option *ngFor="let site of sites" [value]="site.id">{{ site.name }}</option>
+      </select>
+      <div class="invalid-feedback" *ngIf="stockForm.get('siteId')?.invalid && stockForm.get('siteId')?.touched">
+        Veuillez sélectionner un site
+      </div>
+    </div>
+  </div>
+</div>
+
+      <!-- SECTION 1: INFORMATIONS GÉNÉRALES -->
+      <div class="section-card">
+        <h5 class="section-title">
+          <i class="bi bi-info-circle me-2 text-primary"></i>
+          Informations générales
+        </h5>
+        <div class="row g-3">
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Casier</label>
+            <input type="text" class="form-control" formControlName="casier" placeholder="Numéro de casier">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">STUFF NUMR</label>
+            <input type="text" class="form-control" formControlName="stuffNumr" placeholder="Référence STUFF">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">LEONI NUMR</label>
+            <input type="text" class="form-control" formControlName="leoniNumr" placeholder="Référence LEONI">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">INDEX</label>
+            <input type="text" class="form-control" formControlName="indexValue" placeholder="Index">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label fw-semibold">Quantité</label>
+            <input type="number" class="form-control" formControlName="quantite" placeholder="Quantité" min="0">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Fournisseur</label>
+            <input type="text" class="form-control" formControlName="fournisseur" placeholder="Nom du fournisseur">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label fw-semibold">État</label>
+            <select class="form-select" formControlName="etat">
+              <option value="OK">OK</option>
+              <option value="NOK">NOK</option>
+              <option value="En cours">En cours</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Caisse</label>
+            <input type="text" class="form-control" formControlName="caisse" placeholder="Numéro de caisse">
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: SPÉCIFICATIONS -->
+      <div class="section-card">
+        <h5 class="section-title">
+          <i class="bi bi-file-text me-2 text-primary"></i>
+          Spécifications
+        </h5>
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label fw-semibold">Spécifications</label>
+            <textarea class="form-control" formControlName="specifications" rows="3" placeholder="Détails techniques..."></textarea>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">DERNIER MAJ</label>
+            <input type="date" class="form-control" formControlName="dernierMaj">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Date</label>
+            <input type="date" class="form-control" formControlName="dateDemande">
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold">Info sur modules</label>
+            <textarea class="form-control" formControlName="infoSurModules" rows="2" placeholder="Informations supplémentaires..."></textarea>
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold">Demandeur et explication</label>
+            <textarea class="form-control" formControlName="demandeurExplication" rows="2" placeholder="Nom du demandeur et explication..."></textarea>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">New quantité</label>
+            <input type="number" class="form-control" formControlName="newQuantite" placeholder="Nouvelle quantité" min="0">
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 3: VALEURS TECHNIQUES -->
+      <div class="section-card">
+        <h5 class="section-title">
+          <i class="bi bi-graph-up me-2 text-primary"></i>
+          Valeurs techniques
+        </h5>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Final Displacement</label>
+            <input type="number" step="0.01" class="form-control" formControlName="finalDisplacement" placeholder="Valeur de déplacement">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Final Programmed Sealing</label>
+            <input type="number" step="0.01" class="form-control" formControlName="finalProgrammedSealing" placeholder="Valeur d'étanchéité">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Final Detection</label>
+            <select class="form-select" formControlName="finalDetection">
+              <option value="">Sélectionner</option>
+              <option value="Activé">Activé</option>
+              <option value="Désactivé">Désactivé</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOUTONS -->
+      <div class="d-flex justify-content-end gap-3 mt-4">
+        <button type="button" class="btn btn-outline-secondary" (click)="resetForm()">
+          <i class="bi bi-arrow-repeat me-2"></i>Réinitialiser
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="loading">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+          <i class="bi bi-save me-2" *ngIf="!loading"></i>
+          {{ loading ? 'Ajout en cours...' : 'Ajouter au stock' }}
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

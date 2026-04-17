@@ -1,3 +1,4 @@
+<!-- stock-list.component.html -->
 <div class="container-fluid px-4 py-4">
   <!-- HEADER GRADIENT LEONI -->
   <div class="card border-0 shadow-lg mb-4" style="background: linear-gradient(135deg, #1e3c72 0%, #0f2b4a 100%);">
@@ -9,23 +10,72 @@
             Modules en stock
             <span class="badge bg-white text-primary ms-2 fs-6">{{ filteredStockModules.length }}</span>
           </h2>
-          <p class="text-white-50 mb-0">Gestion et suivi des modules en stock</p>
+          <p class="text-white-50 mb-0">Gestion et suivi des modules par site</p>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-light" routerLink="/stock/add">
+            <i class="bi bi-plus-circle me-2"></i>Nouveau module
+          </button>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- ONGLETS PAR SITE (comme Excel) -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-0">
+      <div class="nav nav-tabs nav-fill" style="border-bottom: 2px solid #e9ecef;">
+        <!-- Onglet Tous les modules -->
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="selectedSiteId === null"
+             (click)="selectSite(null, 'Tous les modules')"
+             href="javascript:void(0)">
+            <i class="bi bi-database me-2"></i>
+            Tous les modules
+            <span class="badge bg-secondary ms-2">{{ stockModules.length }}</span>
+          </a>
+        </li>
+<!-- ONGLETS PAR SITE (comme Excel) -->
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body p-0">
+    <ul class="nav nav-tabs nav-fill" style="border-bottom: 2px solid #e9ecef;">
+      <!-- Onglet Tous les modules -->
+      <li class="nav-item">
+        <a class="nav-link" [class.active]="selectedSiteId === null"
+           (click)="selectSite(null, 'Tous les modules')"
+           href="javascript:void(0)">
+          <i class="bi bi-database me-2"></i>
+          Tous les modules
+          <span class="badge bg-secondary ms-2">{{ stockModules.length }}</span>
+        </a>
+      </li>
+
+      <!-- Onglet pour chaque site - AJOUTER CETTE BOUCLE -->
+      <li class="nav-item" *ngFor="let site of sites">
+        <a class="nav-link" [class.active]="selectedSiteId === site.id"
+           (click)="selectSite(site.id, site.name)"
+           href="javascript:void(0)">
+          <i class="bi bi-building me-2"></i>
+          {{ site.name }}
+          <span class="badge bg-secondary ms-2">{{ getSiteModuleCount(site.id) }}</span>
+        </a>
+      </li>
+
+      </ul>
+    </div>
+  </div>
+</div>
   <!-- BARRE DE RECHERCHE ET TRI -->
   <div class="card border-0 shadow-sm mb-4">
     <div class="card-body">
       <div class="row g-3">
-        <div class="col-md-5">
+        <div class="col-md-4">
           <div class="input-group">
             <span class="input-group-text bg-white border-end-0">
               <i class="bi bi-search text-muted"></i>
             </span>
             <input type="text" class="form-control border-start-0 ps-0"
-                   placeholder="Rechercher par ID, détection, statut..."
+                   placeholder="Rechercher par ID, référence, fournisseur, état..."
                    [(ngModel)]="searchTerm"
                    (ngModelChange)="onSearchChange()">
           </div>
@@ -38,11 +88,14 @@
             <select class="form-select" [(ngModel)]="sortField" (change)="applyFilter()">
               <option value="">Trier par...</option>
               <option value="id">ID</option>
-              <option value="finalDisplacement">Displacement</option>
-              <option value="finalProgrammedSealing">Programmed Sealing</option>
-              <option value="finalDetection">Detection</option>
+              <option value="leoniNumr">LEONI NUMR</option>
+              <option value="stuffNumr">STUFF NUMR</option>
+              <option value="quantite">Quantité</option>
+              <option value="fournisseur">Fournisseur</option>
+              <option value="etat">État</option>
               <option value="status">Statut</option>
-              <option value="movedAt">Date de déplacement</option>
+              <option value="caisse">Caisse</option>
+              <option value="movedAt">Date déplacement</option>
             </select>
           </div>
         </div>
@@ -52,13 +105,19 @@
             <option value="desc">⬇ Descendant</option>
           </select>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-3">
           <button *ngIf="searchTerm || sortField" class="btn btn-outline-secondary w-100" (click)="resetFilters()">
-            <i class="bi bi-eraser me-2"></i>Effacer
+            <i class="bi bi-eraser me-2"></i>Effacer les filtres
           </button>
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Info site actif -->
+  <div class="alert alert-info mb-3" *ngIf="selectedSiteId !== null">
+    <i class="bi bi-info-circle me-2"></i>
+    Affichage des modules pour le site : <strong>{{ selectedSiteName }}</strong>
   </div>
 
   <!-- LOADING -->
@@ -83,76 +142,110 @@
         <table class="table table-hover align-middle mb-0">
           <thead class="bg-light">
             <tr>
-              <th class="px-3 py-3">ID</th>
-              <th class="px-3 py-3">Displacement</th>
-              <th class="px-3 py-3">Programmed Sealing</th>
-              <th class="px-3 py-3">Detection</th>
-              <th class="px-3 py-3">Déplacé par</th>
-              <th class="px-3 py-3">Date déplacement</th>
-              <th class="px-3 py-3">Statut</th>
-              <th class="px-3 py-3 text-center">Actions</th>
-             </thead>
+              <th class="px-2 py-3">Casier</th>
+              <th class="px-2 py-3">STUFF NUMR</th>
+              <th class="px-2 py-3">LEONI NUMR</th>
+              <th class="px-2 py-3">Index</th>
+              <th class="px-2 py-3">Qté</th>
+              <th class="px-2 py-3">Fournisseur</th>
+              <th class="px-2 py-3">État</th>
+              <th class="px-2 py-3">Caisse</th>
+              <th class="px-2 py-3">Spécification</th>
+              <th class="px-2 py-3">Dernier Mise a jour</th>
+              <th class="px-2 py-3">Info sur Module</th>
+              <th class="px-2 py-3">Displacement</th>
+              <th class="px-2 py-3">Sealing</th>
+              <th class="px-2 py-3">Détection</th>
+              <th class="px-2 py-3">Demandeur et explication</th>
+              <th class="px-2 py-3">New Quantité</th>
+              <th class="px-2 py-3">Statut</th>
+              <th class="px-2 py-3 text-center">Actions</th>
+            </tr>
+          </thead>
           <tbody>
             <tr *ngFor="let module of paginatedStockModules">
-              <!-- ID -->
-              <td class="px-3 py-3">
-                <span class="badge bg-primary bg-opacity-10 text-primary fw-semibold">#{{ module.id }}</span>
-                 </td>
-
-              <!-- Displacement -->
-              <td class="px-3 py-3">
+              <td class="px-2 py-2">
+                <i class="bi bi-grid me-1"></i>{{ module.casier || '-' }}
+              </td>
+              <td class="px-2 py-2">
+                <code class="bg-light px-2 py-1 rounded">{{ module.stuffNumr || '-' }}</code>
+              </td>
+              <td class="px-2 py-2">
+                <code class="bg-light px-2 py-1 rounded">{{ module.leoniNumr || '-' }}</code>
+              </td>
+              <td class="px-2 py-2">
+                <span class="badge bg-secondary bg-opacity-10">{{ module.indexValue || '-' }}</span>
+              </td>
+              <td class="px-2 py-2">
+                <span class="fw-semibold">{{ module.quantite || 0 }}</span>
+              </td>
+              <td class="px-2 py-2">
+                <span class="badge bg-info bg-opacity-10 text-info">{{ module.fournisseur || '-' }}</span>
+              </td>
+              <td class="px-2 py-2">
+                <span class="badge" [ngClass]="module.etat === 'OK' ? 'bg-success bg-opacity-10 text-success' : 'bg-warning bg-opacity-10 text-warning'">
+                  {{ module.etat || '-' }}
+                </span>
+              </td>
+              <td class="px-2 py-2">
+                <span class="badge bg-dark bg-opacity-10">Caisse #{{ module.caisse || '-' }}</span>
+              </td>
+              <td class="px-2 py-2">
+                <span class="value-badge">{{ module.specifications || '-' }}</span>
+              </td>
+              <td class="px-2 py-2">
+                <span class="value-badge">{{ module.dernierMaj || '-' }}</span>
+              </td>
+              <td class="px-2 py-2">
+                <span class="value-badge">{{ module.infoSurModules || '-' }}</span>
+              </td>
+              <td class="px-2 py-2">
                 <span class="value-badge">{{ module.finalDisplacement || '-' }}</span>
-                 </td>
-
-              <!-- Programmed Sealing -->
-              <td class="px-3 py-3">
+              </td>
+              <td class="px-2 py-2">
                 <span class="value-badge">{{ module.finalProgrammedSealing || '-' }}</span>
-                 </td>
-
-              <!-- Detection -->
-              <td class="px-3 py-3">
+              </td>
+              <td class="px-2 py-2">
                 <span class="badge" [ngClass]="getDetectionBadgeClass(module.finalDetection || '')">
                   {{ module.finalDetection || '-' }}
                 </span>
-                 </td>
-
-              <!-- Moved By -->
-              <td class="px-3 py-3">
-                <i class="bi bi-person me-1 text-muted"></i>{{ module.movedBy || '-' }}
-                 </td>
-
-              <!-- Moved At -->
-              <td class="px-3 py-3">
-                <i class="bi bi-calendar3 me-1 text-muted"></i>
-                <span class="small">{{ module.movedAt | date:'dd/MM/yyyy HH:mm' }}</span>
-                 </td>
-
-              <!-- Status -->
-              <td class="px-3 py-3">
+              </td>
+              <td class="px-2 py-2">
+                <span class="value-badge">{{ module.demandeurExplication || '-' }}</span>
+              </td>
+              <td class="px-2 py-2">
+                <span class="value-badge">{{ module.newQuantite|| '-' }}</span>
+              </td>
+              <td class="px-2 py-2">
                 <span class="badge" [ngClass]="getStatusBadgeClass(module.status || '')">
                   <i class="bi" [ngClass]="getStatusIcon(module.status || '')"></i>
                   {{ getStatusLabel(module.status || '') }}
                 </span>
-                 </td>
-
-              <!-- Actions -->
-              <td class="px-3 py-3 text-center">
+              </td>
+              <td class="px-2 py-2 text-center">
                 <div class="btn-group btn-group-sm" role="group">
-                  <button class="btn btn-outline-success" (click)="setStatus(module.id!, 'AVAILABLE')"
+                  <button class="btn btn-outline-primary btn-sm" (click)="viewDetails(module.id!)" title="Détails">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                  <button class="btn btn-outline-info btn-sm" (click)="openTakeModal(module)"
+                          [disabled]="module.quantite === 0" title="Prendre module">
+                    <i class="bi bi-box-arrow-up"></i>
+                  </button>
+                  <button class="btn btn-outline-success btn-sm" (click)="setStatus(module.id!, 'AVAILABLE')"
                           [disabled]="module.status === 'AVAILABLE'" title="Disponible">
                     <i class="bi bi-check-circle"></i>
                   </button>
-                  <button class="btn btn-outline-warning" (click)="setStatus(module.id!, 'USED')"
+                  <button class="btn btn-outline-warning btn-sm" (click)="setStatus(module.id!, 'USED')"
                           [disabled]="module.status === 'USED'" title="Utilisé">
                     <i class="bi bi-box-arrow-in-right"></i>
                   </button>
-                  <button class="btn btn-outline-danger" (click)="setStatus(module.id!, 'SCRAPPED')"
+                  <button class="btn btn-outline-danger btn-sm" (click)="setStatus(module.id!, 'SCRAPPED')"
                           [disabled]="module.status === 'SCRAPPED'" title="Mis au rebut">
                     <i class="bi bi-trash"></i>
                   </button>
                 </div>
-                 </td>
-               </tr>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -202,7 +295,7 @@
       <div class="card-body py-5">
         <i class="bi bi-inbox display-1 text-muted"></i>
         <h3 class="mt-3 text-muted">Aucun module trouvé</h3>
-        <p class="text-muted">Aucun module ne correspond à votre recherche.</p>
+        <p class="text-muted">Aucun module ne correspond à votre recherche pour ce site.</p>
         <button *ngIf="searchTerm || sortField" class="btn btn-outline-primary mt-3" (click)="resetFilters()">
           <i class="bi bi-arrow-counterclockwise me-2"></i>Réinitialiser
         </button>
@@ -210,3 +303,383 @@
     </div>
   </div>
 </div>
+
+<!-- Ajoutez ici vos modals (Détails, Prélèvement, Retour) comme avant -->
+
+<!-- MODAL DÉTAILS -->
+<div class="modal fade" [class.show]="showDetailsModal" [style.display]="showDetailsModal ? 'block' : 'none'" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header" style="background: linear-gradient(135deg, #1e3c72 0%, #0f2b4a 100%);">
+        <h5 class="modal-title text-white">
+          <i class="bi bi-info-circle me-2"></i>
+          Détails du module #{{ selectedModule?.id }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeDetailsModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3" *ngIf="selectedModule">
+          <div class="col-md-6">
+            <div class="info-group">
+              <label>LEONI NUMR</label>
+              <div class="info-value">{{ selectedModule.leoniNumr || '-' }}</div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="info-group">
+              <label>STUFF NUMR</label>
+              <div class="info-value">{{ selectedModule.stuffNumr || '-' }}</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="info-group">
+              <label>Index</label>
+              <div class="info-value">{{ selectedModule.indexValue || '-' }}</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="info-group">
+              <label>Quantité</label>
+              <div class="info-value">{{ selectedModule.quantite || 0 }}</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="info-group">
+              <label>New Quantité</label>
+              <div class="info-value">{{ selectedModule.newQuantite || '-' }}</div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="info-group">
+              <label>Fournisseur</label>
+              <div class="info-value">{{ selectedModule.fournisseur || '-' }}</div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="info-group">
+              <label>État</label>
+              <div class="info-value">{{ selectedModule.etat || '-' }}</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="info-group">
+              <label>Caisse</label>
+              <div class="info-value">{{ selectedModule.caisse || '-' }}</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="info-group">
+              <label>Casier</label>
+              <div class="info-value">{{ selectedModule.casier || '-' }}</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="info-group">
+              <label>Statut</label>
+              <div class="info-value">
+                <span class="badge" [ngClass]="getStatusBadgeClass(selectedModule.status || '')">
+                  {{ getStatusLabel(selectedModule.status || '') }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="info-group">
+              <label>Spécifications</label>
+              <div class="info-value p-2 bg-light rounded">{{ selectedModule.specifications || '-' }}</div>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="info-group">
+              <label>Info sur modules</label>
+              <div class="info-value p-2 bg-light rounded">{{ selectedModule.infoSurModules || '-' }}</div>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="info-group">
+              <label>Demandeur et explication</label>
+              <div class="info-value p-2 bg-light rounded">{{ selectedModule.demandeurExplication || '-' }}</div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="info-group">
+              <label>Date création</label>
+              <div class="info-value">{{ selectedModule.dateDemande | date:'dd/MM/yyyy' || '-' }}</div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="info-group">
+              <label>Dernière MAJ</label>
+              <div class="info-value">{{ selectedModule.dernierMaj | date:'dd/MM/yyyy' || '-' }}</div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="info-group">
+              <label>Déplacé par</label>
+              <div class="info-value">{{ selectedModule.movedBy || '-' }}</div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="info-group">
+              <label>Date déplacement</label>
+              <div class="info-value">{{ selectedModule.movedAt | date:'dd/MM/yyyy HH:mm' || '-' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeDetailsModal()">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- MODAL PRÉLÈVEMENT -->
+<div class="modal fade" [class.show]="showTakeModal" [style.display]="showTakeModal ? 'block' : 'none'" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header" style="background: linear-gradient(135deg, #1e3c72 0%, #0f2b4a 100%);">
+        <h5 class="modal-title text-white">
+          <i class="bi bi-box-arrow-up me-2"></i>
+          Prélèvement de module
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeTakeModal()"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Info module -->
+        <div class="alert alert-info mb-3">
+          <strong><i class="bi bi-info-circle"></i> Module :</strong> {{ takeModuleData.moduleRef }}
+        </div>
+
+        <div class="row g-3">
+          <!-- Quantité initiale -->
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label fw-bold">
+                <i class="bi bi-database me-1"></i>Quantité en stock
+              </label>
+              <input type="number" class="form-control"
+                     [value]="takeModuleData.quantiteInitiale" disabled>
+            </div>
+          </div>
+
+          <!-- Quantité à prendre -->
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label fw-bold">
+                <i class="bi bi-box-arrow-up me-1"></i>Quantité à prendre
+              </label>
+              <input type="number" class="form-control"
+                     [(ngModel)]="takeModuleData.quantiteAPrendre"
+                     (ngModelChange)="onQuantiteChange()"
+                     min="1" [max]="takeModuleData.quantiteInitiale">
+            </div>
+          </div>
+
+          <!-- Quantité restante -->
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label fw-bold">
+                <i class="bi bi-pie-chart me-1"></i>Quantité restante
+              </label>
+              <input type="number" class="form-control bg-light"
+                     [value]="takeModuleData.newQuantite" disabled>
+            </div>
+          </div>
+
+          <!-- New quantité (prélevée) -->
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label fw-bold">
+                <i class="bi bi-arrow-right me-1"></i>Quantité prélevée
+              </label>
+              <input type="number" class="form-control bg-success bg-opacity-10 text-success fw-bold"
+                     [value]="takeModuleData.quantiteAPrendre" disabled>
+            </div>
+          </div>
+
+          <!-- Demandeur -->
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label fw-bold">
+                <i class="bi bi-person me-1"></i>Demandeur *
+              </label>
+              <input type="text" class="form-control"
+                     [(ngModel)]="takeModuleData.demandeur"
+                     placeholder="Nom du demandeur">
+            </div>
+          </div>
+
+          <!-- Date de demande -->
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label fw-bold">
+                <i class="bi bi-calendar me-1"></i>Date de demande
+              </label>
+              <input type="date" class="form-control"
+                     [(ngModel)]="takeModuleData.dateDemande">
+            </div>
+          </div>
+
+          <!-- Déplacé par -->
+          <div class="col-md-12">
+            <div class="form-group">
+              <label class="form-label fw-bold">
+                <i class="bi bi-person-badge me-1"></i>Déplacé par
+              </label>
+              <input type="text" class="form-control bg-light"
+                     [value]="takeModuleData.movedBy" disabled>
+            </div>
+          </div>
+
+          <!-- Explication -->
+          <div class="col-12">
+            <div class="form-group">
+              <label class="form-label fw-bold">
+                <i class="bi bi-chat-text me-1"></i>Explication / Motif
+              </label>
+              <textarea class="form-control" rows="3"
+                        [(ngModel)]="takeModuleData.explication"
+                        placeholder="Raison du prélèvement..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message d'alerte si stock épuisé -->
+        <div *ngIf="takeModuleData.newQuantite === 0" class="alert alert-warning mt-3 mb-0">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          Attention : Après ce prélèvement, le stock sera épuisé (statut passera à "Utilisé").
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeTakeModal()">
+          <i class="bi bi-x-circle me-1"></i>Annuler
+        </button>
+        <button type="button" class="btn btn-primary" (click)="submitTakeModule()"
+                [disabled]="takeModuleData.quantiteAPrendre < 1 || takeModuleData.quantiteAPrendre > takeModuleData.quantiteInitiale">
+          <i class="bi bi-check-circle me-1"></i>
+          Confirmer le prélèvement
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- MODAL RETOUR STOCK -->
+<div class="modal fade" [class.show]="showReturnModal" [style.display]="showReturnModal ? 'block' : 'none'" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header" style="background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);">
+        <h5 class="modal-title text-white">
+          <i class="bi bi-arrow-return-left me-2"></i>
+          Retour de module en stock
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeReturnModal()"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Info module -->
+        <div class="alert alert-success mb-3">
+          <strong><i class="bi bi-info-circle"></i> Module :</strong> {{ returnModuleData.moduleRef }}
+        </div>
+
+        <div class="row g-3">
+          <!-- Quantité actuelle -->
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label fw-bold">
+                <i class="bi bi-database me-1"></i>Quantité actuelle en stock
+              </label>
+              <input type="number" class="form-control"
+                     [value]="returnModuleData.quantiteActuelle" disabled>
+            </div>
+          </div>
+
+          <!-- Quantité prélevée -->
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label fw-bold">
+                <i class="bi bi-box-arrow-up me-1"></i>Quantité prélevée
+              </label>
+              <input type="number" class="form-control bg-warning bg-opacity-10"
+                     [value]="getQuantitePrelevee(returnModuleData.moduleId!)" disabled>
+            </div>
+          </div>
+
+          <!-- Quantité à retourner -->
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label fw-bold">
+                <i class="bi bi-arrow-return-left me-1"></i>Quantité à retourner
+              </label>
+              <input type="number" class="form-control"
+                     [(ngModel)]="returnModuleData.quantiteARetourner"
+                     (ngModelChange)="onReturnQuantiteChange()"
+                     min="1" [max]="getQuantitePrelevee(returnModuleData.moduleId!)">
+            </div>
+          </div>
+
+          <!-- Nouvelle quantité -->
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label fw-bold">
+                <i class="bi bi-pie-chart me-1"></i>Nouvelle quantité totale
+              </label>
+              <input type="number" class="form-control bg-success bg-opacity-10 text-success fw-bold"
+                     [value]="returnModuleData.nouvelleQuantite" disabled>
+            </div>
+          </div>
+
+          <!-- Personne qui retourne -->
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label fw-bold">
+                <i class="bi bi-person me-1"></i>Retourné par *
+              </label>
+              <input type="text" class="form-control"
+                     [(ngModel)]="returnModuleData.demandeur"
+                     placeholder="Nom de la personne">
+            </div>
+          </div>
+
+          <!-- Date de retour -->
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label fw-bold">
+                <i class="bi bi-calendar me-1"></i>Date de retour
+              </label>
+              <input type="date" class="form-control"
+                     [(ngModel)]="returnModuleData.dateRetour">
+            </div>
+          </div>
+
+          <!-- Explication -->
+          <div class="col-12">
+            <div class="form-group">
+              <label class="form-label fw-bold">
+                <i class="bi bi-chat-text me-1"></i>Explication / Motif du retour
+              </label>
+              <textarea class="form-control" rows="3"
+                        [(ngModel)]="returnModuleData.explication"
+                        placeholder="Raison du retour..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message d'information -->
+        <div class="alert alert-info mt-3 mb-0">
+          <i class="bi bi-info-circle me-2"></i>
+          Le statut du module sera automatiquement remis à "Disponible" après le retour.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeReturnModal()">
+          <i class="bi bi-x-circle me-1"></i>Annuler
+        </button>
+        <button type="button" class="btn btn-success" (click)="submitReturnModule()"
+                [disabled]="returnModuleData.quantiteARetourner < 1">
+          <i class="bi bi-check-circle me-1"></i>
+          Confirmer le retour
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

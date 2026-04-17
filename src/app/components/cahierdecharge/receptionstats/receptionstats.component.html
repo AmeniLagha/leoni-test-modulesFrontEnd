@@ -1,0 +1,209 @@
+<div class="container-fluid px-4 py-4">
+  <!-- HEADER -->
+  <div class="card border-0 shadow-lg mb-4" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+          <h1 class="text-white mb-2">
+            <i class="bi bi-graph-up me-2"></i>
+            Statistiques des réceptions
+          </h1>
+          <p class="text-white-50 mb-0">Analyse des quantités reçues par mois</p>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-light" (click)="exportToCSV()">
+            <i class="bi bi-download me-2"></i>Exporter CSV
+          </button>
+          <button class="btn btn-light" (click)="loadAllReceptions()">
+            <i class="bi bi-arrow-repeat me-2"></i>Actualiser
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p class="text-muted mt-3">Chargement des statistiques...</p>
+  </div>
+
+  <!-- ERROR -->
+  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error = null"></button>
+  </div>
+
+  <div *ngIf="!loading && !error">
+    <!-- SÉLECTION DU MOIS -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body">
+        <div class="row align-items-end g-3">
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">
+              <i class="bi bi-calendar-month me-1 text-primary"></i>
+              Sélectionner le mois
+            </label>
+            <select class="form-select form-select-lg" [(ngModel)]="selectedMonthKey" (change)="onMonthChange()">
+              <option value="">-- Sélectionnez un mois --</option>
+              <option *ngFor="let month of availableMonthsList" [value]="month.value">
+                {{ month.label }}
+              </option>
+            </select>
+          </div>
+          <div class="col-md-3" *ngIf="selectedMonthKey">
+            <button class="btn btn-outline-secondary w-100" (click)="resetMonthSelection()">
+              <i class="bi bi-eraser me-1"></i>Effacer
+            </button>
+          </div>
+          <div class="col-md-5 text-end" *ngIf="selectedMonthKey">
+            <span class="badge bg-primary fs-6 p-2">
+              <i class="bi bi-calendar-check me-1"></i>
+              {{ selectedMonthLabel }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATISTIQUES DU MOIS SÉLECTIONNÉ -->
+    <div *ngIf="selectedMonthStats" class="row g-4 mb-4">
+      <!-- Carte Quantité reçue -->
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body text-center">
+            <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex p-3 mb-3">
+              <i class="bi bi-box-seam fs-1 text-primary"></i>
+            </div>
+            <h2 class="display-4 fw-bold text-primary mb-0">{{ selectedMonthStats.quantityReceived | number }}</h2>
+            <p class="text-muted mb-0">Unités reçues</p>
+            <small class="text-success" *ngIf="selectedMonthStats.avgPerReception > 0">
+              <i class="bi bi-arrow-up-short"></i> {{ selectedMonthStats.avgPerReception }} u/réception
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carte Nombre de réceptions -->
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body text-center">
+            <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex p-3 mb-3">
+              <i class="bi bi-truck fs-1 text-success"></i>
+            </div>
+            <h2 class="display-4 fw-bold text-success mb-0">{{ selectedMonthStats.numberOfReceptions | number }}</h2>
+            <p class="text-muted mb-0">Réceptions</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carte Items différents -->
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body text-center">
+            <div class="rounded-circle bg-info bg-opacity-10 d-inline-flex p-3 mb-3">
+              <i class="bi bi-grid-3x3-gap-fill fs-1 text-info"></i>
+            </div>
+            <h2 class="display-4 fw-bold text-info mb-0">{{ selectedMonthStats.numberOfItems | number }}</h2>
+            <p class="text-muted mb-0">Références différentes</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carte Taux de complétion -->
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body text-center">
+            <div class="rounded-circle bg-warning bg-opacity-10 d-inline-flex p-3 mb-3">
+              <i class="bi bi-pie-chart fs-1 text-warning"></i>
+            </div>
+            <h2 class="display-4 fw-bold text-warning mb-0">{{ selectedMonthStats.completionRate }}%</h2>
+            <p class="text-muted mb-0">Taux de complétion</p>
+            <small class="text-muted">{{ selectedMonthStats.quantityReceived }} / {{ selectedMonthStats.quantityOrdered }}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Message si aucun mois sélectionné -->
+    <div *ngIf="!selectedMonthStats && !loading" class="text-center py-5">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body py-5">
+          <i class="bi bi-calendar-month display-1 text-muted"></i>
+          <h3 class="mt-3 text-muted">Sélectionnez un mois</h3>
+          <p class="text-muted">Choisissez un mois dans le menu déroulant pour afficher les statistiques</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- GRAPHIQUE DU MOIS SÉLECTIONNÉ -->
+    <div *ngIf="selectedMonthStats" class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-white border-0 pt-4 pb-0">
+        <h5 class="mb-0">
+          <i class="bi bi-bar-chart-steps me-2 text-primary"></i>
+          Top références reçues - {{ selectedMonthLabel }}
+        </h5>
+      </div>
+      <div class="card-body">
+        <div style="height: 400px;">
+          <canvas #monthlyChart></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABLEAU DES TOP RÉFÉRENCES -->
+    <div *ngIf="selectedMonthItems.length > 0" class="card border-0 shadow-sm">
+      <div class="card-header bg-white border-0 pt-4 pb-0">
+        <h5 class="mb-0">
+          <i class="bi bi-trophy me-2 text-warning"></i>
+          Top références Leoni reçues - {{ selectedMonthLabel }}
+        </h5>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light">
+              <tr>
+                <th>#</th>
+                <th>Référence Leoni</th>
+                <th>Référence Fournisseur</th>
+                <th>Quantité reçue</th>
+                <th>Nbre réceptions</th>
+                <th>Projet</th>
+                <th>Site</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of selectedMonthItems; let i = index">
+                <td class="fw-bold text-primary">{{ i + 1 }}</td>
+                <td>
+                  <span class="badge bg-secondary bg-opacity-10 text-dark p-2">
+                    <code class="fw-bold">{{ item.housingReferenceLeoni }}</code>
+                  </span>
+                </td>
+                <td>
+                  <small class="text-muted">{{ item.housingReferenceSupplier || '-' }}</small>
+                </td>
+                <td>
+                  <span class="badge bg-success fs-6">{{ item.quantityReceived }}</span>
+                </td>
+                <td>
+                  <span class="badge bg-info">{{ item.receptionCount }}</span>
+                </td>
+                <td>
+                  <span class="badge bg-primary bg-opacity-10 text-primary">{{ item.project }}</span>
+                </td>
+                <td>
+                  <span class="badge bg-secondary bg-opacity-10 text-secondary">{{ item.plant }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

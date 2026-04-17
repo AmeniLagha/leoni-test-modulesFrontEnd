@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ChargeSheetComplete, ChargeSheetItemDto, ChargeSheetStatus, ReceptionHistoryDto } from '../../../../../models/charge-sheet.model';
 import { ChargeSheetService } from '../../../../../services/charge-sheet.service';
@@ -71,12 +71,22 @@ export class ChargeSheetListComponent implements OnInit {
     private excelExportService: ExcelExportService,
     private uploadService: UploadService,
     private router: Router,
+    private route: ActivatedRoute
 
   ) {}
 
   ngOnInit(): void {
     this.fetchChargeSheets();
      this.generateAvailableYears();
+       this.route.queryParams.subscribe(params => {
+    const siteParam = params['site'];
+    if (siteParam) {
+      this.searchTerm = siteParam;
+      this.applyFilters();
+    }
+  });
+
+  this.fetchChargeSheets();
   }
 // ✅ Générer les années disponibles à partir des dates des cahiers
 generateAvailableYears(): void {
@@ -525,13 +535,17 @@ getStatusLabelFromString(status: string): string {
 
  // ============ EXPORT EXCEL ============
   // ✅ Charger les images pour un cahier spécifique
+// charge-sheet-list.component.ts
+
+// Modifiez cette méthode :
 private async loadItemImagesForSheet(chargeSheet: ChargeSheetComplete): Promise<void> {
-  if (!chargeSheet.items) return;
+  if (!chargeSheet.items || !chargeSheet.id) return;
 
   for (const item of chargeSheet.items) {
     if (item.id && item.realConnectorPicture) {
       try {
-        const url = await firstValueFrom(this.uploadService.getImageUrl(item.realConnectorPicture));
+        // ✅ Utiliser getItemImageUrl au lieu de getImageUrl
+        const url = await firstValueFrom(this.uploadService.getItemImageUrl(chargeSheet.id, item.id));
         if (url) {
           this.itemImages[item.id] = url;
         }
@@ -1064,4 +1078,48 @@ private async populateChargeSheetWorksheet(worksheet: ExcelJS.Worksheet, chargeS
       }
     });
   }
+ // charge-sheet-list.component.ts - Modifier la méthode
+
+revertToIng(id: number): void {
+    const sheet = this.chargeSheets.find(s => s.id === id);
+    if (!sheet) return;
+
+    // Demander la raison avec un prompt
+    const reason = prompt(`📝 RETOUR À ING - Cahier #${sheet.id}\n\n` +
+                         `Veuillez expliquer pourquoi ce cahier doit être retourné à ING :\n\n` +
+                         `Exemples:\n` +
+                         `- "Informations manquantes sur le projet"\n` +
+                         `- "Référence harneiss incorrecte"\n` +
+                         `- "Spécifications techniques à modifier"`);
+
+    if (!reason || reason.trim() === '') {
+        alert('❌ La raison est obligatoire pour retourner le cahier à ING');
+        return;
+    }
+
+    const message = `🔄 RETOUR À ING\n\n` +
+                    `Cahier #${sheet.id} - ${sheet.project} - ${sheet.harnessRef}\n\n` +
+                    `Raison: ${reason}\n\n` +
+                    `⚠️ Conséquences :\n` +
+                    `• Le statut repassera à "VALIDATED_ING"\n` +
+                    `• Les items techniques seront remis en brouillon\n` +
+                    `• ING devra corriger et revalider\n\n` +
+                    `Confirmez-vous le retour à ING ?`;
+
+    if (!confirm(message)) return;
+
+    this.loading = true;
+    this.chargeSheetService.revertToIng(id, reason).subscribe({
+        next: () => {
+            this.fetchChargeSheets();
+            this.loading = false;
+            alert('✅ Cahier retourné à ING avec succès. Une notification a été envoyée à ING.');
+        },
+        error: (err: any) => {
+            this.loading = false;
+            console.error('Erreur retour à ING:', err);
+            alert(`❌ Erreur: ${err.error?.message || err.message || 'Impossible de retourner le cahier à ING'}`);
+        }
+    });
+}
 }

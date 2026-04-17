@@ -297,4 +297,17 @@ getLastTwoMonthsVariationGlobal(): Observable<any> {
     headers: { Authorization: `Bearer ${token}` }
   });
 }
+// charge-sheet.service.ts - Ajouter cette méthode
+
+// charge-sheet.service.ts - Ajouter cette méthode
+
+revertToIng(id: number, reason: string): Observable<ChargeSheetComplete> {
+  const token = this.authService.getAccessToken();
+  return this.http.put<ChargeSheetComplete>(
+    `${this.apiUrl}/${id}/revert-to-ing`,
+    { reason: reason }, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+}
+
 }

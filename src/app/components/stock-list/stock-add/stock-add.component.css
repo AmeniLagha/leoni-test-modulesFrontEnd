@@ -1,0 +1,46 @@
+/* stock-add.component.css */
+.section-card {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  border: 1px solid #e9ecef;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e9ecef;
+  color: #1e3c72;
+}
+
+.section-title i {
+  font-size: 18px;
+}
+
+.form-label {
+  font-size: 13px;
+  margin-bottom: 6px;
+  color: #495057;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #1e3c72;
+  box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
+}
+
+.btn-primary {
+  background: #1e3c72;
+  border: none;
+  padding: 10px 24px;
+}
+
+.btn-primary:hover {
+  background: #2a5298;
+}
+
+.btn-outline-secondary:hover {
+  background: #f8f9fa;
+}

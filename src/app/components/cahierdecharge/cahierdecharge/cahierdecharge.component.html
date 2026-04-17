@@ -54,39 +54,52 @@
       <div class="card-body">
         <div class="row g-4">
           <!-- Plant -->
-          <div class="col-md-4">
-            <label class="form-label fw-semibold">
-              <i class="bi bi-geo-alt me-1 text-muted"></i> PLANT <span class="text-danger">*</span>
-            </label>
-            <select class="form-select" formControlName="plant"
-                    [class.is-invalid]="isFieldInvalid('plant')"
-                    [disabled]="isEditMode && !canEditInEditMode()">
-              <option value="">Sélectionner...</option>
-              <option value="Menzel Hayet">Menzel Hayet</option>
-              <option value="Menzel Bourguiba">Menzel Bourguiba</option>
-              <option value="Bizerte">Bizerte</option>
-              <option value="Tunis">Tunis</option>
-            </select>
-            <div class="invalid-feedback" *ngIf="isFieldInvalid('plant')">Le plant est requis</div>
-          </div>
+         <!-- Plant - Auto-rempli avec le site de l'utilisateur -->
+<div class="col-md-4">
+  <label class="form-label fw-semibold">
+    <i class="bi bi-geo-alt me-1 text-muted"></i> PLANT <span class="text-danger">*</span>
+  </label>
+  <input type="text"
+         class="form-control"
+         [value]="getUserSite()"
+         disabled
+         [class.is-invalid]="isFieldInvalid('plant')">
+  <div class="invalid-feedback" *ngIf="isFieldInvalid('plant')">Le plant est requis</div>
+  <small class="text-muted">Site automatique basé sur votre connexion</small>
+</div>
 
           <!-- Project -->
-          <div class="col-md-4">
-            <label class="form-label fw-semibold">
-              <i class="bi bi-diagram-3 me-1 text-muted"></i> PROJECT <span class="text-danger">*</span>
-            </label>
-            <select class="form-select" formControlName="project"
-                    [class.is-invalid]="isFieldInvalid('project')"
-                    [disabled]="isEditMode && !canEditInEditMode()">
-              <option value="">Sélectionner...</option>
-              <option value="BMW">BMW</option>
-              <option value="Mercedes">Mercedes</option>
-              <option value="Audi">Audi</option>
-              <option value="Volkswagen">Volkswagen</option>
-              <option value="Porsche">Porsche</option>
-            </select>
-            <div class="invalid-feedback" *ngIf="isFieldInvalid('project')">Le projet est requis</div>
-          </div>
+         <!-- Project - Version dynamique -->
+<div class="col-md-4">
+  <label class="form-label fw-semibold">
+    <i class="bi bi-diagram-3 me-1 text-muted"></i> PROJECT <span class="text-danger">*</span>
+  </label>
+
+  <!-- Affichage pendant le chargement -->
+  <div *ngIf="loadingProjets" class="d-flex align-items-center gap-2">
+    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+    <span class="text-muted">Chargement des projets...</span>
+  </div>
+
+  <!-- Sélecteur dynamique -->
+  <select *ngIf="!loadingProjets"
+          class="form-select"
+          formControlName="project"
+          [class.is-invalid]="isFieldInvalid('project')"
+          [disabled]="isEditMode && !canEditInEditMode()">
+    <option value="">Sélectionner un projet...</option>
+    <option *ngFor="let projet of availableProjets" [value]="projet.name">
+      {{ projet.name }}
+    </option>
+  </select>
+
+  <!-- Message si aucun projet disponible -->
+  <div *ngIf="!loadingProjets && availableProjets.length === 0" class="text-warning small mt-1">
+    <i class="bi bi-exclamation-triangle"></i> Aucun projet disponible pour votre site. Contactez l'administrateur.
+  </div>
+
+  <div class="invalid-feedback" *ngIf="isFieldInvalid('project')">Le projet est requis</div>
+</div>
 
           <!-- Harness Ref -->
           <div class="col-md-4">
@@ -118,7 +131,7 @@
           <!-- Téléphone -->
           <div class="col-md-4">
             <label class="form-label fw-semibold">
-              <i class="bi bi-telephone me-1 text-muted"></i> PHONE NUMBER <span class="text-danger">*</span>
+              <i class="bi bi-telephone me-1 text-muted"></i> PHONE NUMBER <span class="text-danger"></span>
             </label>
             <input type="tel" class="form-control" formControlName="phoneNumber" placeholder="12345678"
                    [readonly]="isEditMode && !canEditInEditMode()">
@@ -189,12 +202,12 @@
                 <th>Samples exist</th>
                 <th>Ways</th>
                 <th>Housing colour</th>
-                <th>Test module exist</th>
-                <th>Housing Ref (Leoni)</th>
-                <th>Housing Ref (Supplier)</th>
-                <th>Reference Seals...</th>
-                <th>Picture</th>
-                <th>Quantity</th>
+                <th>Test module already exist in IDA-Database(Yes/No)</th>
+                <th>Housing Reference (Leoni)</th>
+                <th>Housing Reference (Supplier)</th>
+                <th>Reference Seals,clips,cable ties,cap</th>
+                <th>Real connector Picture</th>
+                <th>Quantity of test modules</th>
                 <th style="width: 50px;"></th>
                </thead>
             <tbody>
@@ -219,16 +232,8 @@
 
                 <!-- Housing colour -->
                 <td>
-                  <select class="form-select form-select-sm" formControlName="housingColour"
-                          [disabled]="isEditMode && !canEditInEditMode()">
-                    <option value="">--</option>
-                    <option value="black">Noir</option>
-                    <option value="white">Blanc</option>
-                    <option value="grey">Gris</option>
-                    <option value="green">Vert</option>
-                    <option value="blue">Bleu</option>
-                    <option value="red">Rouge</option>
-                  </select>
+                  <input type="text" class="form-control form-control-sm" formControlName="housingColour"
+                          [readonly]="isEditMode && !canEditInEditMode()">
                 </td>
 
                 <!-- Test module exist -->

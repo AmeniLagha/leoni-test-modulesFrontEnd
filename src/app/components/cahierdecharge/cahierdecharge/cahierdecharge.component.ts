@@ -18,6 +18,7 @@ import {
   ChargeSheetComplete,
   ChargeSheetStatus
 } from '../../../../models/charge-sheet.model';
+import { Projet, ProjetService } from '../../../../services/projet.service';
 
 @Component({
   selector: 'app-cahierdecharge',
@@ -47,6 +48,9 @@ export class CahierdechargeComponent implements OnInit, OnDestroy {
   showImageModal = false;
   modalImageUrl: string | null = null;
 
+   availableProjets: Projet[] = [];
+  loadingProjets = false;
+
   constructor(
     private fb: FormBuilder,
     private chargeSheetService: ChargeSheetService,
@@ -54,12 +58,14 @@ export class CahierdechargeComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute,
+    private projetService: ProjetService
   ) {}
 
   ngOnInit(): void {
     this.userRole = this.authService.getUserRole();
     this.userPermissions = this.authService.getUserPermissions();
     this.initForm();
+       this.loadProjetsBySite();
 
     this.route.paramMap.subscribe((params) => {
       const idParam = params.get('id');
@@ -73,7 +79,22 @@ export class CahierdechargeComponent implements OnInit, OnDestroy {
       }
     });
   }
-
+ loadProjetsBySite(): void {
+    const userSite = this.authService.getUserSite();
+    if (userSite) {
+      this.loadingProjets = true;
+      this.projetService.getProjetsBySite(userSite).subscribe({
+        next: (projets) => {
+          this.availableProjets = projets;
+          this.loadingProjets = false;
+        },
+        error: (err) => {
+          console.error('Erreur chargement projets:', err);
+          this.loadingProjets = false;
+        }
+      });
+    }
+  }
   ngOnDestroy(): void {
     // Nettoyer les URLs des images
     Object.values(this.itemImages).forEach(url => {
@@ -88,22 +109,28 @@ export class CahierdechargeComponent implements OnInit, OnDestroy {
     const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
     const currentUserEmail = this.authService.getUserEmail();
     const currentUserFullName = this.authService.getUserFullName();
+    const currentUserSite = this.authService.getUserSite(); // ✅ Récupérer le site de l'utilisateur
+
+
 
     this.chargeSheetForm = this.fb.group({
-      plant: ['', Validators.required],
+      plant: [{ value: currentUserSite, disabled: true }, Validators.required],
       project: ['', Validators.required],
       harnessRef: ['', Validators.required],
       issuedBy: [currentUserFullName, Validators.required],
       emailAddress: [currentUserEmail, [Validators.required, Validators.email]],
-      phoneNumber: ['', Validators.required],
-      orderNumber: ['', Validators.required],
-      costCenterNumber: ['', Validators.required],
+      phoneNumber: [''],
+      orderNumber: ['',],
+      costCenterNumber: ['', ],
       date: [today, Validators.required],
       preferredDeliveryDate: [nextWeek, Validators.required],
       items: this.fb.array([])
     });
   }
-
+// cahierdecharge.component.ts
+getUserSite(): string {
+  return this.authService.getUserSite();
+}
   // Vérifier si on peut modifier en mode édition
   canEditInEditMode(): boolean {
     if (!this.isEditMode) return true;
@@ -129,9 +156,9 @@ export class CahierdechargeComponent implements OnInit, OnDestroy {
   createItemForm(item?: ChargeSheetItemDto): FormGroup {
     return this.fb.group({
       id: [item?.id || null],
-      samplesExist: [item?.samplesExist || 'No', Validators.required],
-      ways: [item?.ways || '', Validators.required],
-      housingColour: [item?.housingColour || '', Validators.required],
+      samplesExist: [item?.samplesExist || 'No'],
+      ways: [item?.ways || '', ],
+      housingColour: [item?.housingColour || ''],
       testModuleExistInDatabase: [item?.testModuleExistInDatabase || 'No'],
       housingReferenceLeoni: [item?.housingReferenceLeoni || '', Validators.required],
       housingReferenceSupplierCustomer: [item?.housingReferenceSupplierCustomer || '', Validators.required],
@@ -220,7 +247,14 @@ export class CahierdechargeComponent implements OnInit, OnDestroy {
       next: (sheet: ChargeSheetComplete) => {
         // Sauvegarder le statut
         this.currentStatus = sheet.status;
+ const currentUserSite = this.authService.getUserSite();
 
+      // ✅ Vérifier que l'utilisateur a le droit de modifier ce cahier
+      if (sheet.plant !== currentUserSite) {
+        this.error = `Vous n'avez pas accès à ce cahier (site: ${sheet.plant})`;
+        this.loading = false;
+        return;
+      }
         // Remplir le formulaire avec les données générales
         this.chargeSheetForm.patchValue({
           plant: sheet.plant,
@@ -234,7 +268,8 @@ export class CahierdechargeComponent implements OnInit, OnDestroy {
           date: sheet.date,
           preferredDeliveryDate: sheet.preferredDeliveryDate
         });
-
+ // Désactiver le champ plant en mode édition aussi
+      this.chargeSheetForm.get('plant')?.disable();
         // Vider les items existants
         while (this.items.length) {
           this.items.removeAt(0);
@@ -496,7 +531,7 @@ async processItemsAndImages(sheetId: number): Promise<void> {
   // ==================== MÉTHODE CORRIGÉE POUR LA CRÉATION ====================
   createChargeSheet(formValue: any): void {
     const createDto: ChargeSheetCreateDto = {
-      plant: formValue.plant,
+        plant: this.authService.getUserSite(),
       project: formValue.project,
       harnessRef: formValue.harnessRef,
       issuedBy: formValue.issuedBy,

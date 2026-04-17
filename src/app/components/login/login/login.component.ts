@@ -1,4 +1,4 @@
-import { Component, inject, AfterViewInit } from '@angular/core';
+import { Component, inject, AfterViewInit, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -6,8 +6,10 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../../services/auth.service';
 import { UserService } from '../../../../services/UserService';
 import { VerificationCodeComponent } from '../verification-code/verification-code.component';
+import { SiteService } from '../../../../services/Site';
+import { Site } from '../../../../models/site.model';
 
-declare var bootstrap: any; // Déclarer Bootstrap global
+declare var bootstrap: any;
 
 @Component({
   selector: 'app-login',
@@ -22,44 +24,65 @@ declare var bootstrap: any; // Déclarer Bootstrap global
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent implements AfterViewInit {
+export class LoginComponent implements AfterViewInit, OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private userService = inject(UserService);
   private router = inject(Router);
+  private siteService = inject(SiteService);
 
   loginForm: FormGroup;
   errorMessage = '';
   isLoading = false;
   showPassword = false;
   rememberMe = false;
-
-  // Propriétés pour le modal
+  sites: Site[] = [];
+  loadingSites = false;
   resetEmail: string = '';
   resetMessage: string = '';
   resetSuccess: boolean = false;
   isSending: boolean = false;
   emailExists: boolean | null = null;
-
-  // Propriétés pour le modal de vérification
   pendingEmail: string = '';
   private verificationModal: any = null;
   private forgotPasswordModal: any = null;
 
+
   constructor() {
     const savedEmail = localStorage.getItem('rememberedEmail');
     const remember = localStorage.getItem('rememberMe') === 'true';
+    const savedSite = localStorage.getItem('rememberedSite');
 
     this.loginForm = this.fb.group({
       email: [savedEmail || '', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      siteName: ['']  // ✅ Plus de Validators.required ici
     });
 
     this.rememberMe = remember;
   }
 
+  ngOnInit(): void {
+    this.loadSites();
+  }
+
+  // ✅ Nouvelle méthode pour vérifier si l'email correspond à un Admin
+
+  loadSites(): void {
+    this.loadingSites = true;
+    this.siteService.getAll().subscribe({
+      next: (sites) => {
+        this.sites = sites;
+        this.loadingSites = false;
+      },
+      error: (err) => {
+        console.error('Erreur chargement sites:', err);
+        this.loadingSites = false;
+      }
+    });
+  }
+
   ngAfterViewInit(): void {
-    // Initialiser les modals après le chargement de la vue
     const forgotModalElement = document.getElementById('forgotPasswordModal');
     const verificationModalElement = document.getElementById('verificationModal');
 
@@ -75,7 +98,6 @@ export class LoginComponent implements AfterViewInit {
     this.showPassword = !this.showPassword;
   }
 
-  // Vérifier si l'email existe
   checkEmailExists(): void {
     if (!this.resetEmail || !this.isValidEmail(this.resetEmail)) {
       this.resetMessage = 'Veuillez saisir un email valide';
@@ -94,7 +116,6 @@ export class LoginComponent implements AfterViewInit {
           this.emailExists = true;
           this.resetMessage = `✅ Email trouvé ! Envoi du code de vérification...`;
           this.resetSuccess = true;
-          // Envoyer le code de vérification
           this.sendVerificationCode();
         } else {
           this.emailExists = false;
@@ -112,7 +133,6 @@ export class LoginComponent implements AfterViewInit {
     });
   }
 
-  // Envoyer le code de vérification
   sendVerificationCode(): void {
     this.userService.sendVerificationCode(this.resetEmail).subscribe({
       next: (response) => {
@@ -120,12 +140,10 @@ export class LoginComponent implements AfterViewInit {
         this.resetSuccess = true;
         this.isSending = false;
 
-        // Fermer le modal de réinitialisation
         if (this.forgotPasswordModal) {
           this.forgotPasswordModal.hide();
         }
 
-        // Ouvrir le modal de vérification
         this.pendingEmail = this.resetEmail;
         if (this.verificationModal) {
           this.verificationModal.show();
@@ -139,7 +157,6 @@ export class LoginComponent implements AfterViewInit {
     });
   }
 
-  // Envoyer le lien de réinitialisation APRÈS vérification du code
   sendResetLink(): void {
     this.userService.sendResetLink(this.pendingEmail).subscribe({
       next: (response) => {
@@ -155,54 +172,95 @@ export class LoginComponent implements AfterViewInit {
     });
   }
 
-  // Valider l'email
   isValidEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }
 
-  // Callback après vérification du code
   onVerificationSuccess(verified: boolean): void {
     if (verified) {
-      // ✅ Code validé, maintenant envoyer le lien de réinitialisation
       this.sendResetLink();
     }
   }
 
   onSubmit(): void {
-    if (this.loginForm.valid) {
-      this.isLoading = true;
-      this.errorMessage = '';
+  // Vérification seulement pour email et password
+  if (this.loginForm.get('email')?.valid && this.loginForm.get('password')?.valid) {
+    this.isLoading = true;
+    this.errorMessage = '';
 
-      if (this.rememberMe) {
-        localStorage.setItem('rememberedEmail', this.loginForm.value.email);
-        localStorage.setItem('rememberMe', 'true');
-      } else {
-        localStorage.removeItem('rememberedEmail');
-        localStorage.setItem('rememberMe', 'false');
-      }
-
-      this.authService.login(this.loginForm.value).subscribe({
-        next: (res) => {
-          this.authService.saveTokens(res);
-          localStorage.setItem('userEmail', this.loginForm.value.email);
-          this.router.navigate(['/dashboard']);
-        },
-        error: (err) => {
-          this.isLoading = false;
-          this.errorMessage =
-            err.status === 401
-              ? 'Email ou mot de passe incorrect'
-              : err.status === 0
-              ? 'Impossible de se connecter au serveur. Vérifiez votre connexion.'
-              : 'Une erreur est survenue. Veuillez réessayer.';
-        },
-        complete: () => (this.isLoading = false)
-      });
+    if (this.rememberMe) {
+      localStorage.setItem('rememberedEmail', this.loginForm.value.email);
+      localStorage.setItem('rememberedSite', this.loginForm.value.siteName || '');
+      localStorage.setItem('rememberMe', 'true');
     } else {
-      Object.keys(this.loginForm.controls).forEach(key => {
-        this.loginForm.get(key)?.markAsTouched();
-      });
+      localStorage.removeItem('rememberedEmail');
+      localStorage.removeItem('rememberedSite');
+      localStorage.setItem('rememberMe', 'false');
     }
+
+    // Envoyer siteName (peut être null/undefined)
+    const loginData = {
+      email: this.loginForm.value.email,
+      password: this.loginForm.value.password,
+      siteName: this.loginForm.value.siteName || null  // null pour Admin
+    };
+
+    this.authService.login(loginData).subscribe({
+      next: (res) => {
+        this.authService.saveTokens(res);
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.errorMessage = err.error?.message || 'Email ou mot de passe incorrect';
+      },
+      complete: () => (this.isLoading = false)
+    });
+  } else {
+    // Marquer seulement email et password comme touched
+    this.loginForm.get('email')?.markAsTouched();
+    this.loginForm.get('password')?.markAsTouched();
+  }
+}
+
+  private proceedLogin(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    if (this.rememberMe) {
+      localStorage.setItem('rememberedEmail', this.loginForm.value.email);
+      localStorage.setItem('rememberedSite', this.loginForm.value.siteName || '');
+      localStorage.setItem('rememberMe', 'true');
+    } else {
+      localStorage.removeItem('rememberedEmail');
+      localStorage.removeItem('rememberedSite');
+      localStorage.setItem('rememberMe', 'false');
+    }
+
+    // ✅ Pour Admin, on envoie siteName = null ou vide
+    const loginData = {
+      email: this.loginForm.value.email,
+      password: this.loginForm.value.password,
+      siteName: this.loginForm.value.siteName
+    };
+
+    this.authService.login(loginData).subscribe({
+      next: (res) => {
+        this.authService.saveTokens(res);
+        localStorage.setItem('userEmail', this.loginForm.value.email);
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.errorMessage =
+          err.status === 401
+            ? 'Email ou mot de passe incorrect'
+            : err.status === 0
+            ? 'Impossible de se connecter au serveur. Vérifiez votre connexion.'
+            : 'Une erreur est survenue. Veuillez réessayer.';
+      },
+      complete: () => (this.isLoading = false)
+    });
   }
 }

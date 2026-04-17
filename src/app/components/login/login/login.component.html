@@ -1,208 +1,269 @@
-<!-- login.component.html -->
-<div class="leoni-login-container">
-  <!-- Background avec effet de grille industrielle -->
-  <div class="login-bg">
-    <div class="bg-overlay"></div>
-    <div class="industrial-grid"></div>
-    <div class="floating-shapes">
-      <div class="shape shape-1"></div>
-      <div class="shape shape-2"></div>
-      <div class="shape shape-3"></div>
-    </div>
-  </div>
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+</head>
+<body>
+<div class="container-fluid vh-100 p-0 overflow-hidden">
+  <div class="row g-0 h-100">
 
-  <!-- Contenu principal -->
-  <div class="login-content">
-    <div class="login-card animate__animated animate__fadeInUp">
+    <!-- Left side - Branding -->
+    <div class="col-lg-6 d-none d-lg-flex bg-dark position-relative overflow-hidden" style="background: linear-gradient(135deg, #0A0E1A 0%, #0F1525 50%, #0A0E1A 100%);">
+      <!-- Effet de grille -->
+      <div class="position-absolute top-0 start-0 w-100 h-100 opacity-25"
+           style="background-image: linear-gradient(rgba(0,212,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.1) 1px, transparent 1px); background-size: 40px 40px;">
+      </div>
 
-      <!-- Logo LEONI -->
-      <div class="login-header">
-        <div class="leoni-logo-3d">
-          <div class="logo-ring">
-            <svg viewBox="0 0 120 120" class="logo-svg">
+      <!-- Shapes flottants -->
+      <div class="position-absolute top-0 end-0 w-100 h-100">
+        <div class="position-absolute rounded-circle" style="width: 300px; height: 300px; top: -100px; right: -100px; background: radial-gradient(circle, rgba(0,212,255,0.15), transparent); animation: float1 20s ease-in-out infinite;"></div>
+        <div class="position-absolute rounded-circle" style="width: 200px; height: 200px; bottom: 50px; left: -80px; background: radial-gradient(circle, rgba(0,212,255,0.1), transparent); animation: float2 15s ease-in-out infinite;"></div>
+        <div class="position-absolute rounded-circle" style="width: 150px; height: 150px; bottom: 30%; right: 20%; background: radial-gradient(circle, rgba(0,212,255,0.08), transparent); animation: float3 18s ease-in-out infinite;"></div>
+      </div>
+
+      <!-- Contenu branding -->
+      <div class="position-relative z-index-1 d-flex flex-column justify-content-center align-items-center text-white p-5 h-100">
+        <div class="text-center mb-4">
+          <div class="mb-4">
+            <svg width="80" height="80" viewBox="0 0 120 120" style="filter: drop-shadow(0 0 20px rgba(0,212,255,0.5));">
               <defs>
                 <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" style="stop-color:#00D4FF"/>
                   <stop offset="100%" style="stop-color:#0052CC"/>
                 </linearGradient>
-                <filter id="glow">
-                  <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                  <feMerge>
-                    <feMergeNode in="coloredBlur"/>
-                    <feMergeNode in="SourceGraphic"/>
-                  </feMerge>
-                </filter>
               </defs>
               <circle cx="60" cy="60" r="55" stroke="url(#logoGrad)" stroke-width="2" fill="none" stroke-dasharray="200" stroke-dashoffset="50"/>
-              <path d="M35 60 L50 45 L65 55 L85 35 L90 40 L65 65 L50 55 L40 65 Z" fill="url(#logoGrad)" filter="url(#glow)"/>
+              <path d="M35 60 L50 45 L65 55 L85 35 L90 40 L65 65 L50 55 L40 65 Z" fill="url(#logoGrad)"/>
               <circle cx="60" cy="60" r="8" fill="white"/>
               <path d="M60 52 L60 68 M52 60 L68 60" stroke="white" stroke-width="1.5"/>
             </svg>
           </div>
-          <div class="brand-text">
-            <span class="brand-name">LEONI</span>
-            <span class="brand-sub">Industrial Intelligence</span>
+          <h1 class="display-4 fw-bold mb-2" style="background: linear-gradient(135deg, #FFFFFF, #00D4FF); -webkit-background-clip: text; background-clip: text; color: transparent;">LEONI</h1>
+          <p class="text-uppercase small tracking-wide text-info">Industrial Intelligence</p>
+          <p class="text-white-50 mt-3">Système de gestion des tests modules</p>
+        </div>
+
+        <div class="mt-auto text-center w-100">
+          <div class="d-flex justify-content-center gap-4 mb-3">
+            <span class="text-white-50 small"><i class="bi bi-shield-check text-info me-1"></i> Connexion sécurisée</span>
+            <span class="text-white-50 small"><i class="bi bi-building text-info me-1"></i> Leoni Tunisia</span>
           </div>
-        </div>
-        <h2>Wiring Systems</h2>
-        <p>Système de gestion des tests modules</p>
-      </div>
-
-      <!-- Formulaire -->
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
-
-        <!-- Champ Email -->
-        <div class="input-group-leoni">
-          <div class="input-icon">
-            <i class="bi bi-envelope-fill"></i>
-          </div>
-          <div class="input-field">
-            <input type="email"
-                   formControlName="email"
-                   placeholder="Email professionnel"
-                   [class.error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
-            <label>Email professionnel</label>
-          </div>
-        </div>
-        <div class="error-message" *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid">
-          <span *ngIf="loginForm.get('email')?.errors?.['required']">
-            <i class="bi bi-exclamation-circle"></i> L'email est requis
-          </span>
-          <span *ngIf="loginForm.get('email')?.errors?.['email']">
-            <i class="bi bi-exclamation-circle"></i> Format d'email invalide
-          </span>
-        </div>
-
-        <!-- Champ Mot de passe -->
-        <div class="input-group-leoni">
-          <div class="input-icon">
-            <i class="bi bi-lock-fill"></i>
-          </div>
-          <div class="input-field">
-            <input [type]="showPassword ? 'text' : 'password'"
-                   formControlName="password"
-                   placeholder="Mot de passe"
-                   [class.error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
-            <label>Mot de passe</label>
-            <button type="button" class="password-toggle" (click)="togglePassword()">
-              <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
-            </button>
-          </div>
-        </div>
-        <div class="error-message" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
-          <span *ngIf="loginForm.get('password')?.errors?.['required']">
-            <i class="bi bi-exclamation-circle"></i> Le mot de passe est requis
-          </span>
-          <span *ngIf="loginForm.get('password')?.errors?.['minlength']">
-            <i class="bi bi-exclamation-circle"></i> Minimum 6 caractères
-          </span>
-        </div>
-
-        <!-- Message d'erreur global -->
-        <div class="alert-message error" *ngIf="errorMessage">
-          <i class="bi bi-exclamation-triangle-fill"></i>
-          {{ errorMessage }}
-        </div>
-
-        <!-- Options -->
-        <div class="login-options">
-          <label class="checkbox-leoni">
-            <input type="checkbox" [checked]="rememberMe" (change)="rememberMe = $any($event.target).checked">
-            <span class="checkmark"></span>
-            Se souvenir de moi
-          </label>
-          <button type="button" class="forgot-link" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">
-            Mot de passe oublié ?
-          </button>
-        </div>
-
-        <!-- Bouton Connexion -->
-        <button type="submit" class="btn-login" [disabled]="loginForm.invalid || isLoading">
-          <span *ngIf="!isLoading">
-            <i class="bi bi-box-arrow-in-right"></i> Se connecter
-          </span>
-          <span *ngIf="isLoading">
-            <span class="spinner"></span> Connexion...
-          </span>
-        </button>
-
-      </form>
-
-      <!-- Footer sécurité -->
-      <div class="login-footer">
-        <div class="security-badges">
-          <span><i class="bi bi-shield-check"></i> Connexion sécurisée</span>
-          <span><i class="bi bi-building"></i> Leoni Tunisia</span>
-        </div>
-        <p class="copyright">© 2026 Leoni Tunisia - Tous droits réservés</p>
-        <div class="legal-links">
-          <a href="#">Mentions légales</a>
-          <span>|</span>
-          <a href="#">Confidentialité</a>
+          <p class="text-white-50 small mb-0">© 2026 Leoni Tunisia - Tous droits réservés</p>
         </div>
       </div>
-
     </div>
+
+    <!-- Right side - Login Form -->
+    <div class="col-lg-6 d-flex align-items-center justify-content-center bg-dark p-4 p-md-5" style="background: #0A0E1A;">
+      <div class="w-100" style="max-width: 450px;">
+
+        <!-- Logo mobile -->
+        <div class="text-center d-lg-none mb-4">
+          <svg width="60" height="60" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="55" stroke="#00D4FF" stroke-width="2" fill="none"/>
+            <path d="M35 60 L50 45 L65 55 L85 35 L90 40 L65 65 L50 55 L40 65 Z" fill="#00D4FF"/>
+            <circle cx="60" cy="60" r="8" fill="#0A0E1A"/>
+          </svg>
+          <h2 class="text-white mt-2 mb-0">LEONI</h2>
+          <p class="text-white-50 small">Système de gestion des tests modules</p>
+        </div>
+
+        <!-- Formulaire -->
+        <div class="card bg-transparent border-0">
+          <div class="card-body p-0">
+
+            <h3 class="text-white mb-2">Connexion</h3>
+            <p class="text-white-50 mb-4">Accédez à votre espace de travail</p>
+
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+              <!-- Email -->
+              <div class="mb-3">
+                <label class="form-label text-white-50 small fw-semibold">EMAIL PROFESSIONNEL</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-dark border-secondary text-info">
+                    <i class="bi bi-envelope-fill"></i>
+                  </span>
+                  <input type="email"
+                         class="form-control bg-dark border-secondary text-white"
+                         [class.is-invalid]="loginForm.get('email')?.touched && loginForm.get('email')?.invalid"
+                         formControlName="email"
+                         placeholder="exemple@leoni.com">
+                </div>
+                <div class="invalid-feedback d-block" *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid">
+                  <span *ngIf="loginForm.get('email')?.errors?.['required']">
+                    <i class="bi bi-exclamation-circle me-1"></i>L'email est requis
+                  </span>
+                  <span *ngIf="loginForm.get('email')?.errors?.['email']">
+                    <i class="bi bi-exclamation-circle me-1"></i>Format d'email invalide
+                  </span>
+                </div>
+              </div>
+
+              <!-- Mot de passe -->
+              <div class="mb-3">
+                <label class="form-label text-white-50 small fw-semibold">MOT DE PASSE</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-dark border-secondary text-info">
+                    <i class="bi bi-lock-fill"></i>
+                  </span>
+                  <input [type]="showPassword ? 'text' : 'password'"
+                         class="form-control bg-dark border-secondary text-white"
+                         [class.is-invalid]="loginForm.get('password')?.touched && loginForm.get('password')?.invalid"
+                         formControlName="password"
+                         placeholder="••••••">
+                  <button class="btn btn-outline-secondary border-secondary text-white-50"
+                          type="button"
+                          (click)="togglePassword()">
+                    <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
+                  </button>
+                </div>
+                <div class="invalid-feedback d-block" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
+                  <span *ngIf="loginForm.get('password')?.errors?.['required']">
+                    <i class="bi bi-exclamation-circle me-1"></i>Le mot de passe est requis
+                  </span>
+                  <span *ngIf="loginForm.get('password')?.errors?.['minlength']">
+                    <i class="bi bi-exclamation-circle me-1"></i>Minimum 6 caractères
+                  </span>
+                </div>
+              </div>
+
+              <!-- Site (optionnel) -->
+              <div class="mb-3">
+                <label class="form-label text-white-50 small fw-semibold">
+                  SITE <span class="badge bg-secondary fs-10">Optionnel</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text bg-dark border-secondary text-info">
+                    <i class="bi bi-building"></i>
+                  </span>
+                  <select class="form-select bg-dark border-secondary text-white"
+                          formControlName="siteName"
+                          [disabled]="loadingSites">
+                    <option value="">-- Sélectionnez un site (optionnel) --</option>
+                    <option *ngFor="let site of sites" [value]="site.name">{{ site.name }}</option>
+                  </select>
+                </div>
+                <div class="form-text text-white-50 small mt-1">
+                  <i class="bi bi-info-circle me-1"></i>Laissez vide si vous êtes Administrateur
+                </div>
+              </div>
+
+              <!-- Message d'erreur global -->
+              <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show py-2 mb-3" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                {{ errorMessage }}
+                <button type="button" class="btn-close btn-close-white py-0"></button>
+              </div>
+
+              <!-- Options -->
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="form-check">
+                  <input class="form-check-input bg-dark border-secondary"
+                         type="checkbox"
+                         id="rememberMe"
+                         [(ngModel)]="rememberMe"
+                         [ngModelOptions]="{standalone: true}">
+                  <label class="form-check-label text-white-50 small" for="rememberMe">
+                    Se souvenir de moi
+                  </label>
+                </div>
+                <button type="button"
+                        class="btn btn-link text-info text-decoration-none p-0 small"
+                        data-bs-toggle="modal"
+                        data-bs-target="#forgotPasswordModal">
+                  Mot de passe oublié ?
+                </button>
+              </div>
+
+              <!-- Bouton Connexion -->
+              <button type="submit"
+                      class="btn w-100 py-2 fw-semibold"
+                      [disabled]="loginForm.invalid || isLoading"
+                      style="background: linear-gradient(135deg, #00D4FF, #0052CC); color: white; border: none;">
+                <span *ngIf="!isLoading">
+                  <i class="bi bi-box-arrow-in-right me-2"></i>Se connecter
+                </span>
+                <span *ngIf="isLoading">
+                  <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                  Connexion...
+                </span>
+              </button>
+
+            </form>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
 <!-- MODAL MOT DE PASSE OUBLIÉ -->
-<div class="modal fade leoni-modal" id="forgotPasswordModal" tabindex="-1">
+<div class="modal fade" id="forgotPasswordModal" tabindex="-1" data-bs-backdrop="static">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">
-          <i class="bi bi-key"></i> Réinitialisation du mot de passe
+    <div class="modal-content bg-dark border-secondary">
+      <div class="modal-header border-secondary">
+        <h5 class="modal-title text-white">
+          <i class="bi bi-key text-info me-2"></i>Réinitialisation du mot de passe
         </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <p>Saisissez votre email professionnel pour recevoir un code de vérification.</p>
+        <p class="text-white-50">Saisissez votre email professionnel pour recevoir un code de vérification.</p>
 
-        <div class="input-group-leoni">
-          <div class="input-icon">
-            <i class="bi bi-envelope-fill"></i>
+        <div class="mb-3">
+          <label class="form-label text-white-50 small">EMAIL</label>
+          <div class="input-group">
+            <span class="input-group-text bg-dark border-secondary text-info">
+              <i class="bi bi-envelope-fill"></i>
+            </span>
+            <input type="email"
+                   class="form-control bg-dark border-secondary text-white"
+                   [(ngModel)]="resetEmail"
+                   [disabled]="isSending"
+                   placeholder="exemple@leoni.com">
           </div>
-          <div class="input-field">
-            <input type="email" [value]="resetEmail" (input)="resetEmail = $any($event.target).value"
-                   placeholder="Email professionnel" [disabled]="isSending">
-            <label>Email professionnel</label>
-          </div>
         </div>
 
-        <div class="alert-message success" *ngIf="emailExists === true && !isSending">
-          <i class="bi bi-check-circle-fill"></i> Email trouvé ! Envoi du code de vérification...
+        <div *ngIf="emailExists === true && !isSending" class="alert alert-success py-2">
+          <i class="bi bi-check-circle-fill me-2"></i>Email trouvé ! Envoi du code de vérification...
         </div>
 
-        <div class="alert-message error" *ngIf="emailExists === false && !isSending">
-          <i class="bi bi-exclamation-triangle-fill"></i> L'email "{{ resetEmail }}" n'existe pas dans notre système.
+        <div *ngIf="emailExists === false && !isSending" class="alert alert-danger py-2">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>L'email "{{ resetEmail }}" n'existe pas dans notre système.
         </div>
 
-        <div class="alert-message info" *ngIf="resetMessage && isSending">
-          <div class="spinner-small"></div> {{ resetMessage }}
+        <div *ngIf="resetMessage && isSending" class="alert alert-info py-2">
+          <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+          {{ resetMessage }}
         </div>
-
-        <div class="modal-buttons">
-          <button class="btn-secondary" data-bs-dismiss="modal" [disabled]="isSending">Annuler</button>
-          <button class="btn-primary" (click)="checkEmailExists()" [disabled]="!resetEmail || isSending">
-            <span *ngIf="!isSending">Vérifier l'email</span>
-            <span *ngIf="isSending">Vérification...</span>
-          </button>
-        </div>
+      </div>
+      <div class="modal-footer border-secondary">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" [disabled]="isSending">Annuler</button>
+        <button type="button" class="btn btn-primary"
+                (click)="checkEmailExists()"
+                [disabled]="!resetEmail || isSending"
+                style="background: linear-gradient(135deg, #00D4FF, #0052CC); border: none;">
+          <span *ngIf="!isSending">Vérifier l'email</span>
+          <span *ngIf="isSending">Vérification...</span>
+        </button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- MODAL DE VÉRIFICATION PAR CODE -->
-<div class="modal fade leoni-modal" id="verificationModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+<!-- MODAL VÉRIFICATION CODE -->
+<div class="modal fade" id="verificationModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">
-          <i class="bi bi-envelope-check"></i> Vérification par email
+    <div class="modal-content bg-dark border-secondary">
+      <div class="modal-header border-secondary">
+        <h5 class="modal-title text-white">
+          <i class="bi bi-envelope-check text-info me-2"></i>Vérification par email
         </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
         <app-verification-code
@@ -213,3 +274,39 @@
     </div>
   </div>
 </div>
+
+<style>
+  @keyframes float1 {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(30px, -40px) rotate(120deg); }
+    66% { transform: translate(-20px, 20px) rotate(240deg); }
+  }
+  @keyframes float2 {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(-20px, 30px) rotate(-120deg); }
+    66% { transform: translate(15px, -15px) rotate(-240deg); }
+  }
+  @keyframes float3 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(15px, -20px) scale(1.1); }
+  }
+  .fs-10 {
+    font-size: 0.65rem;
+  }
+  .form-control:focus, .form-select:focus {
+    border-color: #00D4FF;
+    box-shadow: 0 0 0 0.2rem rgba(0, 212, 255, 0.25);
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
+  }
+  input:-webkit-autofill,
+  input:-webkit-autofill:focus {
+    transition: background-color 600000s 0s, color 600000s 0s;
+  }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

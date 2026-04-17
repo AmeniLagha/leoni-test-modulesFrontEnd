@@ -1,10 +1,7 @@
-<!-- dashboard.component.html - Version organisée et propre -->
-
 <div class="leoni-dashboard">
   <!-- ==================== TOP NAVIGATION BAR ==================== -->
   <nav class="leoni-navbar">
     <div class="nav-container">
-      <!-- Logo -->
       <div class="nav-brand">
         <div class="leoni-logo-3d">
           <div class="logo-ring">
@@ -35,7 +32,6 @@
         </div>
       </div>
 
-      <!-- Actions Navbar -->
       <div class="nav-actions" [class.open]="isNavbarOpen">
         <div class="system-health">
           <div class="health-indicator">
@@ -50,16 +46,14 @@
         </div>
 
         <div class="nav-notifications">
-  <button class="notif-btn" (click)="goToNotifications()">
-    <i class="bi bi-bell"></i>
-    <span class="notif-dot" *ngIf="notificationCount > 0">
-      <span class="notif-count">{{ notificationCount > 99 ? '99+' : notificationCount }}</span>
-    </span>
+          <button class="notif-btn" (click)="goToNotifications()">
+            <i class="bi bi-bell"></i>
+            <span class="notif-dot" *ngIf="notificationCount > 0">
+              <span class="notif-count">{{ notificationCount > 99 ? '99+' : notificationCount }}</span>
+            </span>
+          </button>
+        </div>
 
-  </button>
-</div>
-
-        <!-- User Menu -->
         <div class="user-menu" (click)="toggleUserMenuDropdown($event)">
           <div class="user-avatar">
             <span class="avatar-initial">{{ userEmail.charAt(0).toUpperCase() }}</span>
@@ -72,7 +66,6 @@
           <i class="bi bi-chevron-down"></i>
         </div>
 
-        <!-- Dropdown -->
         <div class="dropdown-menu user-dropdown" [class.show]="isUserMenuOpen">
           <div class="dropdown-header">
             <div class="dropdown-avatar">{{ userEmail.charAt(0).toUpperCase() }}</div>
@@ -90,12 +83,8 @@
     </div>
   </nav>
 
-  <!-- ==================== LAYOUT PRINCIPAL ==================== -->
   <div class="leoni-layout">
-
-    <!-- ==================== SIDEBAR ==================== -->
     <aside class="leoni-sidebar" [class.collapsed]="isSidebarCollapsed">
-      <!-- User Card -->
       <div class="sidebar-user-card">
         <div class="user-card-glow"></div>
         <div class="user-avatar-large">
@@ -116,105 +105,40 @@
         </div>
       </div>
 
-      <!-- Navigation Menu -->
       <nav class="sidebar-nav">
         <ul>
-          <li>
-            <a routerLink="/dashboard" routerLinkActive="active" class="nav-item-leoni">
-              <i class="bi bi-speedometer2"></i>
-              <span>Dashboard</span>
-              <span class="nav-indicator"></span>
-            </a>
-          </li>
-
+          <li><a routerLink="/dashboard" routerLinkActive="active" class="nav-item-leoni"><i class="bi bi-speedometer2"></i><span>Dashboard</span><span class="nav-indicator"></span></a></li>
           <li *ngIf="hasPermission(['admin:readuser'])">
-            <a (click)="toggleSubMenu('users')" class="nav-item-leoni has-submenu">
-              <i class="bi bi-people"></i>
-              <span>Utilisateurs</span>
-              <i class="bi bi-chevron-right submenu-arrow"></i>
-            </a>
+            <a (click)="toggleSubMenu('users')" class="nav-item-leoni has-submenu"><i class="bi bi-people"></i><span>Utilisateurs</span><i class="bi bi-chevron-right submenu-arrow"></i></a>
             <ul class="submenu" [class.open]="openSubmenu === 'users'">
               <li><a routerLink="/listeuser"><i class="bi bi-list-ul"></i> Liste</a></li>
               <li *ngIf="hasPermission(['admin:createuser'])"><a routerLink="/register"><i class="bi bi-person-plus"></i> Nouveau</a></li>
             </ul>
           </li>
-
-          <li>
-            <a routerLink="/charge-sheets/list" routerLinkActive="active" class="nav-item-leoni">
-              <i class="bi bi-files"></i>
-              <span>Cahiers des charges</span>
-            </a>
-          </li>
-
-          <li *ngIf="hasPermission(['compliance:read'])">
-            <a routerLink="/compliance/list" routerLinkActive="active" class="nav-item-leoni">
-              <i class="bi bi-check2-square"></i>
-              <span>Conformité</span>
-            </a>
-          </li>
-
-          <li *ngIf="hasPermission(['technical_file:read'])">
-            <a routerLink="/technical-files/list" routerLinkActive="active" class="nav-item-leoni">
-              <i class="bi bi-folder"></i>
-              <span>Dossiers techniques</span>
-            </a>
-          </li>
-
+          <li *ngIf="hasPermission(['admin:readuser'])"><a routerLink="/gestion-config" routerLinkActive="active" class="nav-item-leoni"><i class="bi bi-files"></i><span>Gestion des Sites/Projet</span></a></li>
+          <li><a routerLink="/charge-sheets/list" routerLinkActive="active" class="nav-item-leoni"><i class="bi bi-files"></i><span>Cahiers des charges</span></a></li>
+          <li *ngIf="hasPermission(['compliance:read'])"><a routerLink="/compliance/list" routerLinkActive="active" class="nav-item-leoni"><i class="bi bi-check2-square"></i><span>Conformité</span></a></li>
+          <li *ngIf="hasPermission(['technical_file:read'])"><a routerLink="/technical-files/list" routerLinkActive="active" class="nav-item-leoni"><i class="bi bi-folder"></i><span>Dossiers techniques</span></a></li>
           <li *ngIf="hasPermission(['maintenance:read'])">
-            <a (click)="toggleSubMenu('maintenance')" class="nav-item-leoni has-submenu">
-              <i class="bi bi-wrench"></i>
-              <span>Maintenance</span>
-              <i class="bi bi-chevron-right submenu-arrow"></i>
-            </a>
+            <a (click)="toggleSubMenu('maintenance')" class="nav-item-leoni has-submenu"><i class="bi bi-wrench"></i><span>Maintenance</span><i class="bi bi-chevron-right submenu-arrow"></i></a>
             <ul class="submenu" [class.open]="openSubmenu === 'maintenance'">
               <li><a routerLink="/maintenance/corrective"><i class="bi bi-tools"></i> Corrective</a></li>
               <li><a routerLink="/maintenance/preventive"><i class="bi bi-calendar-check"></i> Préventive</a></li>
             </ul>
           </li>
-
           <li class="nav-divider"></li>
-
-          <li *ngIf="hasPermission(['stock:read'])">
-            <a routerLink="/stock" routerLinkActive="active" class="nav-item-leoni">
-              <i class="bi bi-box-seam"></i>
-              <span>Stock</span>
-            </a>
-          </li>
-
-          <li *ngIf="hasPermission(['reception:read'])">
-            <a routerLink="/reception" routerLinkActive="active" class="nav-item-leoni">
-              <i class="bi bi-truck"></i>
-              <span>Réception</span>
-            </a>
-          </li>
-
-          <li *ngIf="hasPermission(['claim:read'])">
-            <a routerLink="/claims/list" routerLinkActive="active" class="nav-item-leoni">
-              <i class="bi bi-chat-dots"></i>
-              <span>Réclamations</span>
-            </a>
-          </li>
-
+          <li *ngIf="hasPermission(['stock:read'])"><a routerLink="/stock" routerLinkActive="active" class="nav-item-leoni"><i class="bi bi-box-seam"></i><span>Stock</span></a></li>
+          <li *ngIf="hasPermission(['reception:read'])"><a routerLink="/reception" routerLinkActive="active" class="nav-item-leoni"><i class="bi bi-truck"></i><span>Réception</span></a></li>
+          <li *ngIf="hasPermission(['claim:read'])"><a routerLink="/claims/list" routerLinkActive="active" class="nav-item-leoni"><i class="bi bi-chat-dots"></i><span>Réclamations</span></a></li>
           <li class="nav-divider" *ngIf="userRole === 'ADMIN'"></li>
+          <li *ngIf="userRole === 'ADMIN'"><a routerLink="/statistique" routerLinkActive="active" class="nav-item-leoni"><i class="bi bi-graph-up"></i><span>Statistiques</span></a></li>
+          <li *ngIf="userRole === 'ADMIN'"><a routerLink="/chat" routerLinkActive="active" class="nav-item-leoni"><i class="bi bi-robot"></i><span>ChatBot IA</span><i class="bi bi-stars ai-badge"></i></a></li>
+          <li><a routerLink="/aiStock" routerLinkActive="active" class="nav-item-leoni"><i class="bi bi-check2-square"></i><span>AI Stock</span></a></li>
+          <li><a routerLink="/charge-reception" routerLinkActive="active" class="nav-item-leoni"><i class="bi bi-check2-square"></i><span>AI Charge/Reception</span></a></li>
 
-          <li *ngIf="userRole === 'ADMIN'">
-            <a routerLink="/statistique" routerLinkActive="active" class="nav-item-leoni">
-              <i class="bi bi-graph-up"></i>
-              <span>Statistiques</span>
-            </a>
-          </li>
-
-          <li *ngIf="userRole === 'ADMIN'">
-            <a routerLink="/chat" routerLinkActive="active" class="nav-item-leoni">
-              <i class="bi bi-robot"></i>
-              <span>ChatBot IA</span>
-              <i class="bi bi-stars ai-badge"></i>
-            </a>
-          </li>
         </ul>
       </nav>
 
-      <!-- Footer Sidebar -->
       <div class="sidebar-footer">
         <div class="footer-logo">
           <svg width="30" height="30" viewBox="0 0 100 100">
@@ -227,24 +151,15 @@
       </div>
     </aside>
 
-    <!-- ==================== MAIN CONTENT ==================== -->
     <main class="leoni-main">
-
-      <!-- Hero Banner -->
       <div class="hero-banner">
         <div class="hero-content">
           <div class="hero-text">
             <h1>Bienvenue, <span class="highlight">{{ userFirstName || userEmail.split('@')[0] }}</span></h1>
             <p>Plateforme de gestion industrielle intelligente</p>
             <div class="hero-stats">
-              <div class="hero-stat">
-                <i class="bi bi-calendar"></i>
-                <span>{{ today | date:'EEEE dd MMMM yyyy' }}</span>
-              </div>
-              <div class="hero-stat">
-                <i class="bi bi-clock"></i>
-                <span>{{ today | date:'HH:mm' }}</span>
-              </div>
+              <div class="hero-stat"><i class="bi bi-calendar"></i><span>{{ today | date:'EEEE dd MMMM yyyy' }}</span></div>
+              <div class="hero-stat"><i class="bi bi-clock"></i><span>{{ today | date:'HH:mm' }}</span></div>
             </div>
           </div>
           <div class="hero-decoration">
@@ -254,406 +169,163 @@
           </div>
         </div>
       </div>
-  <!-- ==================== NOTIFICATIONS TECHNIQUES ==================== -->
-      <div class="notifications-section" *ngIf="technicalNotifications.length > 0">
-        <div class="section-header">
-          <h3>
-            <i class="bi bi-bell-fill"></i>
-            Alertes techniques
-            <span class="notif-badge">{{ technicalNotifications.length }}</span>
-          </h3>
-          <span class="section-line"></span>
-          <button class="clear-notif-btn" (click)="clearNotifications()">
-            <i class="bi bi-check2-all"></i> Tout marquer comme lu
-          </button>
-        </div>
 
+      <!-- NOTIFICATIONS TECHNIQUES -->
+      <div class="notifications-section"  *ngIf="technicalNotifications.length > 0">
+        <div class="section-header">
+          <h3><i class="bi bi-bell-fill"></i> Alertes techniques<span class="notif-badge">{{ technicalNotifications.length }}</span></h3>
+          <span class="section-line"></span>
+          <button class="clear-notif-btn" (click)="clearNotifications()"><i class="bi bi-check2-all"></i> Tout marquer comme lu</button>
+        </div>
         <div class="notifications-list">
-          <div class="notification-item" *ngFor="let notif of technicalNotifications"
-               [class.critical]="notif.priority === 'CRITICAL'"
-               [class.high]="notif.priority === 'HIGH'"
-               [class.medium]="notif.priority === 'MEDIUM'">
-            <div class="notif-icon">
-              <i class="bi" [class.bi-exclamation-triangle-fill]="notif.priority === 'CRITICAL'"
-                 [class.bi-exclamation-circle-fill]="notif.priority === 'HIGH'"
-                 [class.bi-info-circle-fill]="notif.priority === 'MEDIUM'"></i>
-            </div>
+          <div class="notification-item" *ngFor="let notif of technicalNotifications" [class.critical]="notif.priority === 'CRITICAL'" [class.high]="notif.priority === 'HIGH'" [class.medium]="notif.priority === 'MEDIUM'">
+            <div class="notif-icon"><i class="bi" [class.bi-exclamation-triangle-fill]="notif.priority === 'CRITICAL'" [class.bi-exclamation-circle-fill]="notif.priority === 'HIGH'" [class.bi-info-circle-fill]="notif.priority === 'MEDIUM'"></i></div>
             <div class="notif-content">
               <div class="notif-title">{{ notif.title }}</div>
               <div class="notif-description">{{ notif.description }}</div>
               <div class="notif-meta">
-                <span class="notif-project" *ngIf="notif.project">
-                  <i class="bi bi-folder"></i> Projet: {{ notif.project }}
-                </span>
-                <span class="notif-days" [class.critical]="notif.daysWithoutUpdate > 30"
-                      [class.high]="notif.daysWithoutUpdate > 14 && notif.daysWithoutUpdate <= 30">
-                  <i class="bi bi-calendar"></i> {{ notif.daysWithoutUpdate }} jours sans modification
-                </span>
-                <span class="notif-date">
-                  <i class="bi bi-clock"></i> {{ notif.createdAt | date:'dd/MM/yyyy HH:mm' }}
-                </span>
+                <span class="notif-project" *ngIf="notif.project"><i class="bi bi-folder"></i> Projet: {{ notif.project }}</span>
+                <span class="notif-days" [class.critical]="notif.daysWithoutUpdate > 30" [class.high]="notif.daysWithoutUpdate > 14 && notif.daysWithoutUpdate <= 30"><i class="bi bi-calendar"></i> {{ notif.daysWithoutUpdate }} jours sans modification</span>
+                <span class="notif-date"><i class="bi bi-clock"></i> {{ notif.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
               </div>
             </div>
             <div class="notif-action">
-              <button class="btn-view" (click)="viewTechnicalItem(notif.id)">
-                <i class="bi bi-eye"></i> Voir
-              </button>
-              <button class="btn-dismiss" (click)="dismissNotification(notif.id)">
-                <i class="bi bi-x-lg"></i>
-              </button>
+              <button class="btn-view" (click)="viewTechnicalItem(notif.id)"><i class="bi bi-eye"></i> Voir</button>
+              <button class="btn-dismiss" (click)="dismissNotification(notif.id)"><i class="bi bi-x-lg"></i></button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Version simplifiée quand il n'y a pas de notifications -->
-      <div class="notifications-section empty" *ngIf="!isLoadingNotifications && technicalNotifications.length === 0 && userRole !== 'ADMIN'">
-        <div class="section-header">
-          <h3>
-            <i class="bi bi-bell-slash"></i>
-            Alertes techniques
-          </h3>
-          <span class="section-line"></span>
+      <!-- SÉLECTION DES SITES (ADMIN UNIQUEMENT) -->
+      <div *ngIf="userRole === 'ADMIN' && !selectedSite" class="site-selector-section">
+        <div class="site-selector-header">
+          <h2><i class="bi bi-building"></i> Sites industriels</h2>
+          <p>Sélectionnez un site pour accéder à ses données</p>
         </div>
-        <div class="empty-notifications">
-          <i class="bi bi-check-circle-fill"></i>
-          <p>Aucune alerte technique en attente</p>
-          <small>Tous les items techniques sont à jour</small>
+        <div class="sites-grid">
+          <div class="site-card-selector" *ngFor="let site of sites" (click)="selectSite(site)">
+            <div class="site-card-icon"><i class="bi bi-building"></i></div>
+            <div class="site-card-info"><h3>{{ site.name }}</h3><p>{{ site.description }}</p></div>
+            <div class="site-card-arrow"><i class="bi bi-arrow-right-circle"></i></div>
+          </div>
+          <div *ngIf="sites.length === 0 && !loadingSites" class="no-sites"><i class="bi bi-info-circle"></i><p>Aucun site disponible</p></div>
+          <div *ngIf="loadingSites" class="loading-sites"><div class="spinner"></div><p>Chargement des sites...</p></div>
         </div>
       </div>
-      <!-- ==================== STATS GRID ==================== -->
-      <div class="stats-grid">
-        <!-- Carte Cahiers des charges -->
-        <div class="stat-card-leoni" *ngIf="hasPermission(['charge_sheet:basic:read'])">
-          <div class="card-icon">
-            <i class="bi bi-files"></i>
-            <div class="icon-bg"></div>
-          </div>
-          <div class="card-info">
-            <h3>{{ chargeSheetCount }}</h3>
-            <p>Cahiers des charges</p>
-            <div class="card-trend" [class.positive]="monthlyVariation?.trend === 'hausse'"
-                 [class.negative]="monthlyVariation?.trend === 'baisse'">
-              <i [class]="getVariationIcon(monthlyVariation?.trend || 'stable')"></i>
-              <span *ngIf="monthlyVariation">{{ getVariationSign(monthlyVariation.variation) }}{{ monthlyVariation.variation }}%</span>
-              <span *ngIf="!monthlyVariation">0%</span>
-            </div>
-          </div>
-          <div class="card-progress">
-            <div class="progress-bar" style="width: 75%"></div>
+
+      <!-- EN-TÊTE SITE SÉLECTIONNÉ -->
+      <div *ngIf="userRole === 'ADMIN' && selectedSite" class="selected-site-header">
+        <button class="back-btn" (click)="backToSiteSelection()"><i class="bi bi-arrow-left"></i> Tous les sites</button>
+        <div class="selected-site-info">
+          <div class="selected-site-icon"><i class="bi bi-building"></i></div>
+          <div>
+            <h2>{{ selectedSite.name }}</h2>
+            <p>{{ selectedSite.description }}</p>
           </div>
         </div>
+      </div>
 
-        <!-- Carte Conformité -->
-        <div class="stat-card-leoni" *ngIf="hasPermission(['compliance:read'])">
-          <div class="card-icon success">
-            <i class="bi bi-check2-square"></i>
-            <div class="icon-bg"></div>
-          </div>
-          <div class="card-info">
-            <h3>{{ complianceCount }}</h3>
-            <p>Conformité</p>
-            <div class="card-trend" [class.positive]="complianceVariation?.trend === 'hausse'"
-                 [class.negative]="complianceVariation?.trend === 'baisse'">
-              <i [class]="getVariationIcon(complianceVariation?.trend || 'stable')"></i>
-              <span *ngIf="complianceVariation">{{ getVariationSign(complianceVariation.variation) }}{{ complianceVariation.variation }}%</span>
-              <span *ngIf="!complianceVariation">0%</span>
-            </div>
-          </div>
-          <div class="card-progress">
-            <div class="progress-bar" style="width: 60%"></div>
-          </div>
+      <!-- ONGLETS DU DASHBOARD -->
+      <div *ngIf="(userRole !== 'ADMIN') || (userRole === 'ADMIN' && selectedSite)" class="dashboard-tabs">
+        <div class="tabs-container">
+          <button class="tab-btn" [class.active]="activeDashboardTab === 'charge-sheets'" (click)="setActiveTab('charge-sheets')">
+            <i class="bi bi-files"></i><span>Cahiers des charges</span><span class="tab-count">{{ chargeSheetCount }}</span>
+          </button>
+          <button class="tab-btn" [class.active]="activeDashboardTab === 'compliance'" (click)="setActiveTab('compliance')">
+            <i class="bi bi-check2-square"></i><span>Conformité</span><span class="tab-count">{{ complianceCount }}</span>
+          </button>
+          <button class="tab-btn" [class.active]="activeDashboardTab === 'technical-files'" (click)="setActiveTab('technical-files')">
+            <i class="bi bi-folder"></i><span>Dossiers techniques</span><span class="tab-count">{{ technicalFilesCount }}</span>
+          </button>
+          <button *ngIf="hasPermission(['admin:readuser'])" class="tab-btn" [class.active]="activeDashboardTab === 'users'" (click)="setActiveTab('users')">
+            <i class="bi bi-people"></i><span>Utilisateurs</span><span class="tab-count">{{ activeUsers }}</span>
+          </button>
+          <button class="tab-btn" [class.active]="activeDashboardTab === 'claims'" (click)="setActiveTab('claims')">
+            <i class="bi bi-chat-dots"></i><span>Réclamations</span><span class="tab-count">{{ claimsCount }}</span>
+          </button>
+          <button *ngIf="hasPermission(['stock:read'])" class="tab-btn" [class.active]="activeDashboardTab === 'stock'" (click)="setActiveTab('stock')">
+            <i class="bi bi-box-seam"></i><span>Stock</span>
+          </button>
+          <button *ngIf="hasPermission(['reception:read'])" class="tab-btn" [class.active]="activeDashboardTab === 'reception'" (click)="setActiveTab('reception')">
+            <i class="bi bi-truck"></i><span>Réception</span>
+          </button>
         </div>
+      </div>
 
-        <!-- Carte Réclamations -->
-        <div class="stat-card-leoni" *ngIf="hasPermission(['claim:read'])">
-          <div class="card-icon warning">
-            <i class="bi bi-chat-dots"></i>
-            <div class="icon-bg"></div>
-          </div>
-          <div class="card-info">
-            <h3>{{ claimsCount }}</h3>
-            <p>Réclamations</p>
-            <div class="card-trend" [class.positive]="claimVariation?.trend === 'hausse'"
-         [class.negative]="claimVariation?.trend === 'baisse'">
-      <i [class]="getVariationIcon(claimVariation?.trend || 'stable')"></i>
-      <span *ngIf="claimVariation">{{ getVariationSign(claimVariation.variation) }}{{ claimVariation.variation }}%</span>
-      <span *ngIf="!claimVariation">0%</span>
+     <!-- ==================== CARTES DE VARIATION ==================== -->
+<!-- CARTES DE VARIATION -->
+<div class="variation-card" *ngIf="monthlyVariation">
+  <div class="variation-header">
+    <div class="header-left">
+      <i class="bi bi-graph-up"></i>
+      <h3>Évolution des créations de cahiers</h3>
+    </div>
+    <button class="info-btn" (click)="showVariationDetails = !showVariationDetails">
+      <i class="bi bi-info-circle"></i>
+    </button>
+  </div>
+  <div class="variation-content">
+    <div class="months-compare">
+      <div class="month-card previous">
+        <span class="month-label">{{ monthlyVariation.previousMonth }}</span>
+        <span class="month-count">{{ monthlyVariation.previousMonthCount || 0 }}</span>
+        <span class="month-sub">cahiers créés</span>
+      </div>
+      <div class="variation-arrow" [class.positive]="monthlyVariation.trend === 'hausse'"
+           [class.negative]="monthlyVariation.trend === 'baisse'">
+        <i [class]="getVariationIcon(monthlyVariation.trend)"></i>
+        <span class="variation-percent">{{ getVariationSign(monthlyVariation.variation) }}{{ monthlyVariation.variation }}%</span>
+      </div>
+      <div class="month-card current">
+        <span class="month-label">{{ monthlyVariation.currentMonth }}</span>
+        <span class="month-count">{{ monthlyVariation.currentMonthCount || 0 }}</span>
+        <span class="month-sub">cahiers créés</span>
+      </div>
+    </div>
+    <div class="variation-details" *ngIf="showVariationDetails">
+      <div class="detail-row">
+        <span class="detail-label">📊 Formule :</span>
+        <code class="detail-value">{{ monthlyVariation.formula }}</code>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">💡 Interprétation :</span>
+        <span class="detail-value">{{ monthlyVariation.interpretation }}</span>
+      </div>
     </div>
   </div>
-  <div class="card-progress">
-    <div class="progress-bar" style="width: 45%"></div>
-  </div>
-        </div>
-
-
-      </div>
-
-      <!-- ==================== SÉLECTEURS ADMIN ==================== -->
-      <div class="admin-selectors" *ngIf="userRole === 'ADMIN'">
-        <!-- Sélecteur Cahiers -->
-        <div class="project-selector">
-          <label>📋 Vue Cahiers :</label>
-          <select [(ngModel)]="selectedProject" (change)="onProjectChange()" class="form-control">
-            <option value="ALL">📊 Tous les projets</option>
-            <option value="FORD">Ford</option>
-            <option value="Mercedes">Mercedes</option>
-            <option value="BMW">BMW</option>
-            <option value="Audi">Audi</option>
-            <option value="Porsche">Porsche</option>
-          </select>
-        </div>
-
-        <!-- Sélecteur Conformité -->
-        <div class="project-selector">
-          <label>✅ Vue Conformité :</label>
-          <select [(ngModel)]="selectedComplianceProject" (change)="onComplianceProjectChange()" class="form-control">
-            <option value="ALL">📊 Tous les projets</option>
-            <option value="FORD">Ford</option>
-            <option value="Mercedes">Mercedes</option>
-            <option value="BMW">BMW</option>
-            <option value="Audi">Audi</option>
-            <option value="Porsche">Porsche</option>
-          </select>
-        </div>
-      </div>
-      <!-- dashboard.component.html - Ajoutez dans admin-selectors -->
-
-<!-- Sélecteur Réclamations -->
-<div class="project-selector" *ngIf="userRole === 'ADMIN'">
-  <label>⚠️ Vue Réclamations :</label>
-  <select [(ngModel)]="selectedClaimProject" (change)="onClaimProjectChange()" class="form-control">
-    <option value="ALL">📊 Tous les projets</option>
-    <option value="FORD">Ford</option>
-    <option value="Mercedes">Mercedes</option>
-    <option value="BMW">BMW</option>
-    <option value="Audi">Audi</option>
-    <option value="Porsche">Porsche</option>
-  </select>
 </div>
 
-      <!-- ==================== CARTE VARIATION CAHIERS ==================== -->
-      <!-- Chargement -->
-      <div class="variation-card" *ngIf="isLoadingVariation">
-        <div class="variation-header">
-          <div class="header-left">
-            <i class="bi bi-graph-up"></i>
-            <h3>Évolution des créations de cahiers</h3>
-          </div>
-        </div>
-        <div class="loading-spinner">
-          <div class="spinner"></div>
-          <p>Chargement des données...</p>
-        </div>
-      </div>
-
-      <!-- Contenu -->
-      <div class="variation-card" *ngIf="monthlyVariation && monthlyVariation.currentMonth">
-        <div class="variation-header">
-          <div class="header-left">
-            <i class="bi bi-graph-up"></i>
-            <h3>Évolution des créations de cahiers</h3>
-          </div>
-          <button class="info-btn" (click)="showVariationDetails = !showVariationDetails">
-            <i class="bi bi-info-circle"></i>
-          </button>
-        </div>
-
-        <div class="variation-content">
-          <div class="months-compare">
-            <div class="month-card current">
-              <span class="month-label">{{ monthlyVariation.currentMonth | date:'MMMM yyyy' }}</span>
-              <span class="month-count">{{ monthlyVariation.currentMonthCount }}</span>
-              <span class="month-sub">cahiers créés</span>
-            </div>
-            <div class="variation-arrow" [class.positive]="monthlyVariation.trend === 'hausse'"
-                 [class.negative]="monthlyVariation.trend === 'baisse'">
-              <i [class]="getVariationIcon(monthlyVariation.trend)"></i>
-              <span class="variation-percent" [class.positive]="monthlyVariation.trend === 'hausse'"
-                    [class.negative]="monthlyVariation.trend === 'baisse'">
-                {{ getVariationSign(monthlyVariation.variation) }}{{ monthlyVariation.variation }}%
-              </span>
-            </div>
-            <div class="month-card previous">
-              <span class="month-label">{{ monthlyVariation.previousMonth | date:'MMMM yyyy' }}</span>
-              <span class="month-count">{{ monthlyVariation.previousMonthCount }}</span>
-              <span class="month-sub">cahiers créés</span>
-            </div>
-          </div>
-
-          <div class="variation-details" *ngIf="showVariationDetails">
-            <div class="detail-row">
-              <span class="detail-label">📊 Formule :</span>
-              <code class="detail-value">{{ monthlyVariation.formula }}</code>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">💡 Interprétation :</span>
-              <span class="detail-value">{{ monthlyVariation.interpretation }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">📈 Tendance :</span>
-              <span class="detail-value" [class.positive]="monthlyVariation.trend === 'hausse'"
-                     [class.negative]="monthlyVariation.trend === 'baisse'">
-                {{ monthlyVariation.trend === 'hausse' ? '📈 Hausse' : monthlyVariation.trend === 'baisse' ? '📉 Baisse' : '➡️ Stable' }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ==================== COMPARAISON PERSONNALISÉE ==================== -->
-      <div class="custom-comparison">
-        <div class="section-header">
-          <h3>
-            <i class="bi bi-calendar-range"></i>
-            Comparaison personnalisée
-          </h3>
-          <span class="section-line"></span>
-        </div>
-
-        <div class="comparison-controls">
-          <div class="month-selector">
-            <label>Mois 1</label>
-            <input type="month" class="form-control" [(ngModel)]="selectedMonth1" (change)="loadCustomVariation()">
-          </div>
-          <div class="month-selector">
-            <label>Mois 2</label>
-            <input type="month" class="form-control" [(ngModel)]="selectedMonth2" (change)="loadCustomVariation()">
-          </div>
-        </div>
-
-        <div class="comparison-result" *ngIf="customVariationResult && !customVariationResult.error">
-          <div class="result-stats">
-            <div class="result-item">
-              <span class="result-label">{{ customVariationResult.month1 | date:'MMMM yyyy' }}</span>
-              <span class="result-value">{{ customVariationResult.month1Count }}</span>
-            </div>
-            <div class="result-arrow" [class.positive]="customVariationResult.trend === 'hausse'"
-                 [class.negative]="customVariationResult.trend === 'baisse'">
-              <i [class]="getVariationIcon(customVariationResult.trend)"></i>
-              <span [class.positive]="customVariationResult.trend === 'hausse'"
-                    [class.negative]="customVariationResult.trend === 'baisse'">
-                {{ getVariationSign(customVariationResult.variation) }}{{ customVariationResult.variation }}%
-              </span>
-            </div>
-            <div class="result-item">
-              <span class="result-label">{{ customVariationResult.month2 | date:'MMMM yyyy' }}</span>
-              <span class="result-value">{{ customVariationResult.month2Count }}</span>
-            </div>
-          </div>
-          <div class="result-formula">
-            <code>{{ customVariationResult.formula }}</code>
-          </div>
-        </div>
-        <div class="comparison-result empty" *ngIf="customVariationResult?.error">
-          <p class="text-muted">{{ customVariationResult.error }}</p>
-        </div>
-      </div>
-
-      <!-- ==================== ACTIONS RAPIDES ==================== -->
-      <div class="actions-section">
-        <div class="section-header">
-          <h3>
-            <i class="bi bi-lightning-charge"></i>
-            Actions rapides
-          </h3>
-          <span class="section-line"></span>
-        </div>
-        <div class="actions-grid">
-          <button *ngIf="hasPermission(['charge_sheet:basic:create'])" class="action-btn" routerLink="/charge-sheets/create">
-            <i class="bi bi-plus-circle"></i>
-            <span>Nouveau cahier</span>
-          </button>
-         
-        </div>
-      </div>
-
-      <!-- ==================== PERMISSIONS ==================== -->
+      <!-- PERMISSIONS -->
       <div class="permissions-section">
-        <div class="section-header">
-          <h3>
-            <i class="bi bi-shield-check"></i>
-            Permissions système
-          </h3>
-          <span class="section-line"></span>
-        </div>
-        <div class="permissions-grid">
-          <div class="permission-tag" *ngFor="let permission of userPermissions">
-            <i class="bi bi-check-circle-fill"></i>
-            <span>{{ formatPermissionName(permission) }}</span>
-          </div>
-        </div>
+        <div class="section-header"><h3><i class="bi bi-shield-check"></i> Permissions système</h3><span class="section-line"></span></div>
+        <div class="permissions-grid"><div class="permission-tag" *ngFor="let permission of userPermissions"><i class="bi bi-check-circle-fill"></i><span>{{ formatPermissionName(permission) }}</span></div></div>
       </div>
 
-      <!-- Router Outlet -->
-      <div class="router-outlet" *ngIf="!isDashboardRoute()">
-        <router-outlet></router-outlet>
-      </div>
     </main>
   </div>
 </div>
 
-<!-- ==================== CHATBOT ==================== -->
+<!-- CHATBOT -->
 <div class="leoni-chatbot">
-  <button class="chat-trigger" (click)="toggleChat()">
-    <div class="trigger-icon">
-      <i class="bi bi-robot"></i>
-    </div>
-    <div class="trigger-pulse"></div>
-    <span class="trigger-text">Assistant LEONI</span>
-  </button>
-
+  <button class="chat-trigger" (click)="toggleChat()"><div class="trigger-icon"><i class="bi bi-robot"></i></div><div class="trigger-pulse"></div><span class="trigger-text">Assistant LEONI</span></button>
   <div class="chat-panel" *ngIf="isOpen">
     <div class="chat-panel-header">
-      <div class="header-avatar">
-        <i class="bi bi-robot"></i>
-        <div class="avatar-status"></div>
-      </div>
-      <div class="header-info">
-        <h4>LEONI Assistant</h4>
-        <p>Support technique • IA avancée</p>
-      </div>
-      <button class="close-chat" (click)="closeChat()">
-        <i class="bi bi-x-lg"></i>
-      </button>
+      <div class="header-avatar"><i class="bi bi-robot"></i><div class="avatar-status"></div></div>
+      <div class="header-info"><h4>LEONI Assistant</h4><p>Support technique • IA avancée</p></div>
+      <button class="close-chat" (click)="closeChat()"><i class="bi bi-x-lg"></i></button>
     </div>
-
     <div class="chat-messages" #messagesContainer>
       <div *ngFor="let msg of messages" class="chat-message" [class.user]="msg.isUser" [class.bot]="!msg.isUser">
-        <div class="message-avatar" *ngIf="!msg.isUser">
-          <i class="bi bi-robot"></i>
-        </div>
-        <div class="message-bubble">
-          <div class="message-text" [innerHTML]="formatMessage(msg.text)"></div>
-          <div class="message-time">{{ msg.timestamp | date:'HH:mm' }}</div>
-        </div>
-        <div class="message-avatar user-avatar" *ngIf="msg.isUser">
-          <span>{{ userEmail.charAt(0).toUpperCase() }}</span>
-        </div>
+        <div class="message-avatar" *ngIf="!msg.isUser"><i class="bi bi-robot"></i></div>
+        <div class="message-bubble"><div class="message-text" [innerHTML]="formatMessage(msg.text)"></div><div class="message-time">{{ msg.timestamp | date:'HH:mm' }}</div></div>
+        <div class="message-avatar user-avatar" *ngIf="msg.isUser"><span>{{ userEmail.charAt(0).toUpperCase() }}</span></div>
       </div>
-      <div *ngIf="isLoading" class="chat-message bot">
-        <div class="message-avatar"><i class="bi bi-robot"></i></div>
-        <div class="message-bubble">
-          <div class="typing-indicator">
-            <span></span><span></span><span></span>
-          </div>
-        </div>
-      </div>
+      <div *ngIf="isLoading" class="chat-message bot"><div class="message-avatar"><i class="bi bi-robot"></i></div><div class="message-bubble"><div class="typing-indicator"><span></span><span></span><span></span></div></div></div>
     </div>
-
     <div class="chat-input-area">
-      <div class="input-wrapper">
-        <input type="text" [(ngModel)]="userInput" (keyup.enter)="sendMessage()"
-               placeholder="Posez votre question..." [disabled]="isLoading">
-        <button (click)="sendMessage()" [disabled]="!userInput || isLoading">
-          <i class="bi bi-send"></i>
-        </button>
-      </div>
-      <div class="suggestions">
-        <button *ngFor="let suggestion of suggestions" (click)="askSuggestion(suggestion)">
-          {{ suggestion }}
-        </button>
-      </div>
+      <div class="input-wrapper"><input type="text" [(ngModel)]="userInput" (keyup.enter)="sendMessage()" placeholder="Posez votre question..." [disabled]="isLoading"><button (click)="sendMessage()" [disabled]="!userInput || isLoading"><i class="bi bi-send"></i></button></div>
+      <div class="suggestions"><button *ngFor="let suggestion of suggestions" (click)="askSuggestion(suggestion)">{{ suggestion }}</button></div>
     </div>
   </div>
 </div>

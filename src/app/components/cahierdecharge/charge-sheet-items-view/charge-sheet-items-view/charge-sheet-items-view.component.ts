@@ -34,15 +34,14 @@ export class ChargeSheetItemsViewComponent implements OnInit {
   currentItem: ChargeSheetItemDto | null = null;
   itemForm: FormGroup;
    technicianName: string = '';
-   // Propriétés parsées de la référence client
     housingReferenceLeoni: string = '';
-    housingReferenceSupplierCustomer: string = '';
+  housingReferenceSupplierCustomer: string = '';
 
-    // Parties parsées
-    basePart: string = '';
-    indexPart: string = '';
-    producerPart: string = '';
-    typePart: string = '';
+  // ✅ Parties parsées de la référence Leoni (pour la modal)
+  leoniPartNumber: string = '';
+  leoniIndexValue: number = 0;
+  leoniProducer: string = '';
+  leoniType: string = '';
   // Sections pour organiser l'affichage
   sections = [
     { key: 'general', label: 'Informations générales', fields: [] as string[] },
@@ -103,57 +102,71 @@ existingCompliances: Map<number, boolean> = new Map(); // Pour suivre les items 
     }
   }
 
- // ✅ Fonction pour parser la référence client
-    parseSupplierReference(ref: string): void {
-        if (!ref) return;
 
-        const parts = ref.split('_');
+ /**
+   * ✅ Parse la référence Leoni qui peut être dans plusieurs formats:
+   * - Format 1: P00838055_01_N_T (avec underscores)
+   * - Format 2: P00838055_01 NT (avec espace)
+   * - Format 3: P00838055_01_NT (NT collé)
+   * - Format 4: P00838055_01 (sans producer/type)
+   */
+  parseLeoniReference(ref: string): { partNumber: string; indexValue: number; producer: string; type: string } {
+    const result = { partNumber: '', indexValue: 0, producer: '', type: '' };
 
-        if (parts.length >= 1) {
-            this.basePart = parts[0];
-        }
-
-        if (parts.length >= 2) {
-            this.indexPart = parts[1];
-        }
-
-        if (parts.length >= 3) {
-            this.producerPart = parts[2];
-        }
-
-        if (parts.length >= 4) {
-            this.typePart = parts[3];
-        }
-
-        console.log('📌 Parsing référence client:', {
-            ref,
-            basePart: this.basePart,
-            indexPart: this.indexPart,
-            producerPart: this.producerPart,
-            typePart: this.typePart
-        });
+    if (!ref) {
+      console.warn('⚠️ Référence Leoni vide');
+      return result;
     }
- // ✅ Fonction pour parser la référence Leoni (pour produire producer et type)
-    parseLeoniReference(ref: string): { producer: string; type: string } {
-        const result = { producer: '', type: '' };
 
-        if (!ref) return result;
+    console.log('📌 Parsing référence Leoni brute:', ref);
 
-        // Format attendu: P84879_03_T_N ou P988766_O1_G_KI
-        const parts = ref.split('_');
+    // Nettoyer la référence: remplacer les espaces par des underscores
+    let cleanedRef = ref.trim().replace(/ /g, '_');
 
-        if (parts.length >= 3) {
-            result.producer = parts[2]; // G
-        }
+    // Si la référence contient "NT" collé, le séparer
+    cleanedRef = cleanedRef.replace(/_NT$/g, '_N_T');
+    cleanedRef = cleanedRef.replace(/NT$/g, 'N_T');
 
-        if (parts.length >= 4) {
-            result.type = parts[3]; // KI
-        }
+    const parts = cleanedRef.split('_');
+    console.log('📌 Parties après nettoyage:', parts);
 
-        console.log(`📌 Parsing référence Leoni "${ref}" -> producer: "${result.producer}", type: "${result.type}"`);
-
-        return result;
+    // Part Number (ex: P00838055)
+    if (parts.length >= 1) {
+      result.partNumber = parts[0];
     }
+
+    // Index (ex: 01)
+    if (parts.length >= 2) {
+      const indexStr = parts[1].replace(/\D/g, '');
+      result.indexValue = parseInt(indexStr, 10) || 1;
+    }
+
+    // Producer (ex: N) - peut être combiné avec Type
+    if (parts.length >= 3) {
+      let producerValue = parts[2];
+      if (producerValue.length === 2 && /^[A-Z]{2}$/.test(producerValue)) {
+        result.producer = producerValue.charAt(0);
+        result.type = producerValue.charAt(1);
+      } else {
+        result.producer = producerValue;
+      }
+    }
+
+    // Type (ex: T)
+    if (parts.length >= 4 && !result.type) {
+      result.type = parts[3];
+    }
+
+    // Si on a toujours pas de type, essayer de l'extraire du producer
+    if (!result.type && result.producer && result.producer.length > 1) {
+      result.type = result.producer.charAt(1);
+      result.producer = result.producer.charAt(0);
+    }
+
+    console.log('✅ Référence Leoni parsée:', result);
+
+    return result;
+  }
   // Dans le composant
 openImageModal(imageUrl: string): void {
   // Option 1: Ouvrir dans un nouvel onglet
@@ -163,22 +176,27 @@ openImageModal(imageUrl: string): void {
   // this.modalService.open(imageUrl);
 }
 // Méthode pour charger les images
-  loadItemImages(): void {
-    if (!this.chargeSheet?.items) return;
+ // charge-sheet-items-view.component.ts
+// Modifiez cette méthode :
 
-    this.chargeSheet.items.forEach(item => {
-      if (item.id && item.realConnectorPicture) {
-        this.uploadService.getImageUrl(item.realConnectorPicture).subscribe({
-          next: (url) => {
-            this.itemImages[item.id!] = url;
-          },
-          error: (err) => {
-            console.error(`Erreur chargement image pour l'item ${item.id}:`, err);
-          }
-        });
-      }
-    });
-  }
+loadItemImages(): void {
+  if (!this.chargeSheet?.items || !this.chargeSheetId) return;
+
+  this.chargeSheet.items.forEach(item => {
+    if (item.id && item.realConnectorPicture) {
+      // ✅ getItemImageUrl retourne directement l'URL (string)
+      this.uploadService.getItemImageUrl(this.chargeSheetId!, item.id).subscribe({
+        next: (url: string) => {  // url est déjà une string (blob URL)
+          this.itemImages[item.id!] = url;
+        },
+        error: (err: any) => {
+          console.error(`Erreur chargement image pour l'item ${item.id}:`, err);
+          this.itemImages[item.id!] = 'assets/default-connector.png';
+        }
+      });
+    }
+  });
+}
   // Méthodes pour obtenir les listes de champs (les mêmes que dans le composant technique)
   private getHousingFields(): string[] {
     return [
@@ -219,7 +237,7 @@ openImageModal(imageUrl: string): void {
       'canBusFunctionalityTest', 'esdConformModule', 'fixedBlock', 'movingBlock', 'tiltModule',
       'slideModule', 'handAdapter', 'lsmLeoniSmartModule', 'leoniStandardTestTable',
       'quickConnectionByCanonConnector', 'testBoard', 'weetech', 'bak', 'ogc', 'adaptronicHighVoltage',
-      'emdepHVBananaPlug', 'leoniEMOStandardHV', 'clipOrientation'
+      'emdepHVBananaPlug', 'leoniEMOStandardHV', 'clipOrientation','cpaExistOpen','sealExist'
     ];
   }
 
@@ -405,7 +423,8 @@ isBooleanField(field: string): boolean {
     'ptuPipeTestUnit', 'gtuGrommetTestUnit', 'ledLEDTestModule', 'tigTerminalInsertionGuidance',
     'linBusFunctionalityTest', 'canBusFunctionalityTest', 'esdConformModule', 'fixedBlock',
     'movingBlock', 'tiltModule', 'slideModule', 'handAdapter', 'lsmLeoniSmartModule',
-    'leoniStandardTestTable', 'quickConnectionByCanonConnector'
+    'leoniStandardTestTable', 'quickConnectionByCanonConnector','diameterInside','diameterOutside','extraLED','cpaExistOpen','cpaExistClosed',
+    'sealExist','grommetOrientation','testBoard','weetech','bak','ogc','adaptronicHighVoltage','emdepHVBananaPlug','leoniEMOStandardHV'
   ];
   return booleanFields.includes(field);
 }
@@ -463,52 +482,66 @@ get canCreateCompliance(): boolean {
 
 
 
-// Modifiez openAddToExistingModal pour pré-remplir les champs avec les données de l'item
-openAddToExistingModal(item: ChargeSheetItemDto) {
-  this.currentItem = item;
+ openAddToExistingModal(item: ChargeSheetItemDto) {
+    this.currentItem = item;
 
-  // ✅ Pré-remplir avec les données de l'item
-  this.itemForm.reset({
-    technicianName: this.technicianName,
-    maintenanceDate: '',
-    xCode: '',
-    leoniReferenceNumber: item.housingReferenceSupplierCustomer?.split('_')[0] || '',  // base part
-    indexValue: item.housingReferenceSupplierCustomer?.split('_')[1] || '', // index part
-    producer: item.housingReferenceSupplierCustomer?.split('_')[2] || '',              // producer
-    type: item.housingReferenceSupplierCustomer?.split('_')[3] || '',                  // type
-    referencePinePushBack: '',
-    position: '',
-    pinRigidityM1: '',
-    pinRigidityM2: '',
-    pinRigidityM3: '',
-    displacementPathM1: '',
-    displacementPathM2: '',
-    displacementPathM3: '',
-    maxSealingValueM1: '',
-    maxSealingValueM2: '',
-    maxSealingValueM3: '',
-    programmedSealingValueM1: '',
-    programmedSealingValueM2: '',
-    programmedSealingValueM3: '',
-    detectionsM1: '',
-    detectionsM2: '',
-    detectionsM3: '',
-    remarks: ''
-  });
+    // ✅ Parser la référence Leoni de l'item
+    const parsedLeoni = this.parseLeoniReference(item.housingReferenceLeoni || '');
 
-  // Charger la liste des dossiers disponibles
-  this.technicalFileService.getList().subscribe({
-    next: (files) => {
-      this.availableTechnicalFiles = files;
-      this.showModal = true;
-    },
-    error: (err) => {
-      console.error('Erreur chargement dossiers:', err);
-      alert('Impossible de charger la liste des dossiers');
-    }
-  });
-}
+    // Mettre à jour les propriétés avec les valeurs parsées
+    this.leoniPartNumber = parsedLeoni.partNumber;
+    this.leoniIndexValue = parsedLeoni.indexValue;
+    this.leoniProducer = parsedLeoni.producer;
+    this.leoniType = parsedLeoni.type;
 
+    console.log('📌 Pré-remplissage modal avec valeurs parsées:', {
+      leoniPartNumber: this.leoniPartNumber,
+      leoniIndexValue: this.leoniIndexValue,
+      leoniProducer: this.leoniProducer,
+      leoniType: this.leoniType
+    });
+
+    // ✅ Pré-remplir le formulaire avec les valeurs parsées de la référence Leoni
+    this.itemForm.reset({
+      technicianName: this.technicianName,
+      maintenanceDate: '',
+      xCode: '',
+      leoniReferenceNumber: this.leoniPartNumber,      // Utiliser le part number parsé
+      indexValue: this.leoniIndexValue,                // Utiliser l'index parsé
+      producer: this.leoniProducer,                    // Utiliser le producer parsé
+      type: this.leoniType,                            // Utiliser le type parsé
+      referencePinePushBack: '',
+      position: '',
+      pinRigidityM1: '',
+      pinRigidityM2: '',
+      pinRigidityM3: '',
+      displacementPathM1: '',
+      displacementPathM2: '',
+      displacementPathM3: '',
+      maxSealingValueM1: '',
+      maxSealingValueM2: '',
+      maxSealingValueM3: '',
+      programmedSealingValueM1: '',
+      programmedSealingValueM2: '',
+      programmedSealingValueM3: '',
+      detectionsM1: '',
+      detectionsM2: '',
+      detectionsM3: '',
+      remarks: ''
+    });
+
+    // Charger la liste des dossiers disponibles
+    this.technicalFileService.getList().subscribe({
+      next: (files) => {
+        this.availableTechnicalFiles = files;
+        this.showModal = true;
+      },
+      error: (err) => {
+        console.error('Erreur chargement dossiers:', err);
+        alert('Impossible de charger la liste des dossiers');
+      }
+    });
+  }
 // Modifiez addToExistingTechnicalFile pour inclure tous les champs
 addToExistingTechnicalFile() {
   if (!this.selectedTechnicalFileId || !this.currentItem?.id) {
@@ -949,7 +982,7 @@ async exportToExcelWithImages(): Promise<void> {
     rowData.adaptronicHighVoltage = formatValue(item.adaptronicHighVoltage);
     rowData.emdepHVBananaPlug = formatValue(item.emdepHVBananaPlug);
     rowData.leoniEMOStandardHV = formatValue(item.leoniEMOStandardHV);
-    rowData.clipOrientation = item.clipOrientation || '';
+    rowData.clipOrientation = formatValue(item.clipOrientation );
 
     // Prix
     rowData.unitPrice = item.unitPrice || 0;
@@ -1046,6 +1079,10 @@ closeModal() {
    this.showComplianceModal = false;
   this.selectedItemForCompliance = null;
   this.complianceToCreate = null;
+    this.leoniPartNumber = '';
+    this.leoniIndexValue = 0;
+    this.leoniProducer = '';
+    this.leoniType = '';
 }
 // Ajoutez ces propriétés
 receivedQuantities: Map<number, number> = new Map();
@@ -1057,7 +1094,7 @@ complianceToCreate: PrepareCompliance | null = null;
 // Vérifier si des fiches de conformité existent déjà pour cet item
 checkExistingCompliances(itemId: number): void {
   if (!itemId) return;
-  
+
   this.complianceService.getComplianceByItem(itemId).subscribe({
     next: (compliances) => {
       if (compliances && compliances.length > 0) {
@@ -1090,7 +1127,7 @@ loadReceivedQuantities(): void {
         totals.set(itemId, current + h.quantityReceived);
       });
       this.receivedQuantities = totals;
-      
+
       // ✅ Vérifier pour chaque item si des fiches de conformité existent
       this.chargeSheet?.items.forEach(item => {
         if (item.id) {
@@ -1230,5 +1267,10 @@ getColourBadge(colour: string): string {
     'red': 'badge-red'
   };
   return badges[colour] || 'badge-secondary';
+}
+// Dans charge-sheet-items-view.component.ts, ajouter cette propriété
+
+get canCreateClaim(): boolean {
+  return this.authService.hasPermission(['claim:write']);
 }
 }

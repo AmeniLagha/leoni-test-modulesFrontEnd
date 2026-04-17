@@ -56,14 +56,22 @@ getCurrentUserFromApi(): Observable<any> {
     }
   });
 }
-getProjectEmails(){
-   const token = this.authService.getAccessToken();
-  return this.http.get<string[]>(`${this.apiUrl}/project-emails`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
-}
+ getProjectEmails(): Observable<string[]> {
+    const token = this.authService.getAccessToken();
+    return this.http.get<string[]>(`${this.apiUrl}/project-site-emails`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+  }
+  changeUserPassword(userId: number, newPassword: string): Observable<any> {
+     const token = this.authService.getAccessToken();
+    return this.http.put(`${this.apiUrl}/${userId}/change-password`, { newPassword },{
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+  }
  // Envoyer un email de réinitialisation
   forgotPassword(email: string): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.apiUrl}/forgot-password`, { email });

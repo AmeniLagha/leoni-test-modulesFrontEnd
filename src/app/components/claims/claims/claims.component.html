@@ -1,3 +1,4 @@
+<!-- claims.component.html -->
 <div class="container py-4">
   <!-- HEADER GRADIENT LEONI -->
   <div class="card border-0 shadow-lg mb-4" style="background: linear-gradient(135deg, #1e3c72 0%, #0f2b4a 100%);">
@@ -22,149 +23,268 @@
     <div class="card-body p-4">
       <form [formGroup]="form" (ngSubmit)="submit()">
 
-        <div class="row g-4">
-          <!-- Titre -->
-          <div class="col-12">
-            <label class="form-label fw-semibold">
-              <i class="bi bi-pencil-square me-1 text-primary"></i>
-              Titre <span class="text-danger">*</span>
-            </label>
-            <input type="text" class="form-control" formControlName="title"
-                   [class.is-invalid]="form.get('title')?.invalid && form.get('title')?.touched"
-                   placeholder="Titre de la réclamation">
-            <div class="invalid-feedback" *ngIf="form.get('title')?.invalid && form.get('title')?.touched">
-              Le titre est requis
+        <!-- SECTION 1: INFORMATIONS GÉNÉRALES -->
+        <div class="section-card mb-4">
+          <h5 class="section-title mb-3">
+            <i class="bi bi-info-circle me-2 text-primary"></i>
+            Informations générales
+          </h5>
+          <div class="row g-3">
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Date <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" formControlName="claimDate"
+                     [class.is-invalid]="form.get('claimDate')?.invalid && form.get('claimDate')?.touched">
+              <div class="invalid-feedback">La date est requise</div>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Plant <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="plant"
+                     [class.is-invalid]="form.get('plant')?.invalid && form.get('plant')?.touched"
+                     placeholder="Manzel Hayet MH1" readonly>
+              <div class="invalid-feedback">Le plant est requis</div>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Customer <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="customer"
+                     [class.is-invalid]="form.get('customer')?.invalid && form.get('customer')?.touched"
+                     placeholder="Foulen Fouleni" readonly>
+              <div class="invalid-feedback">Le customer est requis</div>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Contact Person <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="contactPerson"
+                     [class.is-invalid]="form.get('contactPerson')?.invalid && form.get('contactPerson')?.touched"
+                     placeholder="Kaouther Aifa">
+              <div class="invalid-feedback">Le contact est requis</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Customer E-Mail <span class="text-danger">*</span></label>
+              <input type="email" class="form-control" formControlName="customerEmail"
+                     [class.is-invalid]="form.get('customerEmail')?.invalid && form.get('customerEmail')?.touched"
+                     placeholder="foulen.fouleni@leoni.com" readonly>
+              <div class="invalid-feedback">L'email est requis et doit être valide</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Customer Phone <span class="text-danger">*</span></label>
+              <input type="tel" class="form-control" formControlName="customerPhone"
+                     [class.is-invalid]="form.get('customerPhone')?.invalid && form.get('customerPhone')?.touched"
+                     placeholder="20644955">
+              <div class="invalid-feedback">Le téléphone est requis</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Supplier <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="supplier"
+                     [class.is-invalid]="form.get('supplier')?.invalid && form.get('supplier')?.touched"
+                     placeholder="EMDEP">
+              <div class="invalid-feedback">Le fournisseur est requis</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Supplier Contact Person</label>
+              <input type="text" class="form-control" formControlName="supplierContactPerson"
+                     placeholder="Contact fournisseur">
+            </div>
+            <div class="col-md-8">
+              <label class="form-label fw-semibold">Order Number <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="orderNumber"
+                     [class.is-invalid]="form.get('orderNumber')?.invalid && form.get('orderNumber')?.touched"
+                     placeholder="2023-5320 / / 2024-1989">
+              <div class="invalid-feedback">Le numéro de commande est requis</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Test Module Number</label>
+              <input type="text" class="form-control" formControlName="testModuleNumber">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Test Module Quantity</label>
+              <input type="number" class="form-control" formControlName="testModuleQuantity" min="0"
+                     placeholder="30">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">PPO Signature <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="ppoSignature"
+                     [class.is-invalid]="form.get('ppoSignature')?.invalid && form.get('ppoSignature')?.touched"
+                     placeholder="Ahmed Bouhlel">
+              <div class="invalid-feedback">La signature PPO est requise</div>
             </div>
           </div>
+        </div>
 
-          <!-- Assigné à avec dropdown -->
-          <div class="col-12 position-relative">
-            <label class="form-label fw-semibold">
-              <i class="bi bi-person-badge me-1 text-primary"></i>
-              Assigné à <span class="text-danger">*</span>
-            </label>
-            <input type="text"
-                   class="form-control"
-                   formControlName="assignedTo"
-                   [class.is-invalid]="form.get('assignedTo')?.invalid && form.get('assignedTo')?.touched"
-                   placeholder="exemple@email.com"
-                   (input)="filterEmails($event)"
-                   (focus)="showDropdown = true"
-                   autocomplete="off">
-
-            <!-- Dropdown des emails -->
-            <ul class="dropdown-menu show" *ngIf="showDropdown && filteredEmails.length > 0"
-                style="position: absolute; z-index: 1000; width: 100%; max-height: 200px; overflow-y: auto;">
-              <li *ngFor="let email of filteredEmails">
-                <a class="dropdown-item" (click)="selectEmail(email)" href="javascript:void(0)">
-                  <i class="bi bi-envelope me-2"></i>{{ email }}
-                </a>
-              </li>
-              <li *ngIf="filteredEmails.length === 0" class="dropdown-item text-muted">
-                Aucun email trouvé
-              </li>
-            </ul>
-
-            <div class="invalid-feedback" *ngIf="form.get('assignedTo')?.invalid && form.get('assignedTo')?.touched">
-              L'email est requis
+        <!-- SECTION 2: PROBLEM DESCRIPTION -->
+        <div class="section-card mb-4">
+          <h5 class="section-title mb-3">
+            <i class="bi bi-chat-dots me-2 text-primary"></i>
+            PROBLEM DESCRIPTION
+          </h5>
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-semibold">What happened? <span class="text-danger">*</span></label>
+              <textarea class="form-control" formControlName="problemWhatHappened" rows="3"
+                        [class.is-invalid]="form.get('problemWhatHappened')?.invalid && form.get('problemWhatHappened')?.touched"
+                        placeholder="insertion problem"></textarea>
+              <div class="invalid-feedback">Ce champ est requis</div>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Why is it a problem? <span class="text-danger">*</span></label>
+              <textarea class="form-control" formControlName="problemWhy" rows="3"
+                        [class.is-invalid]="form.get('problemWhy')?.invalid && form.get('problemWhy')?.touched"
+                        placeholder="can't detect clips"></textarea>
+              <div class="invalid-feedback">Ce champ est requis</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">When detected? <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="problemWhenDetected"
+                     [class.is-invalid]="form.get('problemWhenDetected')?.invalid && form.get('problemWhenDetected')?.touched"
+                     placeholder="conformity test">
+              <div class="invalid-feedback">Ce champ est requis</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Who detected? <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="problemWhoDetected"
+                     [class.is-invalid]="form.get('problemWhoDetected')?.invalid && form.get('problemWhoDetected')?.touched"
+                     placeholder="Leoni technician">
+              <div class="invalid-feedback">Ce champ est requis</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Where detected? <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="problemWhereDetected"
+                     [class.is-invalid]="form.get('problemWhereDetected')?.invalid && form.get('problemWhereDetected')?.touched"
+                     placeholder="in the test table">
+              <div class="invalid-feedback">Ce champ est requis</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">How detected? <span class="text-danger">*</span></label>
+              <textarea class="form-control" formControlName="problemHowDetected" rows="2"
+                        [class.is-invalid]="form.get('problemHowDetected')?.invalid && form.get('problemHowDetected')?.touched"
+                        placeholder="During the conformity test"></textarea>
+              <div class="invalid-feedback">Ce champ est requis</div>
             </div>
           </div>
+        </div>
 
-          <!-- Description -->
-          <div class="col-12">
-            <label class="form-label fw-semibold">
-              <i class="bi bi-chat-text me-1 text-primary"></i>
-              Description <span class="text-danger">*</span>
-            </label>
-            <textarea class="form-control" formControlName="description" rows="4"
-                      [class.is-invalid]="form.get('description')?.invalid && form.get('description')?.touched"
-                      placeholder="Décrivez le problème..."></textarea>
-            <div class="invalid-feedback" *ngIf="form.get('description')?.invalid && form.get('description')?.touched">
-              La description est requise
+        <!-- SECTION 3: INFORMATIONS RÉCLAMATION -->
+        <div class="section-card mb-4">
+          <h5 class="section-title mb-3">
+            <i class="bi bi-file-text me-2 text-primary"></i>
+            Informations réclamation
+          </h5>
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-semibold">Titre <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="title"
+                     [class.is-invalid]="form.get('title')?.invalid && form.get('title')?.touched"
+                     placeholder="Titre de la réclamation">
+              <div class="invalid-feedback">Le titre est requis</div>
             </div>
-          </div>
 
-          <!-- Priorité -->
-          <div class="col-md-6">
-            <label class="form-label fw-semibold">
-              <i class="bi bi-flag me-1 text-primary"></i>
-              Priorité <span class="text-danger">*</span>
-            </label>
-            <select class="form-select" formControlName="priority">
-              <option value="LOW">🟢 Basse</option>
-              <option value="MEDIUM">🟡 Moyenne</option>
-              <option value="HIGH">🟠 Haute</option>
-              <option value="CRITICAL">🔴 Critique</option>
-            </select>
-          </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Description <span class="text-danger">*</span></label>
+              <textarea class="form-control" formControlName="description" rows="4"
+                        [class.is-invalid]="form.get('description')?.invalid && form.get('description')?.touched"
+                        placeholder="Décrivez le problème..."></textarea>
+              <div class="invalid-feedback">La description est requise</div>
+            </div>
 
-          <!-- Catégorie -->
-          <div class="col-md-6">
-            <label class="form-label fw-semibold">
-              <i class="bi bi-tags me-1 text-primary"></i>
-              Catégorie <span class="text-danger">*</span>
-            </label>
-            <select class="form-select" formControlName="category">
-              <option value="TECHNICAL">⚙️ Technique</option>
-              <option value="QUALITY">📊 Qualité</option>
-              <option value="LOGISTIC">🚚 Logistique</option>
-              <option value="OTHER">📝 Autre</option>
-            </select>
-          </div>
+            <!-- Assigné à avec dropdown -->
+            <div class="col-12 position-relative email-field">
+              <label class="form-label fw-semibold">
+                <i class="bi bi-person-badge me-1 text-primary"></i>
+                Assigné à <span class="text-danger">*</span>
+              </label>
+              <input type="text"
+                     class="form-control"
+                     formControlName="assignedTo"
+                     [class.is-invalid]="form.get('assignedTo')?.invalid && form.get('assignedTo')?.touched"
+                     placeholder="exemple@email.com"
+                     (input)="filterEmails($event)"
+                     (focus)="showDropdown = true"
+                     autocomplete="off">
 
-          <!-- Upload d'image -->
-          <div class="col-12">
-            <label class="form-label fw-semibold">
-              <i class="bi bi-image me-1 text-primary"></i>
-              Image (optionnelle)
-            </label>
+              <!-- Dropdown des emails -->
+              <ul class="dropdown-menu show" *ngIf="showDropdown && filteredEmails.length > 0"
+                  style="position: absolute; z-index: 1000; width: 100%; max-height: 200px; overflow-y: auto;">
+                <li *ngFor="let email of filteredEmails">
+                  <a class="dropdown-item" (click)="selectEmail(email)" href="javascript:void(0)">
+                    <i class="bi bi-envelope me-2"></i>{{ email }}
+                  </a>
+                </li>
+              </ul>
+              <div class="invalid-feedback">L'email est requis</div>
+            </div>
 
-            <div class="file-upload-area">
-              <input type="file" (change)="onFileSelected($event)" accept="image/*" class="file-input" #fileInput>
-              <div class="upload-placeholder" (click)="fileInput.click()">
-                <i class="bi bi-cloud-upload fs-1 text-muted"></i>
-                <p class="mb-0 mt-2">Cliquez pour choisir une image</p>
-                <small class="text-muted">JPG, PNG, GIF jusqu'à 5MB</small>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Priorité <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="priority">
+                <option value="LOW">🟢 Basse</option>
+                <option value="MEDIUM">🟡 Moyenne</option>
+                <option value="HIGH">🟠 Haute</option>
+                <option value="CRITICAL">🔴 Critique</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Catégorie <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="category">
+                <option value="TECHNICAL">⚙️ Technique</option>
+                <option value="QUALITY">📊 Qualité</option>
+                <option value="LOGISTIC">🚚 Logistique</option>
+                <option value="OTHER">📝 Autre</option>
+              </select>
+            </div>
+
+            <!-- Upload d'image -->
+            <div class="col-12">
+              <label class="form-label fw-semibold">
+                <i class="bi bi-image me-1 text-primary"></i>
+                Image (optionnelle)
+              </label>
+
+              <div class="file-upload-area">
+                <input type="file" (change)="onFileSelected($event)" accept="image/*" class="file-input" #fileInput>
+                <div class="upload-placeholder" (click)="fileInput.click()">
+                  <i class="bi bi-cloud-upload fs-1 text-muted"></i>
+                  <p class="mb-0 mt-2">Cliquez pour choisir une image</p>
+                  <small class="text-muted">JPG, PNG, GIF jusqu'à 5MB</small>
+                </div>
               </div>
-            </div>
 
-            <!-- Prévisualisation de l'image -->
-            <div class="image-preview-wrapper" *ngIf="imagePreview">
-              <div class="image-preview-card">
-                <img [src]="imagePreview" alt="Aperçu" class="preview-image">
-                <button type="button" class="btn-remove-image" (click)="removeImage()" title="Supprimer l'image">
-                  <i class="bi bi-x-lg"></i>
-                </button>
-                <div class="image-info">
-                  <span class="file-name">{{ selectedFile?.name }}</span>
-                  <span class="file-size">{{ formatFileSize(selectedFile?.size) }}</span>
+              <!-- Prévisualisation de l'image -->
+              <div class="image-preview-wrapper" *ngIf="imagePreview">
+                <div class="image-preview-card">
+                  <img [src]="imagePreview" alt="Aperçu" class="preview-image">
+                  <button type="button" class="btn-remove-image" (click)="removeImage()" title="Supprimer l'image">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                  <div class="image-info">
+                    <span class="file-name">{{ selectedFile?.name }}</span>
+                    <span class="file-size">{{ formatFileSize(selectedFile?.size) }}</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- Champs cachés -->
-          <input type="hidden" formControlName="chargeSheetId">
-          <input type="hidden" formControlName="relatedTo">
-          <input type="hidden" formControlName="relatedId">
+        <!-- Champs cachés -->
+        <input type="hidden" formControlName="chargeSheetId">
+        <input type="hidden" formControlName="relatedTo">
+        <input type="hidden" formControlName="relatedId">
 
-          <!-- Boutons d'action -->
-          <div class="col-12">
-            <hr class="my-2">
-            <div class="d-flex justify-content-end gap-3">
-              <button type="button" class="btn btn-outline-danger px-4" (click)="goBack()">
-                <i class="bi bi-x-circle me-2"></i>Annuler
-              </button>
-              <button type="submit" class="btn btn-primary px-4" [disabled]="form.invalid || isUploading">
-                <span *ngIf="!isUploading">
-                  <i class="bi bi-check-circle me-2"></i>Créer réclamation
-                </span>
-                <span *ngIf="isUploading">
-                  <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                  Upload en cours...
-                </span>
-              </button>
-            </div>
+        <!-- Boutons d'action -->
+        <div class="col-12">
+          <hr class="my-2">
+          <div class="d-flex justify-content-end gap-3">
+            <button type="button" class="btn btn-outline-danger px-4" (click)="goBack()">
+              <i class="bi bi-x-circle me-2"></i>Annuler
+            </button>
+            <button type="submit" class="btn btn-primary px-4" [disabled]="form.invalid || isUploading">
+              <span *ngIf="!isUploading">
+                <i class="bi bi-check-circle me-2"></i>Créer réclamation
+              </span>
+              <span *ngIf="isUploading">
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                Upload en cours...
+              </span>
+            </button>
           </div>
         </div>
       </form>

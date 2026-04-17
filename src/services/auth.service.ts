@@ -33,10 +33,11 @@ refreshToken(token: string) {
         tap(response => {
           this.saveTokens(response);
           this.saveUserInfo(response.access_token);
+          // ✅ Sauvegarder le site sélectionné
+        localStorage.setItem('userSite', credentials.siteName);
         })
       );
   }
-
   logout(): void {
     localStorage.clear();
   }
@@ -74,85 +75,96 @@ refreshToken(token: string) {
   }
 
   // Extraire les infos du token et les sauvegarder
-  saveUserInfo(token: string): void {
-    const payload = this.decodeToken(token);
-    if (payload) {
-      console.log('Token payload:', payload); // Debug
+ // auth.service.ts - Ajouter ces méthodes
 
-      // Sauvegarder l'email
-      if (payload.sub) {
-        localStorage.setItem('userEmail', payload.sub);
-      }
-let fullName = '';
-  if (payload.firstname && payload.lastname) {
-    fullName = `${payload.firstname} ${payload.lastname}`;
-  } else if (payload.fullName) {
-    fullName = payload.fullName;
-  } else {
-    fullName = payload.sub.split('@')[0]; // fallback
-  }
-  localStorage.setItem('userFullName', fullName);
+// Sauvegarder plus d'informations utilisateur
+saveUserInfo(token: string): void {
+  const payload = this.decodeToken(token);
+  if (payload) {
+    console.log('Token payload:', payload);
 
-      // Extraire le rôle
-      let userRole = '';
-
-      // Essayer d'abord la clé 'role'
-      if (payload.role) {
-        userRole = payload.role;
-      }
-      // Sinon chercher dans authorities
-      else if (payload.authorities) {
-        const roleAuthority = payload.authorities.find((auth: string) =>
-          auth.startsWith('ROLE_')
-        );
-        if (roleAuthority) {
-          userRole = roleAuthority.replace('ROLE_', '');
-        }
-      }
-      // Sinon chercher dans roles
-      else if (payload.roles && Array.isArray(payload.roles)) {
-        const roleAuthority = payload.roles.find((auth: string) =>
-          auth.startsWith('ROLE_')
-        );
-        if (roleAuthority) {
-          userRole = roleAuthority.replace('ROLE_', '');
-        }
-      }
-
-      if (userRole) {
-        localStorage.setItem('userRole', userRole);
-      }
-
-      // Extraire les permissions
-      let permissions: string[] = [];
-
-      // Essayer authorities d'abord
-      if (payload.authorities && Array.isArray(payload.authorities)) {
-        permissions = payload.authorities.filter((auth: string) =>
-          !auth.startsWith('ROLE_')
-        );
-      }
-      // Sinon essayer permissions
-      else if (payload.permissions) {
-        if (Array.isArray(payload.permissions)) {
-          permissions = payload.permissions;
-        } else if (typeof payload.permissions === 'object') {
-          // Si c'est un Map (object), prendre les clés
-          permissions = Object.keys(payload.permissions).filter(key =>
-            !key.startsWith('ROLE_')
-          );
-        }
-      }
-      // Sinon essayer roles
-      else if (payload.roles && Array.isArray(payload.roles)) {
-        permissions = payload.roles.filter((auth: string) =>
-          !auth.startsWith('ROLE_')
-        );
-      }
-
-      localStorage.setItem('userPermissions', JSON.stringify(permissions));
+    // Sauvegarder l'email
+    if (payload.sub) {
+      localStorage.setItem('userEmail', payload.sub);
     }
+
+    // Sauvegarder le nom complet
+    let fullName = '';
+    if (payload.firstname && payload.lastname) {
+      fullName = `${payload.firstname} ${payload.lastname}`;
+    } else if (payload.fullName) {
+      fullName = payload.fullName;
+    } else if (payload.name) {
+      fullName = payload.name;
+    } else {
+      fullName = payload.sub?.split('@')[0] || 'Utilisateur';
+    }
+    localStorage.setItem('userFullName', fullName);
+    localStorage.setItem('userFirstName', payload.firstname || '');
+    localStorage.setItem('userLastName', payload.lastname || '');
+
+    // ✅ Sauvegarder le site (plant)
+    if (payload.site || payload.plant) {
+      const site = payload.site || payload.plant;
+      localStorage.setItem('userSite', site);
+      localStorage.setItem('userPlant', site);
+    }
+
+    // Sauvegarder le rôle
+    let userRole = '';
+    if (payload.role) {
+      userRole = payload.role;
+    } else if (payload.authorities) {
+      const roleAuthority = payload.authorities.find((auth: string) => auth.startsWith('ROLE_'));
+      if (roleAuthority) {
+        userRole = roleAuthority.replace('ROLE_', '');
+      }
+    } else if (payload.roles && Array.isArray(payload.roles)) {
+      const roleAuthority = payload.roles.find((auth: string) => auth.startsWith('ROLE_'));
+      if (roleAuthority) {
+        userRole = roleAuthority.replace('ROLE_', '');
+      }
+    }
+    if (userRole) {
+      localStorage.setItem('userRole', userRole);
+    }
+
+    // Sauvegarder les permissions
+    let permissions: string[] = [];
+    if (payload.authorities && Array.isArray(payload.authorities)) {
+      permissions = payload.authorities.filter((auth: string) => !auth.startsWith('ROLE_'));
+    } else if (payload.permissions) {
+      if (Array.isArray(payload.permissions)) {
+        permissions = payload.permissions;
+      } else if (typeof payload.permissions === 'object') {
+        permissions = Object.keys(payload.permissions).filter(key => !key.startsWith('ROLE_'));
+      }
+    }
+    localStorage.setItem('userPermissions', JSON.stringify(permissions));
   }
+}
+
+// Récupérer le nom de l'utilisateur
+getUserFirstName(): string {
+  return localStorage.getItem('userFirstName') || '';
+}
+
+getUserLastName(): string {
+  return localStorage.getItem('userLastName') || '';
+}
+
+getUserFullName(): string {
+  return localStorage.getItem('userFullName') || this.getUserEmail().split('@')[0];
+}
+
+// Récupérer le site/plant
+getUserSite(): string {
+  return localStorage.getItem('userSite') || '';
+}
+
+getUserPlant(): string {
+  return localStorage.getItem('userPlant') || '';
+}
 
   // Récupérer les infos depuis localStorage
   getUserEmail(): string {
@@ -167,10 +179,6 @@ let fullName = '';
     const permissions = localStorage.getItem('userPermissions');
     return permissions ? JSON.parse(permissions) : [];
   }
-
-getUserFullName(): string {
-  return localStorage.getItem('userFullName') || this.getUserEmail().split('@')[0];
-}
  // 🔥 Méthode pour obtenir le token actuel depuis le backend
   getCurrentTokenFromBackend(): Observable<{ token: string }> {
     const token = this.getAccessToken();

@@ -19,15 +19,16 @@ export class CreatetechniquefileComponent implements OnInit {
     chargeSheetId!: number;
     currentItemId: number | null = null;
 
-    // Propriétés parsées de la référence client
+    // Références
     housingReferenceLeoni: string = '';
     housingReferenceSupplierCustomer: string = '';
 
-    // Parties parsées
-    basePart: string = '';
-    indexPart: string = '';
-    producerPart: string = '';
-    typePart: string = '';
+    // ✅ Parties parsées de la référence Leoni
+    leoniPartNumber: string = '';      // P00838055
+    leoniIndexValue: number = 0;       // 01
+    leoniProducer: string = '';        // N
+    leoniType: string = '';            // T
+
 
     constructor(
         private fb: FormBuilder,
@@ -53,59 +54,73 @@ export class CreatetechniquefileComponent implements OnInit {
         }
     }
 
-    // ✅ Fonction pour parser la référence client
-    parseSupplierReference(ref: string): void {
-        if (!ref) return;
+    /**
+     * ✅ Parse la référence Leoni qui peut être dans plusieurs formats:
+     * - Format 1: P00838055_01_N_T (avec underscores)
+     * - Format 2: P00838055_01 NT (avec espace)
+     * - Format 3: P00838055_01_NT (NT collé)
+     * - Format 4: P00838055_01 (sans producer/type)
+     */
+    parseLeoniReference(ref: string): void {
+        if (!ref) {
+            console.warn('⚠️ Référence Leoni vide');
+            return;
+        }
 
-        const parts = ref.split('_');
+        console.log('📌 Parsing référence Leoni brute:', ref);
 
+        // Nettoyer la référence: remplacer les espaces par des underscores
+        let cleanedRef = ref.trim().replace(/ /g, '_');
+
+        // Si la référence contient "NT" collé, le séparer
+        cleanedRef = cleanedRef.replace(/_NT$/g, '_N_T');
+        cleanedRef = cleanedRef.replace(/NT$/g, 'N_T');
+
+        const parts = cleanedRef.split('_');
+        console.log('📌 Parties après nettoyage:', parts);
+
+        // Part Number (ex: P00838055)
         if (parts.length >= 1) {
-            this.basePart = parts[0];
+            this.leoniPartNumber = parts[0];
         }
 
+        // Index (ex: 01)
         if (parts.length >= 2) {
-            this.indexPart = parts[1];
+            const indexStr = parts[1].replace(/\D/g, ''); // Garder seulement les chiffres
+            this.leoniIndexValue = parseInt(indexStr, 10) || 1;
         }
 
+        // Producer (ex: N) - peut être combiné avec Type
         if (parts.length >= 3) {
-            this.producerPart = parts[2];
+            let producerValue = parts[2];
+            // Si producer contient deux lettres (ex: "NT"), les séparer
+            if (producerValue.length === 2 && /^[A-Z]{2}$/.test(producerValue)) {
+                this.leoniProducer = producerValue.charAt(0); // N
+                this.leoniType = producerValue.charAt(1);      // T
+            } else {
+                this.leoniProducer = producerValue;
+            }
         }
 
-        if (parts.length >= 4) {
-            this.typePart = parts[3];
+        // Type (ex: T) - si pas déjà défini
+        if (parts.length >= 4 && !this.leoniType) {
+            this.leoniType = parts[3];
         }
 
-        console.log('📌 Parsing référence client:', {
-            ref,
-            basePart: this.basePart,
-            indexPart: this.indexPart,
-            producerPart: this.producerPart,
-            typePart: this.typePart
+        // Si on a toujours pas de type, essayer de l'extraire du producer
+        if (!this.leoniType && this.leoniProducer && this.leoniProducer.length > 1) {
+            this.leoniType = this.leoniProducer.charAt(1);
+            this.leoniProducer = this.leoniProducer.charAt(0);
+        }
+
+        console.log('✅ Référence Leoni parsée:', {
+            referenceOriginale: ref,
+            leoniPartNumber: this.leoniPartNumber,
+            leoniIndexValue: this.leoniIndexValue,
+            leoniProducer: this.leoniProducer,
+            leoniType: this.leoniType
         });
     }
-
-    // ✅ Fonction pour parser la référence Leoni (pour produire producer et type)
-    parseLeoniReference(ref: string): { producer: string; type: string } {
-        const result = { producer: '', type: '' };
-
-        if (!ref) return result;
-
-        // Format attendu: P84879_03_T_N ou P988766_O1_G_KI
-        const parts = ref.split('_');
-
-        if (parts.length >= 3) {
-            result.producer = parts[2]; // G
-        }
-
-        if (parts.length >= 4) {
-            result.type = parts[3]; // KI
-        }
-
-        console.log(`📌 Parsing référence Leoni "${ref}" -> producer: "${result.producer}", type: "${result.type}"`);
-
-        return result;
-    }
-
     initForm() {
         this.form = this.fb.group({
             reference: [''],
@@ -118,30 +133,10 @@ export class CreatetechniquefileComponent implements OnInit {
     }
 
     createItemFormGroup(item: any): FormGroup {
-        // Calcul de l'index numérique à partir de indexPart (ex: "O1" -> 1, "03" -> 3)
-        let indexValue = 1;
-        if (this.indexPart) {
-            const parsed = parseInt(this.indexPart.replace(/\D/g, ''), 10);
-            if (!isNaN(parsed)) {
-                indexValue = parsed;
-            }
-        }
+        // ✅ Utiliser les valeurs parsées de la référence Leoni
+        const formattedIndex = String(this.leoniIndexValue).padStart(2, '0');
 
-        // Format de l'index pour l'affichage
-        const formattedIndex = this.indexPart || '01';
-
-        // Vérifier si l'item a une référence Leoni à parser
-        let producer = this.producerPart;
-        let type = this.typePart;
-
-        // Si l'item a une référence Leoni, on la parse pour obtenir producer et type
-        if (item.housingReferenceLeoni) {
-            const parsed = this.parseLeoniReference(item.housingReferenceLeoni);
-            if (parsed.producer) producer = parsed.producer;
-            if (parsed.type) type = parsed.type;
-        }
-
-        console.log(`📝 Création formulaire item: producer="${producer}", type="${type}"`);
+        console.log(`📝 Création formulaire item: producer="${this.leoniProducer}", type="${this.leoniType}"`);
 
         return this.fb.group({
             chargeSheetItemId: [item.id, Validators.required],
@@ -149,10 +144,10 @@ export class CreatetechniquefileComponent implements OnInit {
             maintenanceDate: [''],
             technicianName: [this.technicianName],
             xCode: [''],
-            leoniReferenceNumber: [this.basePart],
-            indexValue: [indexValue],
-            producer: [producer],
-            type: [type],
+            leoniReferenceNumber: [this.leoniPartNumber],      // ✅ Utiliser le part number parsé
+            indexValue: [this.leoniIndexValue],                // ✅ Utiliser l'index parsé
+            producer: [this.leoniProducer],                    // ✅ Utiliser le producer parsé
+            type: [this.leoniType],                            // ✅ Utiliser le type parsé
             referencePinePushBack: [''],
             position: [''],
             pinRigidityM1: [''],
@@ -179,12 +174,11 @@ export class CreatetechniquefileComponent implements OnInit {
             next: (sheet) => {
                 const item = sheet.items.find((i: any) => i.id == itemId);
                 if (item) {
-                    // ✅ Récupérer les références pour parsing
+                    // ✅ Récupérer les références
                     this.housingReferenceLeoni = item.housingReferenceLeoni || '';
                     this.housingReferenceSupplierCustomer = item.housingReferenceSupplierCustomer || '';
-
-                    // ✅ Parser la référence client
-                    this.parseSupplierReference(this.housingReferenceSupplierCustomer);
+                    // ✅ Parser la référence Leoni (celle qu'on utilise)
+                    this.parseLeoniReference(this.housingReferenceLeoni);
 
                     // ✅ Créer le formulaire avec les valeurs parsées
                     const itemForm = this.createItemFormGroup(item);
@@ -192,11 +186,11 @@ export class CreatetechniquefileComponent implements OnInit {
 
                     console.log('✅ Item chargé:', item);
                     console.log('📝 Formulaire créé:', itemForm.value);
-                    console.log('📌 Références parsées:', {
-                        basePart: this.basePart,
-                        indexPart: this.indexPart,
-                        producerPart: this.producerPart,
-                        typePart: this.typePart
+                    console.log('📌 Références parsées (Leoni):', {
+                        leoniPartNumber: this.leoniPartNumber,
+                        leoniIndexValue: this.leoniIndexValue,
+                        leoniProducer: this.leoniProducer,
+                        leoniType: this.leoniType
                     });
                 } else {
                     console.error('❌ Item non trouvé');
@@ -206,7 +200,7 @@ export class CreatetechniquefileComponent implements OnInit {
         });
     }
 
-    // ✅ Ajouter un item manuellement (sans pré-sélection)
+    // ✅ Ajouter un item manuellement (avec valeurs par défaut)
     addManualItem() {
         const emptyItem = {
             id: null,
@@ -214,6 +208,13 @@ export class CreatetechniquefileComponent implements OnInit {
             housingReferenceLeoni: '',
             housingReferenceSupplierCustomer: ''
         };
+
+        // Réinitialiser les valeurs parsées pour l'item manuel
+        this.leoniPartNumber = '';
+        this.leoniIndexValue = 0;
+        this.leoniProducer = '';
+        this.leoniType = '';
+
         const itemForm = this.createItemFormGroup(emptyItem);
         this.itemsArray.push(itemForm);
     }
@@ -247,6 +248,7 @@ export class CreatetechniquefileComponent implements OnInit {
                 technicianName: item.technicianName || this.technicianName,
                 xCode: item.xCode || '',
                 leoniReferenceNumber: item.leoniReferenceNumber || '',
+                indexValue: item.indexValue || 0,
                 producer: item.producer || '',
                 type: item.type || '',
                 referencePinePushBack: item.referencePinePushBack || '',

@@ -131,4 +131,9 @@ canValidateItem(itemId: number): Observable<boolean> {
     headers: this.getAuthHeaders()
   });
 }
+getFirstAndCurrentVersions(itemId: number): Observable<any> {
+  return this.http.get(`${this.api}/items/${itemId}/versions-compare`, {
+    headers: this.getAuthHeaders()
+  });
+}
 }

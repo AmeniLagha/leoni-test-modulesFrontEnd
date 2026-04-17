@@ -3,7 +3,7 @@ import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/route
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ChargeSheetService } from '../../../../../services/charge-sheet.service';
-import { ChargeSheetItemDto, ChargeSheetUpdateTechDto } from '../../../../../models/charge-sheet.model';
+import { ChargeSheetComplete, ChargeSheetItemDto, ChargeSheetUpdateTechDto } from '../../../../../models/charge-sheet.model';
 import { UploadService } from '../../../../../services/upload.service';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
@@ -16,6 +16,7 @@ import { saveAs } from 'file-saver';
 })
 export class ChargeSheetTechComponent implements OnInit {
 
+   chargeSheet: ChargeSheetComplete | null = null;
   chargeSheetId: number | null = null;
   itemId: number | null = null;
   techForm: FormGroup | null = null;
@@ -30,38 +31,45 @@ export class ChargeSheetTechComponent implements OnInit {
 
   // Sections de champs (inchangé)
   housingFields: string[] = [
-    'outsideHousingExist', 'insideHousingExist', 'coverHoodExist', 'coverHoodClosed',
-    'capExist', 'bayonetCapExist', 'bracketExist', 'bracketOpen', 'bracketClosed',
-    'latchWingExist', 'sliderExist', 'sliderOpen', 'sliderClosed',
-    'secondaryLockExist', 'secondaryLockOpen', 'secondaryLockClosed'
+    'outsideHousingExist', 'insideHousingExist', 'mechanicalCoding', 'electricalCoding',
+    'cpaExistOpen', 'cpaExistClosed', 'coverHoodExist', 'coverHoodClosed', 'capExist',
+    'bayonetCapExist', 'bracketExist', 'bracketOpen', 'bracketClosed','latchWingExist','sliderExist','sliderOpen','sliderClosed',
+    'secondaryLockExist', 'secondaryLockOpen', 'secondaryLockClosed','offsetTest','pushBackTest',
+     'terminalOrientation','terminalDifferentiation','airbagTestViaServiceWindow',
+   'leakTestPressure','leakTestVacuum','sealExist',
+   'cableTieExist', 'cableTieLeft', 'cableTieRight', 'cableTieMiddle', 'cableTieLeftRight',
+   'clipExist', 'screwExist', 'nutExist', 'convolutedConduitExist', 'convolutedConduitClosed',
+   'antennaOnlyPresenceTest', 'antennaOnlyContactingOfShield','antennaContactingOfShieldAndCoreWire',
+   'ringTerminal', 'diameterInside','diameterOutside', 'singleContact', 'heatShrinkExist', 'openShuntsAirbag', 'flowTest',
+     'solidMetalContour', 'metalContourAdjustable', 'grommetExist', 'grommetOrientation', 'cableChannelExist', 'cableChannelClosed',
+     'colourDetectionPrepared','extraLED', 'spring','otherDetection'
   ];
 
   fasteningFields: string[] = [
-    'offsetTest', 'pushBackTest', 'terminalOrientation', 'terminalDifferentiation',
-    'ringTerminal', 'singleContact', 'heatShrinkExist', 'openShuntsAirbag', 'flowTest',
-    'solidMetalContour', 'metalContourAdjustable', 'metalRailsFasteningSystem',
-    'metalPlatesFasteningSystem', 'spacerClosingUnit', 'spring'
+'spacerClosingUnit',  'leakTestComplex', 'pinStraightnessCheck', 'presenceTestOfOneSideConnectedShield',
+ 'contrastDetectionGreyValueSensor',
+    'colourDetection',  'attenuationWithModeScrambler',
+    'attenuationWithoutModeScrambler', 'insulationResistance',
+   'highVoltageModule',
+    'kelvinMeasurementHV', 'actuatorTestHV', 'chargingSystemElectrical', 'ptuPipeTestUnit',
+    'gtuGrommetTestUnit', 'ledLEDTestModule', 'tigTerminalInsertionGuidance', 'linBusFunctionalityTest',
+    'canBusFunctionalityTest', 'esdConformModule',
   ];
 
   cableFields: string[] = [
-    'cableTieExist', 'cableTieLeft', 'cableTieRight', 'cableTieMiddle', 'cableTieLeftRight',
-    'clipExist', 'screwExist', 'nutExist', 'convolutedConduitExist', 'convolutedConduitClosed',
-    'cableChannelExist', 'cableChannelClosed', 'grommetExist', 'grommetOrientation',
-    'presenceTestOfOneSideConnectedShield', 'antennaOnlyPresenceTest', 'antennaOnlyContactingOfShield',
-    'antennaContactingOfShieldAndCoreWire', 'otherDetection'
+
+'fixedBlock', 'movingBlock', 'tiltModule',
+    'slideModule', 'handAdapter', 'lsmLeoniSmartModule',
+
+
   ];
 
   electricalFields: string[] = [
-    'mechanicalCoding', 'electricalCoding', 'airbagTestViaServiceWindow', 'leakTestPressure',
-    'leakTestVacuum', 'leakTestComplex', 'pinStraightnessCheck', 'contrastDetectionGreyValueSensor',
-    'colourDetection', 'colourDetectionPrepared', 'attenuationWithModeScrambler',
-    'attenuationWithoutModeScrambler', 'insulationResistance', 'highVoltageModule',
-    'kelvinMeasurementHV', 'actuatorTestHV', 'chargingSystemElectrical', 'ptuPipeTestUnit',
-    'gtuGrommetTestUnit', 'ledLEDTestModule', 'tigTerminalInsertionGuidance', 'linBusFunctionalityTest',
-    'canBusFunctionalityTest', 'esdConformModule', 'fixedBlock', 'movingBlock', 'tiltModule',
-    'slideModule', 'handAdapter', 'lsmLeoniSmartModule', 'leoniStandardTestTable',
-    'quickConnectionByCanonConnector', 'testBoard', 'weetech', 'bak', 'ogc', 'adaptronicHighVoltage',
-    'emdepHVBananaPlug', 'leoniEMOStandardHV', 'clipOrientation'
+ 'leoniStandardTestTable',  'metalRailsFasteningSystem',
+    'metalPlatesFasteningSystem', 'quickConnectionByCanonConnector', 'testBoard', 'weetech', 'bak', 'ogc', 'adaptronicHighVoltage',
+    'emdepHVBananaPlug', 'leoniEMOStandardHV'
+
+
   ];
 
   collapsedSections: { [key: string]: boolean } = {
@@ -83,6 +91,7 @@ itemImages: { [key: number]: string } = {};
 
   ngOnInit(): void {
     const paramId = this.route.snapshot.paramMap.get('sheetId') || this.route.snapshot.paramMap.get('id');
+
     if (!paramId) {
       this.error = 'ID du cahier de charge manquant';
       this.loading = false;
@@ -92,15 +101,24 @@ itemImages: { [key: number]: string } = {};
     this.loadItems();
 
   }
+// Ligne 111 - Modifiez cette partie
+// charge-sheet-tech.component.ts
+// Modifiez la méthode loadItemImages :
+
 loadItemImages(): void {
+  if (!this.chargeSheetId) return;
+
   this.items.forEach(item => {
     if (item.id && item.realConnectorPicture) {
-      this.uploadService.getImageUrl(item.realConnectorPicture).subscribe({
-        next: (url) => {
+      // ✅ Utiliser getItemImageUrl au lieu de getImageUrl
+      this.uploadService.getItemImageUrl(this.chargeSheetId!, item.id).subscribe({
+        next: (url: string) => {
           this.itemImages[item.id!] = url;
         },
-        error: (err) => {
+        error: (err: any) => {
           console.error("Erreur chargement image:", err);
+          // Image par défaut en cas d'erreur
+          this.itemImages[item.id!] = 'assets/default-connector.png';
         }
       });
     }
@@ -135,7 +153,7 @@ loadItemImages(): void {
 }
 
   initFormArray(): void {
-    const allFields = [...this.housingFields, ...this.fasteningFields, ...this.cableFields, ...this.electricalFields];
+    const allFields = [ 'housingReferenceLeoni','quantityOfTestModules','clipOrientation',...this.housingFields, ...this.fasteningFields, ...this.cableFields, ...this.electricalFields];
 
     this.techFormArray = new FormArray(
       this.items.map(item => {
@@ -460,101 +478,106 @@ loadItemImages(): void {
   goToList(): void {
     this.router.navigate(['/charge-sheets/list']);
   }
-
   formatLabel(key: string): string {
     const labels: { [key: string]: string } = {
-      outsideHousingExist: 'Outside Housing',
-      insideHousingExist: 'Inside Housing',
-      coverHoodExist: 'Cover/Hood',
-      coverHoodClosed: 'Cover/Hood Closed',
-      capExist: 'Cap',
-      bayonetCapExist: 'Bayonet Cap',
-      bracketExist: 'Bracket',
+      outsideHousingExist: 'Outside housing exist',
+      insideHousingExist: 'Inside housing exist',
+      mechanicalCoding: 'Mechanical coding',
+      electricalCoding: 'Electrical coding',
+      cpaExistOpen: 'CPA existe,open',
+      cpaExistClosed:'CPA existe,closed',
+      coverHoodExist: 'cover-Hood exist',
+      coverHoodClosed: 'cover-Hood closed',
+      capExist: 'Cap Exist',
+      bayonetCapExist: 'Bayonet cap Exist',
+      bracketExist: 'Bracket Exist',
       bracketOpen: 'Bracket Open',
       bracketClosed: 'Bracket Closed',
-      latchWingExist: 'Latch/Wing',
-      sliderExist: 'Slider',
+      latchWingExist: 'Latch Wing exist',
+      sliderExist: 'Slider Exist',
       sliderOpen: 'Slider Open',
       sliderClosed: 'Slider Closed',
-      secondaryLockExist: 'Secondary Lock',
+      secondaryLockExist: 'Secondary Lock Exist',
       secondaryLockOpen: 'Secondary Lock Open',
       secondaryLockClosed: 'Secondary Lock Closed',
       offsetTest: 'Offset Test',
       pushBackTest: 'Push Back Test',
       terminalOrientation: 'Terminal Orientation',
       terminalDifferentiation: 'Terminal Differentiation',
-      ringTerminal: 'Ring Terminal',
-      singleContact: 'Single Contact',
-      heatShrinkExist: 'Heat Shrink',
-      openShuntsAirbag: 'Open Shunts',
-      flowTest: 'Flow Test',
-      solidMetalContour: 'Solid Metal Contour',
-      metalContourAdjustable: 'Metal Contour Adjustable',
-      metalRailsFasteningSystem: 'Metal Rails Fastening',
-      metalPlatesFasteningSystem: 'Metal Plates Fastening',
-      spacerClosingUnit: 'Spacer Closing Unit',
-      spring: 'Spring',
-      cableTieExist: 'Cable Tie',
+      airbagTestViaServiceWindow:'Airbag test via service window',
+      leakTestPressure: 'Leak test pressure',
+      leakTestVacuum: 'Leak Test Vacum',
+      sealExist: 'Seal exist',
+       cableTieExist: 'Cable tie Exist',
       cableTieLeft: 'Cable Tie Left',
       cableTieRight: 'Cable Tie Right',
       cableTieMiddle: 'Cable Tie Middle',
       cableTieLeftRight: 'Cable Tie Left/Right',
-      clipExist: 'Clip',
-      screwExist: 'Screw',
-      nutExist: 'Nut',
-      convolutedConduitExist: 'Convoluted Conduit',
+      clipExist: 'Clip exist',
+      screwExist: 'Screw exist',
+      nutExist: 'Nut exist',
+      convolutedConduitExist: 'Convoluted Conduit Exist',
       convolutedConduitClosed: 'Convoluted Conduit Closed',
-      cableChannelExist: 'Cable Channel',
-      cableChannelClosed: 'Cable Channel Closed',
-      grommetExist: 'Grommet',
+      antennaOnlyPresenceTest: 'Antenna (only presence test)',
+      antennaOnlyContactingOfShield: 'Antenna (only contacting  of shield)',
+      antennaContactingOfShieldAndCoreWire: 'Antenna (Contacting of shield and core wire)',
+      ringTerminal: 'Ring Terminal',
+      diameterInside: 'Diameter inside',
+      diameterOutside: 'Diameter outside',
+      singleContact: 'Single Contact',
+      heatShrinkExist: 'Heat Shrink Exist',
+      openShuntsAirbag: 'Open Shunts (Airbag)',
+      flowTest: 'Flow Test',
+      solidMetalContour: 'Solid Metal Contour',
+      metalContourAdjustable: 'Metal Contour Adjustable',
+      grommetExist: 'Grommet Exist',
       grommetOrientation: 'Grommet Orientation',
-      presenceTestOfOneSideConnectedShield: 'One-side Shield Test',
-      antennaOnlyPresenceTest: 'Antenna Presence',
-      antennaOnlyContactingOfShield: 'Antenna Shield Contact',
-      antennaContactingOfShieldAndCoreWire: 'Antenna Shield+Core',
-      otherDetection: 'Other Detection',
-      mechanicalCoding: 'Mechanical Coding',
-      electricalCoding: 'Electrical Coding',
-      airbagTestViaServiceWindow: 'Airbag Test',
-      leakTestPressure: 'Leak Test Pressure',
-      leakTestVacuum: 'Leak Test Vacuum',
-      leakTestComplex: 'Leak Test Complex',
-      pinStraightnessCheck: 'Pin Straightness',
-      contrastDetectionGreyValueSensor: 'Contrast Detection',
-      colourDetection: 'Colour Detection',
+       cableChannelExist: 'Cable Channel Exist',
+      cableChannelClosed: 'Cable Channel Closed',
       colourDetectionPrepared: 'Colour Detection Prepared',
-      attenuationWithModeScrambler: 'Attenuation (with)',
-      attenuationWithoutModeScrambler: 'Attenuation (without)',
-      insulationResistance: 'Insulation Resistance',
+      extraLED:'Extra LED',
+      spring: 'Spring',
+      otherDetection: 'Other Detection',
+      spacerClosingUnit: 'Spacer Closing Unit',
+      leakTestComplex: 'Leak Test Complex',
+      pinStraightnessCheck: 'Pin Straightness Check',
+      presenceTestOfOneSideConnectedShield: 'Presence test of one-side-connected shield',
+      contrastDetectionGreyValueSensor: 'Contrast Detection (Grey Value Sensor)',
+      colourDetection: 'Colour Detection',
+      attenuationWithModeScrambler: 'Attenuation (with mode scramber)',
+       attenuationWithoutModeScrambler: 'Attenuation (without mode scramber)',
+       insulationResistance: 'Insulation Resistance',
       highVoltageModule: 'High Voltage Module',
       kelvinMeasurementHV: 'Kelvin Measurement HV',
       actuatorTestHV: 'Actuator Test HV',
-      chargingSystemElectrical: 'Charging System',
-      ptuPipeTestUnit: 'PTU',
-      gtuGrommetTestUnit: 'GTU',
-      ledLEDTestModule: 'LED Test',
-      tigTerminalInsertionGuidance: 'TIG',
-      linBusFunctionalityTest: 'LIN Bus',
-      canBusFunctionalityTest: 'CAN Bus',
-      esdConformModule: 'ESD Conform',
+      chargingSystemElectrical: 'Charging System (Electrical)',
+      ptuPipeTestUnit: 'PTU(pipe test Unit)',
+      gtuGrommetTestUnit: 'GTU(Grommet test unit)',
+      ledLEDTestModule: 'LED(Led test unit)',
+      tigTerminalInsertionGuidance: 'TIG(Terminal insertion Guidance)',
+      linBusFunctionalityTest: 'LIN-Bus Functionality Test',
+      canBusFunctionalityTest: 'CAN-Bus Functionality Test',
+      esdConformModule: 'ESD conform module',
       fixedBlock: 'Fixed Block',
       movingBlock: 'Moving Block',
       tiltModule: 'Tilt Module',
       slideModule: 'Slide Module',
       handAdapter: 'Hand Adapter',
-      lsmLeoniSmartModule: 'LSM',
-      leoniStandardTestTable: 'Leoni Standard',
-      quickConnectionByCanonConnector: 'Quick Connection',
+      lsmLeoniSmartModule: 'LSM(Leoni Smart Module)',
+      leoniStandardTestTable: 'Leoni Standard Test Table',
+      metalRailsFasteningSystem: '>Metal rails fastening system',
+      metalPlatesFasteningSystem: 'Metal plates fastening system',
+      quickConnectionByCanonConnector: 'Quick connection by Canon connector',
       testBoard: 'Test Board',
       weetech: 'WEETECH',
       bak: 'BAK',
       ogc: 'OGC',
-      adaptronicHighVoltage: 'Adaptronic HV',
-      emdepHVBananaPlug: 'EMDEP HV',
-      leoniEMOStandardHV: 'LEONI EMO HV',
-      clipOrientation: 'Clip Orientation',
-      unitPrice: 'Prix unitaire',
-      totalPrice: 'Prix total'
+      adaptronicHighVoltage: 'Adaptronic (High voltage)',
+      emdepHVBananaPlug: 'EMDEP HV Banana Plug',
+      leoniEMOStandardHV: 'Leoni EMO Standard HV',
+      clipOrientation: 'Remarques',
+      unitPrice: 'Unit Price',
+      totalPrice: 'Total price'
     };
     return labels[key] || key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
   }
@@ -705,5 +728,36 @@ getColourBadge(colour: string): string {
     'red': 'badge-red'
   };
   return badges[colour] || 'badge-secondary';
+}
+addToRemarks(itemIndex: number, fieldKey: string, event: any): void {
+  setTimeout(() => {
+    const formGroup = (this.techFormArray.at(itemIndex) as FormGroup);
+    const currentValue = formGroup.get(fieldKey)?.value;
+    let currentRemarks = formGroup.get('clipOrientation')?.value || '';
+
+    // Récupérer le nom du champ depuis formatLabel
+    let fieldName = '';
+    try {
+      fieldName = this.formatLabel(fieldKey);
+    } catch(e) {
+      fieldName = fieldKey;
+    }
+
+    if (currentValue === '*') {
+      // Ajouter si pas déjà présent
+      if (!currentRemarks.includes(fieldName)) {
+        if (currentRemarks) {
+          currentRemarks = currentRemarks + ', ' + fieldName;
+        } else {
+          currentRemarks = fieldName;
+        }
+      }
+    } else {
+      // Retirer le champ
+      currentRemarks = currentRemarks.replace(fieldName, '').replace(', ,', ',').replace(/^, |, $/g, '');
+    }
+
+    formGroup.get('clipOrientation')?.setValue(currentRemarks);
+  }, 10);
 }
 }

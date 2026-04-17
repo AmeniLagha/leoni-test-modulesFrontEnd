@@ -19,20 +19,19 @@ import { ComplianceDto } from '../../../../../models/compliance.model';
 export class CreateConformeComponent implements OnInit {
   chargeSheetId!: number;
   itemId!: number;
-  itemNumber: string = '';
   totalModules: number = 0;
   technicianName: string = '';
   orderNumber: string = '';
 
-  // Propriétés parsées de la référence client
+  // Références
   housingReferenceLeoni: string = '';
   housingReferenceSupplierCustomer: string = '';
 
-  // Parties parsées
-  basePart: string = '';
-  indexPart: string = '';
-  producerPart: string = '';
-  typePart: string = '';
+  // ✅ Parties parsées de la référence Leoni
+  leoniPartNumber: string = '';      // P00838055
+  leoniIndexValue: number = 0;       // 01
+  leoniProducer: string = '';        // N
+  leoniType: string = '';            // T
 
   // Quantités reçues
   quantityReceived: number = 0;
@@ -71,27 +70,71 @@ export class CreateConformeComponent implements OnInit {
     return this.mainForm.get('modules') as FormArray;
   }
 
-  // Fonction pour parser la référence client
-  parseSupplierReference(ref: string): void {
-    if (!ref) return;
+  /**
+   * ✅ Parse la référence Leoni qui peut être dans plusieurs formats:
+   * - Format 1: P00838055_01_N_T (avec underscores)
+   * - Format 2: P00838055_01 NT (avec espace)
+   * - Format 3: P00838055_01 (sans producer/type)
+   */
+  parseLeoniReference(ref: string): void {
+    if (!ref) {
+      console.warn('⚠️ Référence Leoni vide');
+      return;
+    }
 
-    const parts = ref.split('_');
+    console.log('📌 Parsing référence Leoni brute:', ref);
 
+    // Nettoyer la référence: remplacer les espaces par des underscores
+    let cleanedRef = ref.trim().replace(/ /g, '_');
+
+    // Si la référence contient "NT" collé, le séparer
+    cleanedRef = cleanedRef.replace(/_NT$/g, '_N_T');
+    cleanedRef = cleanedRef.replace(/NT$/g, 'N_T');
+
+    const parts = cleanedRef.split('_');
+    console.log('📌 Parties après nettoyage:', parts);
+
+    // Part Number (ex: P00838055)
     if (parts.length >= 1) {
-      this.basePart = parts[0];
+      this.leoniPartNumber = parts[0];
     }
 
+    // Index (ex: 01)
     if (parts.length >= 2) {
-      this.indexPart = parts[1];
+      const indexStr = parts[1].replace(/\D/g, ''); // Garder seulement les chiffres
+      this.leoniIndexValue = parseInt(indexStr, 10) || 1;
     }
 
+    // Producer (ex: N) - peut être combiné avec Type
     if (parts.length >= 3) {
-      this.producerPart = parts[2];
+      let producerValue = parts[2];
+      // Si producer contient deux lettres (ex: "NT"), les séparer
+      if (producerValue.length === 2 && /^[A-Z]{2}$/.test(producerValue)) {
+        this.leoniProducer = producerValue.charAt(0); // N
+        this.leoniType = producerValue.charAt(1);      // T
+      } else {
+        this.leoniProducer = producerValue;
+      }
     }
 
-    if (parts.length >= 4) {
-      this.typePart = parts[3];
+    // Type (ex: T) - si pas déjà défini
+    if (parts.length >= 4 && !this.leoniType) {
+      this.leoniType = parts[3];
     }
+
+    // Si on a toujours pas de type, essayer de l'extraire du producer
+    if (!this.leoniType && this.leoniProducer && this.leoniProducer.length > 1) {
+      this.leoniType = this.leoniProducer.charAt(1);
+      this.leoniProducer = this.leoniProducer.charAt(0);
+    }
+
+    console.log('✅ Référence Leoni parsée:', {
+      referenceOriginale: ref,
+      leoniPartNumber: this.leoniPartNumber,
+      leoniIndexValue: this.leoniIndexValue,
+      leoniProducer: this.leoniProducer,
+      leoniType: this.leoniType
+    });
   }
 
   loadItemData() {
@@ -99,8 +142,6 @@ export class CreateConformeComponent implements OnInit {
       next: (chargeSheet) => {
         const item = chargeSheet.items.find(i => i.id === this.itemId);
         if (item) {
-          this.itemNumber = item.itemNumber || '';
-
           // Récupérer les quantités reçues
           this.chargeSheetService.getReceptionHistory(this.chargeSheetId).subscribe({
             next: (history: ReceptionHistory[]) => {
@@ -123,10 +164,19 @@ export class CreateConformeComponent implements OnInit {
                   this.totalModules = this.quantityToCreate;
                   this.orderNumber = chargeSheet.orderNumber || '';
 
+                  // ✅ Récupérer les deux références
                   this.housingReferenceLeoni = item.housingReferenceLeoni || '';
                   this.housingReferenceSupplierCustomer = item.housingReferenceSupplierCustomer || '';
 
-                  this.parseSupplierReference(this.housingReferenceSupplierCustomer);
+                  // ✅ Parser la référence Leoni
+                  this.parseLeoniReference(this.housingReferenceLeoni);
+
+                  console.log('=== DONNÉES POUR CRÉATION ===');
+                  console.log('Leoni Part Number:', this.leoniPartNumber);
+                  console.log('Index Value:', this.leoniIndexValue);
+                  console.log('Producer:', this.leoniProducer);
+                  console.log('Type:', this.leoniType);
+                  console.log('===============================');
 
                   this.initForm();
                 },
@@ -165,20 +215,22 @@ export class CreateConformeComponent implements OnInit {
   }
 
   createModuleForm(moduleNumber: number): FormGroup {
-    const indexValue = this.indexPart ? parseInt(this.indexPart.replace(/\D/g, '')) || 1 : 1;
-    const formattedIndex = this.indexPart || '01';
+    // ✅ Utiliser les valeurs parsées de la référence Leoni
+    const formattedIndex = String(this.leoniIndexValue).padStart(2, '0');
+    const orderitemNumber = `${this.leoniPartNumber}-${formattedIndex}-${String(moduleNumber).padStart(2, '0')}`;
 
     return this.fb.group({
       orderNumber: [this.orderNumber],
-      orderitemNumber: [`${this.basePart || 'REF'}-${formattedIndex}-${String(moduleNumber).padStart(2, '0')}`],
+      orderitemNumber: [orderitemNumber],
       technicianName: [this.technicianName],
       testDateTime: ['', Validators.required],
-      rfidNumber: [this.housingReferenceLeoni],
+      rfidNumber: [this.housingReferenceSupplierCustomer],  // RFID = référence Leoni complète
 
-      leoniPartNumber: [this.basePart],
-      indexValue: [indexValue],
-      producer: [this.producerPart],
-      type: [this.typePart],
+      // ✅ Données parsées de la référence Leoni
+      leoniPartNumber: [this.leoniPartNumber],
+      indexValue: [this.leoniIndexValue],
+      producer: [this.leoniProducer],
+      type: [this.leoniType],
 
       sequenceTestPins: [''],
       codingRequest: [''],

@@ -42,7 +42,7 @@ export class TechnicalFileListComponent implements OnInit {
     { value: '11', label: 'Novembre' },
     { value: '12', label: 'Décembre' }
   ];
-  
+
   availableYears: number[] = [];
   // ==================== ÉTAT DES DOSSIERS PLIABLES ====================
   expandedFolders: { [key: number]: boolean } = {};
@@ -87,17 +87,17 @@ export class TechnicalFileListComponent implements OnInit {
   generateAvailableYears(): void {
     const years = new Set<number>();
     const currentYear = new Date().getFullYear();
-    
+
     years.add(currentYear);
     years.add(currentYear - 1);
-    
+
     this.technicalFiles.forEach(file => {
       if (file.createdAt) {
         const year = new Date(file.createdAt).getFullYear();
         years.add(year);
       }
     });
-    
+
     this.availableYears = Array.from(years).sort((a, b) => b - a);
   }
   // ✅ Filtrer par mois
@@ -384,7 +384,7 @@ canDeleteItem(item: any): boolean {
     case 'PP':
       // PP peut supprimer seulement si DRAFT (ou toujours ? à définir)
       return status === 'DRAFT';
-   
+
     default:
       return false;
   }
@@ -430,19 +430,19 @@ async exportOneToExcel(file: TechnicalFileDetail): Promise<void> {
 
   // ===== LIGNE DES GROUPES PRINCIPAUX =====
   const groupRow = worksheet.addRow(['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']);
-  
+
   // Général (col 1-3)
   worksheet.mergeCells(groupRow.number, 1, groupRow.number, 3);
   groupRow.getCell(1).value = 'Général';
-  
+
   // Code d'identité (col 4-8)
   worksheet.mergeCells(groupRow.number, 4, groupRow.number, 8);
   groupRow.getCell(4).value = 'Code d\'identité';
-  
+
   // Inspection (col 10-25)
   worksheet.mergeCells(groupRow.number, 10, groupRow.number, 25);
   groupRow.getCell(10).value = 'Inspection';
-  
+
   groupRow.font = { bold: true, size: 11 };
   groupRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF4E73DF' } };
   groupRow.alignment = { horizontal: 'center', vertical: 'middle' };
@@ -464,23 +464,23 @@ async exportOneToExcel(file: TechnicalFileDetail): Promise<void> {
   // Fusion pour Raideur des pins (col 10-12)
   worksheet.mergeCells(subHeaderRow.number, 10, subHeaderRow.number, 12);
   subHeaderRow.getCell(10).value = 'Raideur des pins';
-  
+
   // Fusion pour Displacement path (col 13-15)
   worksheet.mergeCells(subHeaderRow.number, 13, subHeaderRow.number, 15);
   subHeaderRow.getCell(13).value = 'Displacement path (pour Push Back)(en mm)';
-  
+
   // Fusion pour Valeur maximale (col 16-18)
   worksheet.mergeCells(subHeaderRow.number, 16, subHeaderRow.number, 18);
   subHeaderRow.getCell(16).value = 'Valeur maximale d\'étanchéité (en mbar)';
-  
+
   // Fusion pour Valeur programmée (col 19-21)
   worksheet.mergeCells(subHeaderRow.number, 19, subHeaderRow.number, 21);
   subHeaderRow.getCell(19).value = 'Valeur d\'étanchéité programmée (en mbar)';
-  
+
   // Fusion pour Les détections (col 22-24)
   worksheet.mergeCells(subHeaderRow.number, 22, subHeaderRow.number, 24);
   subHeaderRow.getCell(22).value = 'Les détections (Activé/Desactivé)';
-  
+
   subHeaderRow.font = { bold: true, size: 10 };
   subHeaderRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE9ECEF' } };
   subHeaderRow.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
@@ -498,7 +498,7 @@ async exportOneToExcel(file: TechnicalFileDetail): Promise<void> {
     'M1', 'M2', 'M3',  // Détections (col 22-24)
     ''  // Remarques
   ]);
-  
+
   mRow.font = { bold: true, size: 9 };
   mRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF5F5F5' } };
   mRow.alignment = { horizontal: 'center', vertical: 'middle' };
@@ -532,7 +532,7 @@ async exportOneToExcel(file: TechnicalFileDetail): Promise<void> {
     12,  // Détections M3
     35   // Remarques
   ];
-  
+
   for (let i = 0; i < colWidths.length; i++) {
     worksheet.getColumn(i + 1).width = colWidths[i];
   }
@@ -592,7 +592,7 @@ async exportOneToExcel(file: TechnicalFileDetail): Promise<void> {
     for (let col = 1; col <= rowData.length; col++) {
       const cell = row.getCell(col);
       cell.alignment = { horizontal: 'center', vertical: 'middle' };
-      
+
       // Colonnes OK/NOK (Raideur: col 10-12, Détections: col 22-24)
       if ((col >= 10 && col <= 12) || (col >= 22 && col <= 24)) {
         const value = cell.value;
@@ -650,7 +650,7 @@ async exportOneToExcel(file: TechnicalFileDetail): Promise<void> {
 
     // ===== PAGE DE SOMMAIRE =====
     const summarySheet = workbook.addWorksheet('Sommaire');
-    
+
     // Titre du sommaire
     summarySheet.mergeCells(1, 1, 1, 4);
     const titleCell = summarySheet.getCell('A1');
@@ -665,7 +665,7 @@ async exportOneToExcel(file: TechnicalFileDetail): Promise<void> {
     if (this.yearFilter) filterInfo += ` | Année: ${this.yearFilter}`;
     if (this.monthFilter) filterInfo += ` | Mois: ${this.getMonthLabel(this.monthFilter)}`;
     if (this.searchTerm) filterInfo += ` | Recherche: "${this.searchTerm}"`;
-    
+
     summarySheet.mergeCells(2, 1, 2, 4);
     const infoCell = summarySheet.getCell('A2');
     infoCell.value = filterInfo;
@@ -694,7 +694,7 @@ async exportOneToExcel(file: TechnicalFileDetail): Promise<void> {
     // Pour chaque dossier filtré
     for (let idx = 0; idx < this.filteredFiles.length; idx++) {
       const file = this.filteredFiles[idx];
-      
+
       try {
         if (!file.items || file.items.length === 0) {
           const emptySheet = workbook.addWorksheet(this.getValidSheetName(`Dossier_${file.id}`));
@@ -709,7 +709,7 @@ async exportOneToExcel(file: TechnicalFileDetail): Promise<void> {
           await this.populateTechnicalFileWorksheet(worksheet, file);
           successCount++;
         }
-        
+
         const row = summarySheet.addRow([
           (idx + 1).toString(),
           file.id,
@@ -718,18 +718,18 @@ async exportOneToExcel(file: TechnicalFileDetail): Promise<void> {
           file.createdAt ? new Date(file.createdAt).toLocaleDateString('fr-FR') : '-',
           file.items?.length || 0
         ]);
-        
+
         const sheetName = this.getValidSheetName(`Dossier_${file.id}`);
         const cell = row.getCell(2);
         cell.value = { text: file.id.toString(), hyperlink: `#${sheetName}!A1` };
         cell.font = { color: { argb: 'FF2E86C1' }, underline: true };
-        
+
         if ((idx + 1) % 2 === 0) {
           row.eachCell({ includeEmpty: true }, (cell) => {
             cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8F9FA' } };
           });
         }
-        
+
       } catch (error) {
         console.error(`Erreur export dossier ${file.id}:`, error);
         errorCount++;
@@ -757,7 +757,7 @@ async exportOneToExcel(file: TechnicalFileDetail): Promise<void> {
     if (this.monthFilter) fileName += `_${this.getMonthLabel(this.monthFilter)}`;
     fileName += `.xlsx`;
     saveAs(blob, fileName);
-    
+
     if (errorCount === 0) {
       alert(`✅ Export terminé avec succès : ${successCount} dossier(s) exporté(s) dans un seul fichier`);
     } else {
@@ -778,7 +778,7 @@ private async populateTechnicalFileWorksheet(worksheet: ExcelJS.Worksheet, file:
   if (!file.items || file.items.length === 0) return;
 
   // ===== ENTÊTE =====
- 
+
 
   // Ligne 4: Titre principal
   worksheet.mergeCells(4, 1, 4, 27);
@@ -792,19 +792,19 @@ private async populateTechnicalFileWorksheet(worksheet: ExcelJS.Worksheet, file:
 
   // ===== LIGNE DES GROUPES PRINCIPAUX =====
   const groupRow = worksheet.addRow(['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']);
-  
+
   // Général (col 1-3)
   worksheet.mergeCells(groupRow.number, 1, groupRow.number, 3);
   groupRow.getCell(1).value = 'Général';
-  
+
   // Code d'identité (col 4-8)
   worksheet.mergeCells(groupRow.number, 4, groupRow.number, 8);
   groupRow.getCell(4).value = 'Code d\'identité';
-  
+
   // Inspection (col 10-27)
   worksheet.mergeCells(groupRow.number, 10, groupRow.number, 27);
   groupRow.getCell(10).value = 'Inspection';
-  
+
   groupRow.font = { bold: true, size: 11 };
   groupRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF4E73DF' } };
   groupRow.alignment = { horizontal: 'center', vertical: 'middle' };
@@ -826,23 +826,23 @@ private async populateTechnicalFileWorksheet(worksheet: ExcelJS.Worksheet, file:
   // Fusion pour Raideur des pins (col 10-12)
   worksheet.mergeCells(subHeaderRow.number, 10, subHeaderRow.number, 12);
   subHeaderRow.getCell(10).value = 'Raideur des pins';
-  
+
   // Fusion pour Displacement path (col 13-15)
   worksheet.mergeCells(subHeaderRow.number, 13, subHeaderRow.number, 15);
   subHeaderRow.getCell(13).value = 'Displacement path (pour Push Back)(en mm)';
-  
+
   // Fusion pour Valeur maximale (col 16-18)
   worksheet.mergeCells(subHeaderRow.number, 16, subHeaderRow.number, 18);
   subHeaderRow.getCell(16).value = 'Valeur maximale d\'étanchéité (en mbar)';
-  
+
   // Fusion pour Valeur programmée (col 19-21)
   worksheet.mergeCells(subHeaderRow.number, 19, subHeaderRow.number, 21);
   subHeaderRow.getCell(19).value = 'Valeur d\'étanchéité programmée (en mbar)';
-  
+
   // Fusion pour Les détections (col 22-24)
   worksheet.mergeCells(subHeaderRow.number, 22, subHeaderRow.number, 24);
   subHeaderRow.getCell(22).value = 'Les détections (Activé/Desactivé)';
-  
+
   subHeaderRow.font = { bold: true, size: 10 };
   subHeaderRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE9ECEF' } };
   subHeaderRow.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
@@ -860,7 +860,7 @@ private async populateTechnicalFileWorksheet(worksheet: ExcelJS.Worksheet, file:
     'M1', 'M2', 'M3',  // Détections (col 22-24)
     ''  // Remarques
   ]);
-  
+
   mRow.font = { bold: true, size: 9 };
   mRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF5F5F5' } };
   mRow.alignment = { horizontal: 'center', vertical: 'middle' };
@@ -894,7 +894,7 @@ private async populateTechnicalFileWorksheet(worksheet: ExcelJS.Worksheet, file:
     12,  // Détections M3
     35   // Remarques
   ];
-  
+
   for (let i = 0; i < colWidths.length; i++) {
     worksheet.getColumn(i + 1).width = colWidths[i];
   }
@@ -954,7 +954,7 @@ private async populateTechnicalFileWorksheet(worksheet: ExcelJS.Worksheet, file:
     for (let col = 1; col <= rowData.length; col++) {
       const cell = row.getCell(col);
       cell.alignment = { horizontal: 'center', vertical: 'middle' };
-      
+
       // Colonnes OK/NOK (Raideur: col 10-12, Détections: col 22-24)
       if ((col >= 10 && col <= 12) || (col >= 22 && col <= 24)) {
         const value = cell.value;
@@ -999,5 +999,10 @@ hasActiveFilters(): boolean {
 // ==================== FONCTIONS DE RECHERCHE ====================
 applyFilter() {
   this.applyFilters();
+}
+// technical-file-list.component.ts - Ajouter cette méthode
+
+compareVersions(itemId: number): void {
+  this.router.navigate(['/technical-files/items', itemId, 'compare']);
 }
 }

@@ -1,0 +1,315 @@
+<!-- gestion-config.component.html -->
+<div class="leoni-config-container">
+  <!-- HEADER LEONI -->
+  <div class="leoni-header">
+    <div class="leoni-header-content">
+      <div class="leoni-logo">
+        <div class="logo-mark">
+          <svg width="40" height="40" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="60" cy="60" r="55" stroke="white" stroke-width="2" fill="none"/>
+            <path d="M35 60 L50 45 L65 55 L85 35 L90 40 L65 65 L50 55 L40 65 Z" fill="white"/>
+            <circle cx="60" cy="60" r="6" fill="#1e3c72"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="leoni-title">LEONI</h1>
+          <p class="leoni-subtitle">Wiring Systems · Configuration</p>
+        </div>
+      </div>
+      <div class="header-badge">
+        <i class="bi bi-shield-check"></i> Administration
+      </div>
+    </div>
+  </div>
+
+  <!-- ONGLETS STYLISÉS -->
+  <div class="leoni-tabs">
+    <button class="tab-btn" [class.active]="activeTab === 0" (click)="setActiveTab(0)">
+      <i class="bi bi-diagram-3"></i>
+      <span>Projets</span>
+      <span class="tab-count">{{ projets.length }}</span>
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 1" (click)="setActiveTab(1)">
+      <i class="bi bi-building"></i>
+      <span>Sites</span>
+      <span class="tab-count">{{ sites.length }}</span>
+    </button>
+  </div>
+
+  <!-- ONGLET PROJETS -->
+  <div class="tab-content" *ngIf="activeTab === 0">
+    <div class="leoni-card">
+      <div class="card-header-custom">
+        <div>
+          <i class="bi bi-diagram-3 header-icon"></i>
+          <h3>Liste des projets</h3>
+        </div>
+        <button class="btn-leoni-primary" (click)="openCreateProjet()">
+          <i class="bi bi-plus-circle"></i> Nouveau projet
+        </button>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="leoni-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nom</th>
+              <th>Description</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let projet of projets">
+              <td><span class="badge-id">#{{ projet.id }}</span></td>
+              <td><strong>{{ projet.name }}</strong></td>
+              <td>{{ projet.description || '—' }}</td>
+              <td>
+                <span class="status-badge" [class.status-active]="projet.active" [class.status-inactive]="!projet.active">
+                  {{ projet.active ? 'Actif' : 'Inactif' }}
+                </span>
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <button class="action-btn edit" (click)="openEditProjet(projet)" title="Modifier">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="action-btn delete" (click)="deleteProjet(projet.id, projet.name)" title="Supprimer">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div *ngIf="projets.length === 0" class="empty-state">
+          <i class="bi bi-inbox"></i>
+          <p>Aucun projet trouvé</p>
+          <button class="btn-link" (click)="openCreateProjet()">Créer votre premier projet</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ONGLET SITES -->
+  <div class="tab-content" *ngIf="activeTab === 1">
+    <div class="leoni-card">
+      <div class="card-header-custom">
+        <div>
+          <i class="bi bi-building header-icon"></i>
+          <h3>Liste des sites</h3>
+        </div>
+        <button class="btn-leoni-primary" (click)="openCreateSite()">
+          <i class="bi bi-plus-circle"></i> Nouveau site
+        </button>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="leoni-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nom</th>
+              <th>Description</th>
+              <th>Projets associés</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let site of sites">
+              <td><span class="badge-id">#{{ site.id }}</span></td>
+              <td><strong>{{ site.name }}</strong></td>
+              <td>{{ site.description || '—' }}</td>
+              <td>
+                <div class="projets-tags">
+                  <span class="projet-tag" *ngFor="let projet of site.projets">
+                    {{ projet.name }}
+                  </span>
+                  <span *ngIf="!site.projets || site.projets.length === 0" class="text-muted-small">
+                    Aucun projet
+                  </span>
+                </div>
+              </td>
+              <td>
+                <span class="status-badge" [class.status-active]="site.active" [class.status-inactive]="!site.active">
+                  {{ site.active ? 'Actif' : 'Inactif' }}
+                </span>
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <button class="action-btn link" (click)="openAssociationModal(site)" title="Associer des projets">
+                    <i class="bi bi-link"></i>
+                  </button>
+                  <button class="action-btn edit" (click)="openEditSite(site)" title="Modifier">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="action-btn delete" (click)="deleteSite(site.id, site.name)" title="Supprimer">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div *ngIf="sites.length === 0" class="empty-state">
+          <i class="bi bi-inbox"></i>
+          <p>Aucun site trouvé</p>
+          <button class="btn-link" (click)="openCreateSite()">Créer votre premier site</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PROJET -->
+<div class="leoni-modal" [class.show]="showProjetModal" [style.display]="showProjetModal ? 'flex' : 'none'">
+  <div class="modal-overlay" (click)="closeModals()"></div>
+  <div class="modal-container">
+    <div class="modal-header-custom">
+      <div class="modal-icon">
+        <i class="bi" [ngClass]="editingProjet ? 'bi-pencil-square' : 'bi-plus-circle'"></i>
+      </div>
+      <h3>{{ editingProjet ? 'Modifier' : 'Nouveau' }} projet</h3>
+      <button class="modal-close" (click)="closeModals()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div class="modal-body-custom">
+      <form [formGroup]="projetForm">
+        <div class="form-group">
+          <label>Nom du projet <span class="required">*</span></label>
+          <input type="text" formControlName="name" placeholder="Ex: BMW, Mercedes, Audi...">
+          <div class="error-msg" *ngIf="projetForm.get('name')?.invalid && projetForm.get('name')?.touched">
+            Le nom est requis
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea formControlName="description" rows="3" placeholder="Description optionnelle"></textarea>
+        </div>
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="active">
+            <span class="checkmark"></span>
+            Actif
+          </label>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer-custom">
+      <button class="btn-secondary" (click)="closeModals()">Annuler</button>
+      <button class="btn-leoni-primary" (click)="saveProjet()" [disabled]="projetForm.invalid">
+        <i class="bi bi-check-circle"></i> {{ editingProjet ? 'Modifier' : 'Créer' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SITE -->
+<div class="leoni-modal" [class.show]="showSiteModal" [style.display]="showSiteModal ? 'flex' : 'none'">
+  <div class="modal-overlay" (click)="closeModals()"></div>
+  <div class="modal-container">
+    <div class="modal-header-custom">
+      <div class="modal-icon">
+        <i class="bi" [ngClass]="editingSite ? 'bi-pencil-square' : 'bi-plus-circle'"></i>
+      </div>
+      <h3>{{ editingSite ? 'Modifier' : 'Nouveau' }} site</h3>
+      <button class="modal-close" (click)="closeModals()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div class="modal-body-custom">
+      <form [formGroup]="siteForm">
+        <div class="form-group">
+          <label>Nom du site <span class="required">*</span></label>
+          <input type="text" formControlName="name" placeholder="Ex: Manzel Hayet, LTN1, LTN2, Mateur...">
+          <div class="error-msg" *ngIf="siteForm.get('name')?.invalid && siteForm.get('name')?.touched">
+            Le nom est requis
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea formControlName="description" rows="3" placeholder="Description optionnelle"></textarea>
+        </div>
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="active">
+            <span class="checkmark"></span>
+            Actif
+          </label>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer-custom">
+      <button class="btn-secondary" (click)="closeModals()">Annuler</button>
+      <button class="btn-leoni-primary" (click)="saveSite()" [disabled]="siteForm.invalid">
+        <i class="bi bi-check-circle"></i> {{ editingSite ? 'Modifier' : 'Créer' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ASSOCIATION -->
+<div class="leoni-modal leoni-modal-lg" [class.show]="showAssociationModal" [style.display]="showAssociationModal ? 'flex' : 'none'">
+  <div class="modal-overlay" (click)="closeModals()"></div>
+  <div class="modal-container">
+    <div class="modal-header-custom">
+      <div class="modal-icon">
+        <i class="bi bi-link"></i>
+      </div>
+      <h3>Associer des projets au site "{{ selectedSiteForAssociation?.name }}"</h3>
+      <button class="modal-close" (click)="closeModals()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div class="modal-body-custom">
+      <div class="association-grid">
+        <div class="association-col">
+          <div class="association-header">
+            <i class="bi bi-list-ul"></i> Projets disponibles
+          </div>
+          <div class="association-list">
+            <label *ngFor="let projet of availableProjets" class="checkbox-card">
+              <input type="checkbox"
+                     [checked]="isProjetSelected(projet.id)"
+                     (change)="toggleProjetSelection(projet.id, $event)">
+              <div class="checkbox-content">
+                <strong>{{ projet.name }}</strong>
+                <small>{{ projet.description || 'Pas de description' }}</small>
+              </div>
+            </label>
+            <div *ngIf="availableProjets.length === 0" class="empty-small">
+              <i class="bi bi-inbox"></i> Aucun projet disponible
+            </div>
+          </div>
+        </div>
+        <div class="association-col">
+          <div class="association-header success">
+            <i class="bi bi-check-circle"></i> Projets associés ({{ selectedProjetIds.length }})
+          </div>
+          <div class="association-list selected">
+           <!-- APRÈS (CORRIGÉ) -->
+<!-- APRÈS (CORRIGÉ) -->
+<div class="selected-item" *ngFor="let projet of availableProjets">
+  <div *ngIf="isProjetSelected(projet.id)" class="selected-item-content">
+    <i class="bi bi-check-circle-fill"></i>
+    <span>{{ projet.name }}</span>
+  </div>
+</div>
+            <div *ngIf="selectedProjetIds.length === 0" class="empty-small">
+              <i class="bi bi-info-circle"></i> Aucun projet sélectionné
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer-custom">
+      <button class="btn-secondary" (click)="closeModals()">Annuler</button>
+      <button class="btn-leoni-primary" (click)="saveAssociation()" [disabled]="selectedProjetIds.length === 0">
+        <i class="bi bi-save"></i> Enregistrer les associations
+      </button>
+    </div>
+  </div>
+</div>

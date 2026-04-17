@@ -523,3 +523,78 @@
 .btn-secondary:hover {
   background: rgba(255, 255, 255, 0.1);
 }
+/* login.component.css - Ajouter ces styles */
+
+.site-select {
+  width: 100%;
+  padding: 16px 12px 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+}
+
+.site-select:focus {
+  outline: none;
+  border-color: #0052CC;
+  box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
+}
+
+.site-select.error {
+  border-color: #dc2626;
+}
+
+.input-field {
+  position: relative;
+  flex: 1;
+}
+
+.loading-spinner {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.spinner-small {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e2e8f0;
+  border-top-color: #0052CC;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.optional-badge {
+  font-size: 10px;
+  font-weight: normal;
+  background: rgba(0, 212, 255, 0.2);
+  padding: 2px 6px;
+  border-radius: 20px;
+  margin-left: 8px;
+}
+
+.site-info-message {
+  font-size: 11px;
+  color: #888;
+  margin-top: -10px;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.site-info-message i {
+  font-size: 12px;
+  color: #00D4FF;
+}

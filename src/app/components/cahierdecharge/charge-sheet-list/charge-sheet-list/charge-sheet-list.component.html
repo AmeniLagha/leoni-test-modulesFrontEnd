@@ -147,9 +147,9 @@
             <tr>
               <th class="px-3 py-3" style="width: 70px;">ID</th>
               <th class="px-3 py-3">Statut</th>
-              <th class="px-3 py-3">Projet</th>
-              <th class="px-3 py-3">Plant</th>
-              <th class="px-3 py-3">Réf. Harness</th>
+              <th class="px-3 py-3">PROJECT</th>
+              <th class="px-3 py-3">PLANT</th>
+              <th class="px-3 py-3">HARNESS REF</th>
               <th class="px-3 py-3">Émis par</th>
               <th class="px-3 py-3 text-center">Items</th>
               <th class="px-3 py-3">Progression réception</th>
@@ -278,7 +278,7 @@
                     </button>
 
                     <!-- Réception -->
-                    <button *ngIf="sheet.status === 'SENT_TO_SUPPLIER'&& isPT()"
+                    <button *ngIf="sheet.status === 'SENT_TO_SUPPLIER'&&  (isPT() || isAdmin())"
                             class="btn btn-sm btn-outline-primary"
                             [routerLink]="['/charge-sheets', sheet.id, 'reception']"
                             title="Réception">
@@ -299,6 +299,14 @@
                             (click)="completeSheet(sheet.id)"
                             title="Compléter">
                       <i class="bi bi-check-all"></i>
+                    </button>
+                    <!-- Dans la section Actions, ajouter ce bouton pour PT -->
+                    <!-- Retour à ING (pour PT) -->
+                    <button *ngIf="canEditTech && (sheet.status === 'VALIDATED_ING' || sheet.status === 'TECH_FILLED')"
+                            class="btn btn-sm btn-outline-danger"
+                            (click)="revertToIng(sheet.id)"
+                            title="Retourner à ING pour corrections">
+                      <i class="bi bi-arrow-return-left"></i>
                     </button>
 
                     <!-- Modifier -->

@@ -1,0 +1,404 @@
+<!-- compare-versions.component.html -->
+<div class="compare-container">
+  <!-- Header -->
+  <div class="page-header">
+    <h2>
+      <i class="bi bi-git-compare"></i>
+      Comparaison des versions - Item #{{ itemId }}
+    </h2>
+    <button class="btn btn-secondary" (click)="goBack()">
+      <i class="bi bi-arrow-left"></i> Retour
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Chargement des versions...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error" class="error-container">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <span>{{ error }}</span>
+  </div>
+
+  <!-- Comparaison des versions -->
+  <div *ngIf="!loading && !error && firstVersion && currentVersion" class="compare-content">
+
+    <!-- Informations sur les versions -->
+    <div class="version-info">
+      <div class="version-card first">
+        <h4><i class="bi bi-file-earmark-text"></i> Première version (création)</h4>
+        <p><strong>Créé par:</strong> {{ firstVersion.createdBy || '-' }}</p>
+        <p><strong>Date:</strong> {{ firstVersion.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+        <p><strong>Statut:</strong> <span class="status-badge">{{ formatStatus(firstVersion.validationStatus) }}</span></p>
+      </div>
+      <div class="version-card current">
+        <h4><i class="bi bi-file-earmark-check"></i> Version actuelle</h4>
+        <p><strong>Modifié par:</strong> {{ currentVersion.updatedBy || currentVersion.createdBy || '-' }}</p>
+        <p><strong>Date:</strong> {{ currentVersion.updatedAt || currentVersion.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+        <p><strong>Statut:</strong> <span class="status-badge">{{ formatStatus(currentVersion.validationStatus) }}</span></p>
+      </div>
+    </div>
+
+    <!-- Résumé des modifications -->
+    <div class="summary-changes" *ngIf="differences.length > 0">
+      <h4><i class="bi bi-list-ul"></i> Résumé des modifications ({{ differences.length }} champ(s) modifié(s))</h4>
+      <div class="changes-list">
+        <div *ngFor="let diff of differences" class="change-item">
+          <span class="field-name">{{ getFieldLabel(diff.fieldName) }}</span>
+          <span class="old-value">"{{ diff.oldValue }}"</span>
+          <i class="bi bi-arrow-right-short"></i>
+          <span class="new-value">"{{ diff.newValue }}"</span>
+        </div>
+      </div>
+    </div>
+    <div class="summary-changes" *ngIf="differences.length === 0">
+      <div class="no-changes">
+        <i class="bi bi-check-circle-fill"></i>
+        <span>Aucune modification détectée entre la première et la dernière version.</span>
+      </div>
+    </div>
+
+    <!-- Tableau comparatif -->
+    <h4><i class="bi bi-table"></i> Comparaison détaillée</h4>
+    <div class="compare-table-container">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Champ</th>
+            <th>Première version</th>
+            <th>Version actuelle</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Général -->
+          <tr class="section-header">
+            <td colspan="4"><strong>📋 GÉNÉRAL</strong></td>
+          </tr>
+          <tr [class.changed]="hasChanged('position')">
+            <td>Position</td>
+            <td>{{ formatValue(firstVersion.position) }}</td>
+            <td>{{ formatValue(currentVersion.position) }}</td>
+            <td>
+              <span [ngClass]="hasChanged('position') ? 'badge-changed' : 'badge-unchanged'">
+                {{ hasChanged('position') ? 'Modifié' : 'Identique' }}
+              </span>
+            </td>
+          </tr>
+          <tr [class.changed]="hasChanged('technicianName')">
+            <td>Technicien</td>
+            <td>{{ formatValue(firstVersion.technicianName) }}</td>
+            <td>{{ formatValue(currentVersion.technicianName) }}</td>
+            <td>
+              <span [ngClass]="hasChanged('technicianName') ? 'badge-changed' : 'badge-unchanged'">
+                {{ hasChanged('technicianName') ? 'Modifié' : 'Identique' }}
+              </span>
+            </td>
+          </tr>
+
+          <!-- Code d'identité -->
+          <tr class="section-header">
+            <td colspan="4"><strong>🔑 CODE D'IDENTITÉ</strong></td>
+          </tr>
+          <tr [class.changed]="hasChanged('xCode')">
+            <td>X Code</td>
+            <td>{{ formatValue(firstVersion.xCode) }}</td>
+            <td>{{ formatValue(currentVersion.xCode) }}</td>
+            <td>
+              <span [ngClass]="hasChanged('xCode') ? 'badge-changed' : 'badge-unchanged'">
+                {{ hasChanged('xCode') ? 'Modifié' : 'Identique' }}
+              </span>
+            </td>
+          </tr>
+          <tr [class.changed]="hasChanged('indexValue')">
+            <td>Index</td>
+            <td>{{ formatValue(firstVersion.indexValue) }}</td>
+            <td>{{ formatValue(currentVersion.indexValue) }}</td>
+            <td>
+              <span [ngClass]="hasChanged('indexValue') ? 'badge-changed' : 'badge-unchanged'">
+                {{ hasChanged('indexValue') ? 'Modifié' : 'Identique' }}
+              </span>
+            </td>
+          </tr>
+          <tr [class.changed]="hasChanged('leoniReferenceNumber')">
+            <td>Réf. LEONI</td>
+            <td>{{ formatValue(firstVersion.leoniReferenceNumber) }}</td>
+            <td>{{ formatValue(currentVersion.leoniReferenceNumber) }}</td>
+            <td>
+              <span [ngClass]="hasChanged('leoniReferenceNumber') ? 'badge-changed' : 'badge-unchanged'">
+                {{ hasChanged('leoniReferenceNumber') ? 'Modifié' : 'Identique' }}
+              </span>
+            </td>
+          </tr>
+          <tr [class.changed]="hasChanged('producer')">
+            <td>Producteur</td>
+            <td>{{ formatValue(firstVersion.producer) }}</td>
+            <td>{{ formatValue(currentVersion.producer) }}</td>
+            <td>
+              <span [ngClass]="hasChanged('producer') ? 'badge-changed' : 'badge-unchanged'">
+                {{ hasChanged('producer') ? 'Modifié' : 'Identique' }}
+              </span>
+            </td>
+          </tr>
+          <tr [class.changed]="hasChanged('type')">
+            <td>Type</td>
+            <td>{{ formatValue(firstVersion.type) }}</td>
+            <td>{{ formatValue(currentVersion.type) }}</td>
+            <td>
+              <span [ngClass]="hasChanged('type') ? 'badge-changed' : 'badge-unchanged'">
+                {{ hasChanged('type') ? 'Modifié' : 'Identique' }}
+              </span>
+            </td>
+          </tr>
+          <tr [class.changed]="hasChanged('referencePinePushBack')">
+            <td>Réf. Pine Push Back</td>
+            <td>{{ formatValue(firstVersion.referencePinePushBack) }}</td>
+            <td>{{ formatValue(currentVersion.referencePinePushBack) }}</td>
+            <td>
+              <span [ngClass]="hasChanged('referencePinePushBack') ? 'badge-changed' : 'badge-unchanged'">
+                {{ hasChanged('referencePinePushBack') ? 'Modifié' : 'Identique' }}
+              </span>
+            </td>
+          </tr>
+
+          <!-- Raideur des pins -->
+          <tr class="section-header">
+            <td colspan="4"><strong>📊 RAIDEUR DES PINS</strong></td>
+          </tr>
+          <tr [class.changed]="hasChanged('pinRigidityM1')">
+            <td>Raideur M1</td>
+            <td>{{ formatValue(firstVersion.pinRigidityM1) }}</td>
+            <td>{{ formatValue(currentVersion.pinRigidityM1) }}</td>
+            <td>
+              <span [ngClass]="hasChanged('pinRigidityM1') ? 'badge-changed' : 'badge-unchanged'">
+                {{ hasChanged('pinRigidityM1') ? 'Modifié' : 'Identique' }}
+              </span>
+            </td>
+          </tr>
+          <tr [class.changed]="hasChanged('pinRigidityM2')">
+            <td>Raideur M2</td>
+            <td>{{ formatValue(firstVersion.pinRigidityM2) }}</td>
+            <td>{{ formatValue(currentVersion.pinRigidityM2) }}</td>
+            <td>
+              <span [ngClass]="hasChanged('pinRigidityM2') ? 'badge-changed' : 'badge-unchanged'">
+                {{ hasChanged('pinRigidityM2') ? 'Modifié' : 'Identique' }}
+              </span>
+            </td>
+          </tr>
+          <tr [class.changed]="hasChanged('pinRigidityM3')">
+            <td>Raideur M3</td>
+            <td>{{ formatValue(firstVersion.pinRigidityM3) }}</td>
+            <td>{{ formatValue(currentVersion.pinRigidityM3) }}</td>
+            <td>
+              <span [ngClass]="hasChanged('pinRigidityM3') ? 'badge-changed' : 'badge-unchanged'">
+                {{ hasChanged('pinRigidityM3') ? 'Modifié' : 'Identique' }}
+              </span>
+            </td>
+          </tr>
+
+          <!-- Displacement -->
+          <tr class="section-header">
+            <td colspan="4"><strong>📏 DÉPLACEMENT</strong></td>
+          </tr>
+          <tr [class.changed]="hasChanged('displacementPathM1')">
+            <td>Displacement M1</td>
+            <td>{{ formatValue(firstVersion.displacementPathM1) }}</td>
+            <td>{{ formatValue(currentVersion.displacementPathM1) }}</td>
+            <td>
+              <span [ngClass]="hasChanged('displacementPathM1') ? 'badge-changed' : 'badge-unchanged'">
+                {{ hasChanged('displacementPathM1') ? 'Modifié' : 'Identique' }}
+              </span>
+            </td>
+          </tr>
+          <tr [class.changed]="hasChanged('displacementPathM2')">
+            <td>Displacement M2</td>
+            <td>{{ formatValue(firstVersion.displacementPathM2) }}</td>
+            <td>{{ formatValue(currentVersion.displacementPathM2) }}</td>
+            <td>
+              <span [ngClass]="hasChanged('displacementPathM2') ? 'badge-changed' : 'badge-unchanged'">
+                {{ hasChanged('displacementPathM2') ? 'Modifié' : 'Identique' }}
+              </span>
+            </td>
+          </tr>
+          <tr [class.changed]="hasChanged('displacementPathM3')">
+            <td>Displacement M3</td>
+            <td>{{ formatValue(firstVersion.displacementPathM3) }}</td>
+            <td>{{ formatValue(currentVersion.displacementPathM3) }}</td>
+            <td>
+              <span [ngClass]="hasChanged('displacementPathM3') ? 'badge-changed' : 'badge-unchanged'">
+                {{ hasChanged('displacementPathM3') ? 'Modifié' : 'Identique' }}
+              </span>
+            </td>
+          </tr>
+
+          <!-- Max Sealing -->
+          <tr class="section-header">
+            <td colspan="4"><strong>🔒 VALEUR MAXIMALE D'ÉTANCHÉITÉ</strong></td>
+          </tr>
+          <tr [class.changed]="hasChanged('maxSealingValueM1')">
+            <td>Max Sealing M1</td>
+            <td>{{ formatValue(firstVersion.maxSealingValueM1) }}</td>
+            <td>{{ formatValue(currentVersion.maxSealingValueM1) }}</td>
+            <td>
+              <span [ngClass]="hasChanged('maxSealingValueM1') ? 'badge-changed' : 'badge-unchanged'">
+                {{ hasChanged('maxSealingValueM1') ? 'Modifié' : 'Identique' }}
+              </span>
+            </td>
+          </tr>
+          <tr [class.changed]="hasChanged('maxSealingValueM2')">
+            <td>Max Sealing M2</td>
+            <td>{{ formatValue(firstVersion.maxSealingValueM2) }}</td>
+            <td>{{ formatValue(currentVersion.maxSealingValueM2) }}</td>
+            <td>
+              <span [ngClass]="hasChanged('maxSealingValueM2') ? 'badge-changed' : 'badge-unchanged'">
+                {{ hasChanged('maxSealingValueM2') ? 'Modifié' : 'Identique' }}
+              </span>
+            </td>
+          </tr>
+          <tr [class.changed]="hasChanged('maxSealingValueM3')">
+            <td>Max Sealing M3</td>
+            <td>{{ formatValue(firstVersion.maxSealingValueM3) }}</td>
+            <td>{{ formatValue(currentVersion.maxSealingValueM3) }}</td>
+            <td>
+              <span [ngClass]="hasChanged('maxSealingValueM3') ? 'badge-changed' : 'badge-unchanged'">
+                {{ hasChanged('maxSealingValueM3') ? 'Modifié' : 'Identique' }}
+              </span>
+            </td>
+          </tr>
+
+          <!-- Programmed Sealing -->
+          <tr class="section-header">
+            <td colspan="4"><strong>⚙️ VALEUR PROGRAMMÉE D'ÉTANCHÉITÉ</strong></td>
+          </tr>
+          <tr [class.changed]="hasChanged('programmedSealingValueM1')">
+            <td>Prog Sealing M1</td>
+            <td>{{ formatValue(firstVersion.programmedSealingValueM1) }}</td>
+            <td>{{ formatValue(currentVersion.programmedSealingValueM1) }}</td>
+            <td>
+              <span [ngClass]="hasChanged('programmedSealingValueM1') ? 'badge-changed' : 'badge-unchanged'">
+                {{ hasChanged('programmedSealingValueM1') ? 'Modifié' : 'Identique' }}
+              </span>
+            </td>
+          </tr>
+          <tr [class.changed]="hasChanged('programmedSealingValueM2')">
+            <td>Prog Sealing M2</td>
+            <td>{{ formatValue(firstVersion.programmedSealingValueM2) }}</td>
+            <td>{{ formatValue(currentVersion.programmedSealingValueM2) }}</td>
+            <td>
+              <span [ngClass]="hasChanged('programmedSealingValueM2') ? 'badge-changed' : 'badge-unchanged'">
+                {{ hasChanged('programmedSealingValueM2') ? 'Modifié' : 'Identique' }}
+              </span>
+            </td>
+          </tr>
+          <tr [class.changed]="hasChanged('programmedSealingValueM3')">
+            <td>Prog Sealing M3</td>
+            <td>{{ formatValue(firstVersion.programmedSealingValueM3) }}</td>
+            <td>{{ formatValue(currentVersion.programmedSealingValueM3) }}</td>
+            <td>
+              <span [ngClass]="hasChanged('programmedSealingValueM3') ? 'badge-changed' : 'badge-unchanged'">
+                {{ hasChanged('programmedSealingValueM3') ? 'Modifié' : 'Identique' }}
+              </span>
+            </td>
+          </tr>
+
+          <!-- Détections -->
+          <tr class="section-header">
+            <td colspan="4"><strong>🔍 DÉTECTIONS</strong></td>
+          </tr>
+          <tr [class.changed]="hasChanged('detectionsM1')">
+            <td>Détection M1</td>
+            <td>{{ formatValue(firstVersion.detectionsM1) }}</td>
+            <td>{{ formatValue(currentVersion.detectionsM1) }}</td>
+            <td>
+              <span [ngClass]="hasChanged('detectionsM1') ? 'badge-changed' : 'badge-unchanged'">
+                {{ hasChanged('detectionsM1') ? 'Modifié' : 'Identique' }}
+              </span>
+            </td>
+          </tr>
+          <tr [class.changed]="hasChanged('detectionsM2')">
+            <td>Détection M2</td>
+            <td>{{ formatValue(firstVersion.detectionsM2) }}</td>
+            <td>{{ formatValue(currentVersion.detectionsM2) }}</td>
+            <td>
+              <span [ngClass]="hasChanged('detectionsM2') ? 'badge-changed' : 'badge-unchanged'">
+                {{ hasChanged('detectionsM2') ? 'Modifié' : 'Identique' }}
+              </span>
+            </td>
+          </tr>
+          <tr [class.changed]="hasChanged('detectionsM3')">
+            <td>Détection M3</td>
+            <td>{{ formatValue(firstVersion.detectionsM3) }}</td>
+            <td>{{ formatValue(currentVersion.detectionsM3) }}</td>
+            <td>
+              <span [ngClass]="hasChanged('detectionsM3') ? 'badge-changed' : 'badge-unchanged'">
+                {{ hasChanged('detectionsM3') ? 'Modifié' : 'Identique' }}
+              </span>
+            </td>
+          </tr>
+
+          <!-- ✅ STATUT DE VALIDATION (CORRIGÉ) -->
+          <tr class="section-header">
+            <td colspan="4"><strong>✅ STATUT DE VALIDATION</strong></td>
+          </tr>
+          <tr [class.changed]="hasChanged('validationStatus')">
+            <td>Statut de validation</td>
+            <td>{{ formatStatus(firstVersion.validationStatus) }}</td>
+            <td>{{ formatStatus(currentVersion.validationStatus) }}</td>
+            <td>
+              <span [ngClass]="hasChanged('validationStatus') ? 'badge-changed' : 'badge-unchanged'">
+                {{ hasChanged('validationStatus') ? 'Modifié' : 'Identique' }}
+              </span>
+            </td>
+          </tr>
+          <tr *ngIf="currentVersion?.validatedByPp || firstVersion?.validatedByPp">
+            <td>Validé par PP</td>
+            <td>{{ firstVersion?.validatedByPp || '-' }}</td>
+            <td>{{ currentVersion?.validatedByPp || '-' }}</td>
+            <td>
+              <span [ngClass]="firstVersion?.validatedByPp !== currentVersion?.validatedByPp ? 'badge-changed' : 'badge-unchanged'">
+                {{ firstVersion?.validatedByPp !== currentVersion?.validatedByPp ? 'Modifié' : 'Identique' }}
+              </span>
+            </td>
+          </tr>
+          <tr *ngIf="currentVersion?.validatedByMc || firstVersion?.validatedByMc">
+            <td>Validé par MC</td>
+            <td>{{ firstVersion?.validatedByMc || '-' }}</td>
+            <td>{{ currentVersion?.validatedByMc || '-' }}</td>
+            <td>
+              <span [ngClass]="firstVersion?.validatedByMc !== currentVersion?.validatedByMc ? 'badge-changed' : 'badge-unchanged'">
+                {{ firstVersion?.validatedByMc !== currentVersion?.validatedByMc ? 'Modifié' : 'Identique' }}
+              </span>
+            </td>
+          </tr>
+          <tr *ngIf="currentVersion?.validatedByMp || firstVersion?.validatedByMp">
+            <td>Validé par MP</td>
+            <td>{{ firstVersion?.validatedByMp || '-' }}</td>
+            <td>{{ currentVersion?.validatedByMp || '-' }}</td>
+            <td>
+              <span [ngClass]="firstVersion?.validatedByMp !== currentVersion?.validatedByMp ? 'badge-changed' : 'badge-unchanged'">
+                {{ firstVersion?.validatedByMp !== currentVersion?.validatedByMp ? 'Modifié' : 'Identique' }}
+              </span>
+            </td>
+          </tr>
+
+          <!-- Remarques -->
+          <tr class="section-header">
+            <td colspan="4"><strong>💬 REMARQUES</strong></td>
+          </tr>
+          <tr [class.changed]="hasChanged('remarks')">
+            <td>Remarques</td>
+            <td colspan="2">{{ formatValue(firstVersion.remarks) }}</td>
+            <td>
+              <span [ngClass]="hasChanged('remarks') ? 'badge-changed' : 'badge-unchanged'">
+                {{ hasChanged('remarks') ? 'Modifié' : 'Identique' }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

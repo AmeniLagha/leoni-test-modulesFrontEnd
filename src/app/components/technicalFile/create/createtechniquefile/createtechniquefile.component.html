@@ -48,20 +48,20 @@
               <th rowspan="2">#</th>
               <th rowspan="2">ID Item</th>
                <th rowspan="2">Position</th>
-              <th rowspan="2">Date</th>
-              <th rowspan="2">Technicien</th>
-              <th rowspan="2">X Code</th>
-              <th rowspan="2">Leoni Ref</th>
+              <th rowspan="2">Date d'entretien</th>
+              <th rowspan="2">Nom du Technicien</th>
+              <th rowspan="2">X_Code</th>
+              <th rowspan="2">Numéro de référence Leoni</th>
               <th rowspan="2">Index</th>
-              <th rowspan="2">Prod.</th>
+              <th rowspan="2">Producteur</th>
               <th rowspan="2">Type</th>
-              <th rowspan="4">Ref Push Back</th>
+              <th rowspan="4">Reference pine Push Back</th>
 
-              <th colspan="3">Raideur</th>
-              <th colspan="3">Déplacement</th>
-              <th colspan="3">Max sealing</th>
-              <th colspan="3">Prog sealing</th>
-              <th colspan="3">Détections</th>
+              <th colspan="3">Raideur des pins</th>
+              <th colspan="3">Déplacement path(pour Push Back)</th>
+              <th colspan="3">Valeur maximale d'etanchété</th>
+              <th colspan="3">Valeur d'etanchété peogrammée</th>
+              <th colspan="3">Les Détections</th>
               <th rowspan="2">Remarques</th>
               <th rowspan="2">Actions</th>
             </tr>
@@ -93,29 +93,29 @@
 
 
               <!-- Raideur -->
-              <td><input type="text" class="excel-input small-input" formControlName="pinRigidityM1" placeholder="M1"></td>
-              <td><input type="text" class="excel-input small-input" formControlName="pinRigidityM2" placeholder="M2"></td>
-              <td><input type="text" class="excel-input small-input" formControlName="pinRigidityM3" placeholder="M3"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="pinRigidityM1" placeholder="0.0n"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="pinRigidityM2" placeholder="0.0n"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="pinRigidityM3" placeholder="0.0n"></td>
 
               <!-- Déplacement -->
-              <td><input type="text" class="excel-input small-input" formControlName="displacementPathM1" placeholder="M1"></td>
-              <td><input type="text" class="excel-input small-input" formControlName="displacementPathM2" placeholder="M2"></td>
-              <td><input type="text" class="excel-input small-input" formControlName="displacementPathM3" placeholder="M3"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="displacementPathM1" placeholder="0.0mm"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="displacementPathM2" placeholder="0.0mm"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="displacementPathM3" placeholder="0.0mm"></td>
 
               <!-- Max sealing -->
-              <td><input type="text" class="excel-input small-input" formControlName="maxSealingValueM1" placeholder="M1"></td>
-              <td><input type="text" class="excel-input small-input" formControlName="maxSealingValueM2" placeholder="M2"></td>
-              <td><input type="text" class="excel-input small-input" formControlName="maxSealingValueM3" placeholder="M3"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="maxSealingValueM1" placeholder="en mbar"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="maxSealingValueM2" placeholder="en mbar"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="maxSealingValueM3" placeholder="en mbar"></td>
 
               <!-- Programmed sealing -->
-              <td><input type="text" class="excel-input small-input" formControlName="programmedSealingValueM1" placeholder="M1"></td>
-              <td><input type="text" class="excel-input small-input" formControlName="programmedSealingValueM2" placeholder="M2"></td>
-              <td><input type="text" class="excel-input small-input" formControlName="programmedSealingValueM3" placeholder="M3"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="programmedSealingValueM1" placeholder="en mbar"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="programmedSealingValueM2" placeholder="en mbar"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="programmedSealingValueM3" placeholder="en mbar"></td>
 
               <!-- Détections -->
-              <td><input type="text" class="excel-input small-input" formControlName="detectionsM1" placeholder="M1"></td>
-              <td><input type="text" class="excel-input small-input" formControlName="detectionsM2" placeholder="M2"></td>
-              <td><input type="text" class="excel-input small-input" formControlName="detectionsM3" placeholder="M3"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="detectionsM1" placeholder="Activé/Desactivé"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="detectionsM2" placeholder="Activé/Desactivé"></td>
+              <td><input type="text" class="excel-input small-input" formControlName="detectionsM3" placeholder="Activé/Desactivé"></td>
 
               <!-- Remarques -->
               <td><input type="text" class="excel-input" formControlName="remarks" placeholder="Remarques"></td>

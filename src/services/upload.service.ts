@@ -45,7 +45,7 @@ uploadItemImage(
    */
   getImageUrl(filename: string): Observable<string> {
     const token = this.authService.getAccessToken();
-    return this.http.get(`http://localhost:8081/${filename}`, {
+    return this.http.get(`${this.apiUrl}/${filename}`, {
       headers: { Authorization: `Bearer ${token}` },
       responseType: 'blob'
     }).pipe(
@@ -56,13 +56,19 @@ uploadItemImage(
   /**
    * Récupérer l'image d'un item
    */
-  getItemImageUrl(sheetId: number, itemId: number): Observable<Blob> {
-    const token = this.authService.getAccessToken();
-    return this.http.get(`${this.apiUrl}/${sheetId}/items/${itemId}/image`, {
-      headers: { Authorization: `Bearer ${token}` },
-      responseType: 'blob'
-    });
-  }
+// upload.service.ts
+/**
+ * Récupérer l'image d'un item et retourner l'URL objet
+ */
+getItemImageUrl(sheetId: number, itemId: number): Observable<string> {
+  const token = this.authService.getAccessToken();
+  return this.http.get(`${this.apiUrl}/${sheetId}/items/${itemId}/image`, {
+    headers: { Authorization: `Bearer ${token}` },
+    responseType: 'blob'
+  }).pipe(
+    map(blob => URL.createObjectURL(blob))
+  );
+}
 
   /**
    * Supprimer l'image d'un item

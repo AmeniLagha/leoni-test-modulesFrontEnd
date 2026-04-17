@@ -46,7 +46,7 @@
               <th colspan="4" class="bg-info text-white">IDENTITY CODE</th>
               <th colspan="6" class="bg-warning text-dark">TESTS SÉQUENTIELS</th>
               <th colspan="5" class="bg-success text-white">HOUSING & ATTACHMENTS</th>
-              <th colspan="4" class="bg-danger text-white">ÉLECTRIQUE</th>
+              <th colspan="3" class="bg-danger text-white">ÉLECTRIQUE</th>
               <th colspan="4" class="bg-secondary text-white">QUALIFICATION</th>
             </tr>
 
@@ -54,54 +54,45 @@
             <tr class="text-center small">
               <!-- Général (5) -->
               <th>Order Number</th>
-              <th>Order Item</th>
-              <th>Technicien</th>
-              <th>Date test</th>
-              <th>RFID</th>
+               <th>Date of test</th>
+              <th>Name : Technicien</th>
+              <th>RFID Number(Supplier) </th>
 
               <!-- Identity Code (4) -->
-              <th>Leoni Part</th>
+              <th>Leoni Part Number</th>
               <th>Index</th>
               <th>Producer</th>
               <th>Type</th>
 
               <!-- Tests séquentiels (6) -->
-              <th>Sequence</th>
-              <th>Coding</th>
-              <th>Secondary</th>
-              <th>Offset</th>
-              <th>Stable</th>
-              <th>Displace</th>
+              <th>Sequence of test pins</th>
+              <th>Coding request</th>
+              <th>Secondary locking</th>
+              <th>Offset test</th>
+              <th>Stable offset test</th>
+              <th>Displacement path(for Push back)</th>
 
               <!-- Housing & Attachments (5) -->
-              <th>Housing</th>
-              <th>Max Leak</th>
-              <th>Adj Leak</th>
-              <th>Colour</th>
-              <th>Terminal</th>
+              <th>Housing attachments</th>
+              <th>Max Leak test</th>
+              <th>Adjustment Leak test</th>
+              <th>Colour verification</th>
+              <th>Terminal alignment</th>
 
               <!-- Électrique (4) -->
-              <th>Open Shunts</th>
-              <th>Spacer</th>
-              <th>Special</th>
-              <th>Contact %</th>
+              <th>Open Shunts(Airbag test)</th>
+              <th>Spacer Closing Unit</th>
+              <th>Special functions</th>
+              <th>Contact problems(jiggle wiggle) %</th>
 
               <!-- Qualification (4) -->
-              <th>Qualifié</th>
-              <th>Conditionnel</th>
-              <th>Non qualifié</th>
-              <th>Remarques</th>
+              <th>Qualified test module</th>
+              <th>Conditionally qualified test module</th>
+              <th>Non qualified test module</th>
+              <th>Remarks</th>
             </tr>
 
-            <!-- LIGNE 3: Indices (vides pour alignement) -->
-            <tr class="bg-light">
-              <th></th><th></th><th></th><th></th><th></th>
-              <th></th><th></th><th></th><th></th>
-              <th></th><th></th><th></th><th></th><th></th><th></th>
-              <th></th><th></th><th></th><th></th><th></th>
-              <th></th><th></th><th></th><th></th>
-              <th></th><th></th><th></th><th></th>
-            </tr>
+
           </thead>
 
           <!-- LIGNES DE DONNÉES -->
@@ -111,10 +102,9 @@
               <td class="text-center fw-bold text-primary bg-light">{{ i + 1 }}</td>
 
               <!-- Général (5) -->
-              <td><input type="text" class="form-control form-control-sm" formControlName="orderNumber" readonly></td>
-              <td><input type="text" class="form-control form-control-sm" formControlName="orderitemNumber" placeholder="Item"></td>
+              <td><input type="text" class="form-control form-control-sm" formControlName="orderNumber" ></td>
+                 <td><input type="date" class="form-control form-control-sm" formControlName="testDateTime" required></td>
               <td><input type="text" class="form-control form-control-sm" formControlName="technicianName" readonly></td>
-              <td><input type="date" class="form-control form-control-sm" formControlName="testDateTime" required></td>
               <td><input type="text" class="form-control form-control-sm" formControlName="rfidNumber" readonly></td>
 
               <!-- Identity Code (4) -->

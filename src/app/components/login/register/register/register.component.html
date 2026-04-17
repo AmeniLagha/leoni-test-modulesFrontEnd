@@ -1,161 +1,260 @@
-<div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center py-5" style="background: linear-gradient(135deg, #1e3c72 0%, #0f2b4a 100%);">
-  <div class="row justify-content-center w-100">
-    <div class="col-md-6 col-lg-5">
-      <div class="card border-0 shadow-lg animate__animated animate__fadeInUp">
-        <div class="card-body p-5">
+<div class="register-wrapper">
+  <div class="register-container">
+    <div class="register-card animate__animated animate__fadeInUp">
 
-          <!-- Logo -->
-          <div class="text-center mb-4">
-            <img src="assets/leonilogo.png" alt="Leoni Logo" class="img-fluid" style="max-height: 60px;">
-            <h3 class="mt-3 fw-bold text-primary">Création de compte</h3>
-            <p class="text-muted small">Nouvel utilisateur - Système LEONI</p>
+      <!-- Header avec effet glassmorphism -->
+      <div class="register-header">
+        <div class="header-bg"></div>
+        <div class="header-content">
+          <div class="logo-wrapper">
+            <img src="assets/leonilogo.png" alt="Leoni Logo" class="logo-img">
+            <div class="logo-ring"></div>
+          </div>
+          <h2>Création de compte</h2>
+          <p>Nouvel utilisateur - Système LEONI</p>
+        </div>
+      </div>
+
+      <!-- Progress Steps -->
+      <div class="progress-steps">
+        <div class="step" [class.active]="currentStep >= 1" [class.completed]="currentStep > 1">
+          <div class="step-number">1</div>
+          <div class="step-label">Identité</div>
+        </div>
+        <div class="step-line" [class.active]="currentStep > 1"></div>
+        <div class="step" [class.active]="currentStep >= 2" [class.completed]="currentStep > 2">
+          <div class="step-number">2</div>
+          <div class="step-label">Sécurité</div>
+        </div>
+        <div class="step-line" [class.active]="currentStep > 2"></div>
+        <div class="step" [class.active]="currentStep >= 3">
+          <div class="step-number">3</div>
+          <div class="step-label">Affectation</div>
+        </div>
+      </div>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+
+        <!-- ÉTAPE 1: IDENTITÉ -->
+        <div class="form-step" *ngIf="currentStep === 1">
+          <div class="step-title">
+            <i class="bi bi-person-badge"></i>
+            <span>Informations personnelles</span>
           </div>
 
-          <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-
-            <!-- Prénom et Nom - 2 colonnes -->
-            <div class="row g-3 mb-3">
-              <div class="col-md-6">
-                <div class="input-group">
-                  <span class="input-group-text bg-white border-end-0">
-                    <i class="bi bi-person text-muted"></i>
-                  </span>
-                  <input type="text" class="form-control border-start-0 ps-0"
-                         placeholder="Prénom" formControlName="firstname"
-                         [class.is-invalid]="registerForm.get('firstname')?.invalid && registerForm.get('firstname')?.touched">
-                </div>
-                <div class="invalid-feedback" *ngIf="registerForm.get('firstname')?.touched && registerForm.get('firstname')?.invalid">
+          <div class="row g-4">
+            <div class="col-md-6">
+              <div class="form-floating">
+                <input type="text" class="form-control" id="firstname"
+                       formControlName="firstname"
+                       [class.is-invalid]="registerForm.get('firstname')?.invalid && registerForm.get('firstname')?.touched"
+                       placeholder="Prénom">
+                <label for="firstname">
+                  <i class="bi bi-person me-2"></i>Prénom
+                </label>
+                <div class="invalid-feedback">
                   Le prénom est requis
                 </div>
               </div>
-              <div class="col-md-6">
-                <div class="input-group">
-                  <span class="input-group-text bg-white border-end-0">
-                    <i class="bi bi-person-fill text-muted"></i>
-                  </span>
-                  <input type="text" class="form-control border-start-0 ps-0"
-                         placeholder="Nom" formControlName="lastname"
-                         [class.is-invalid]="registerForm.get('lastname')?.invalid && registerForm.get('lastname')?.touched">
-                </div>
-                <div class="invalid-feedback" *ngIf="registerForm.get('lastname')?.touched && registerForm.get('lastname')?.invalid">
+            </div>
+            <div class="col-md-6">
+              <div class="form-floating">
+                <input type="text" class="form-control" id="lastname"
+                       formControlName="lastname"
+                       [class.is-invalid]="registerForm.get('lastname')?.invalid && registerForm.get('lastname')?.touched"
+                       placeholder="Nom">
+                <label for="lastname">
+                  <i class="bi bi-person-fill me-2"></i>Nom
+                </label>
+                <div class="invalid-feedback">
                   Le nom est requis
                 </div>
               </div>
             </div>
+          </div>
 
-            <!-- Email -->
-            <div class="mb-3">
-              <div class="input-group">
-                <span class="input-group-text bg-white border-end-0">
-                  <i class="bi bi-envelope text-muted"></i>
-                </span>
-                <input type="email" class="form-control border-start-0 ps-0"
-                       placeholder="Email professionnel" formControlName="email"
-                       [class.is-invalid]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
-              </div>
-              <div class="invalid-feedback" *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.invalid">
-                <span *ngIf="registerForm.get('email')?.errors?.['required']">L'email est requis</span>
-                <span *ngIf="registerForm.get('email')?.errors?.['email']">Format d'email invalide</span>
-              </div>
+          <div class="form-floating mt-4">
+            <input type="email" class="form-control" id="email"
+                   formControlName="email"
+                   [class.is-invalid]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
+                   placeholder="Email">
+            <label for="email">
+              <i class="bi bi-envelope me-2"></i>Email professionnel
+            </label>
+            <div class="invalid-feedback">
+              <span *ngIf="registerForm.get('email')?.errors?.['required']">L'email est requis</span>
+              <span *ngIf="registerForm.get('email')?.errors?.['email']">Format d'email invalide</span>
             </div>
+          </div>
 
-            <!-- Matricule -->
-            <div class="mb-3">
-              <div class="input-group">
-                <span class="input-group-text bg-white border-end-0">
-                  <i class="bi bi-card-heading text-muted"></i>
-                </span>
-                <input type="number" class="form-control border-start-0 ps-0"
-                       placeholder="Matricule" formControlName="matricule"
-                       [class.is-invalid]="registerForm.get('matricule')?.invalid && registerForm.get('matricule')?.touched">
-              </div>
-              <div class="invalid-feedback" *ngIf="registerForm.get('matricule')?.touched && registerForm.get('matricule')?.invalid">
-                Le matricule est requis
-              </div>
+          <div class="form-floating mt-4">
+            <input type="number" class="form-control" id="matricule"
+                   formControlName="matricule"
+                   [class.is-invalid]="registerForm.get('matricule')?.invalid && registerForm.get('matricule')?.touched"
+                   placeholder="Matricule">
+            <label for="matricule">
+              <i class="bi bi-card-heading me-2"></i>Matricule
+            </label>
+            <div class="invalid-feedback">
+              Le matricule est requis
             </div>
-
-            <!-- Mot de passe -->
-            <div class="mb-3">
-              <div class="input-group">
-                <span class="input-group-text bg-white border-end-0">
-                  <i class="bi bi-lock text-muted"></i>
-                </span>
-                <input [type]="showPassword ? 'text' : 'password'" class="form-control border-start-0 ps-0"
-                       placeholder="Mot de passe" formControlName="password"
-                       [class.is-invalid]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
-                <button type="button" class="btn btn-outline-secondary border-start-0"
-                        (click)="togglePassword()" style="background: white;">
-                  <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
-                </button>
-              </div>
-              <div class="invalid-feedback" *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid">
-                <span *ngIf="registerForm.get('password')?.errors?.['required']">Le mot de passe est requis</span>
-                <span *ngIf="registerForm.get('password')?.errors?.['minlength']">Minimum 6 caractères</span>
-              </div>
-            </div>
-
-            <!-- Rôle -->
-            <div class="mb-3">
-              <label class="form-label small fw-semibold text-muted text-uppercase">
-                <i class="bi bi-person-badge me-1"></i>Rôle
-              </label>
-              <select class="form-select" formControlName="role"
-                      [class.is-invalid]="registerForm.get('role')?.invalid && registerForm.get('role')?.touched">
-                <option value="">Choisir un rôle</option>
-                <option *ngFor="let r of roles" [value]="r">
-                  <i class="bi" [ngClass]="getRoleIcon(r)"></i> {{ getRoleLabel(r) }}
-                </option>
-              </select>
-              <div class="invalid-feedback" *ngIf="registerForm.get('role')?.touched && registerForm.get('role')?.invalid">
-                Le rôle est requis
-              </div>
-            </div>
-
-            <!-- Projet -->
-            <div class="mb-3">
-              <label class="form-label small fw-semibold text-muted text-uppercase">
-                <i class="bi bi-diagram-3 me-1"></i>Projet
-              </label>
-              <select class="form-select" formControlName="projet"
-                      [class.is-invalid]="registerForm.get('projet')?.invalid && registerForm.get('projet')?.touched">
-                <option value="">Choisir un projet</option>
-                <option *ngFor="let p of projets" [value]="p">{{ p }}</option>
-              </select>
-              <div class="invalid-feedback" *ngIf="registerForm.get('projet')?.touched && registerForm.get('projet')?.invalid">
-                Le projet est requis
-              </div>
-            </div>
-
-            <!-- Message d'erreur -->
-            <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
-              <i class="bi bi-exclamation-triangle-fill me-2"></i>
-              {{ errorMessage }}
-              <button type="button" class="btn-close" data-bs-dismiss="alert" (click)="errorMessage = ''"></button>
-            </div>
-
-            <!-- Bouton d'inscription -->
-            <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold mt-3"
-                    [disabled]="registerForm.invalid || isLoading"
-                    style="background: linear-gradient(135deg, #1e3c72 0%, #0f2b4a 100%); border: none;">
-              <span *ngIf="!isLoading">
-                <i class="bi bi-person-plus me-2"></i>Créer l'utilisateur
-              </span>
-              <span *ngIf="isLoading">
-                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                Création...
-              </span>
-            </button>
-
-          </form>
-
-          <!-- Lien retour -->
-          <div class="text-center mt-4 pt-3 border-top">
-            <a routerLink="/listeuser" class="text-decoration-none small">
-              <i class="bi bi-arrow-left me-1"></i>Retour à la liste des utilisateurs
-            </a>
           </div>
         </div>
+
+        <!-- ÉTAPE 2: SÉCURITÉ -->
+        <div class="form-step" *ngIf="currentStep === 2">
+          <div class="step-title">
+            <i class="bi bi-shield-lock"></i>
+            <span>Sécurité du compte</span>
+          </div>
+
+          <div class="form-floating">
+            <input [type]="showPassword ? 'text' : 'password'" class="form-control" id="password"
+                   formControlName="password"
+                   [class.is-invalid]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+                   placeholder="Mot de passe">
+            <label for="password">
+              <i class="bi bi-lock me-2"></i>Mot de passe
+            </label>
+            <button type="button" class="password-toggle" (click)="togglePassword()">
+              <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
+            </button>
+            <div class="invalid-feedback">
+              <span *ngIf="registerForm.get('password')?.errors?.['required']">Le mot de passe est requis</span>
+              <span *ngIf="registerForm.get('password')?.errors?.['minlength']">Minimum 6 caractères</span>
+            </div>
+          </div>
+
+          <!-- Password strength indicator -->
+          <div class="password-strength mt-3" *ngIf="registerForm.get('password')?.value">
+            <div class="strength-bar">
+              <div class="strength-fill" [style.width.%]="getPasswordStrength()"
+                   [class.weak]="getPasswordStrength() <= 33"
+                   [class.medium]="getPasswordStrength() > 33 && getPasswordStrength() <= 66"
+                   [class.strong]="getPasswordStrength() > 66">
+              </div>
+            </div>
+            <span class="strength-text">{{ getPasswordStrengthText() }}</span>
+          </div>
+        </div>
+
+        <!-- ÉTAPE 3: AFFECTATION -->
+        <div class="form-step" *ngIf="currentStep === 3">
+          <div class="step-title">
+            <i class="bi bi-diagram-3"></i>
+            <span>Affectation et permissions</span>
+          </div>
+
+          <!-- Rôle -->
+          <div class="role-selector">
+            <label class="form-label fw-semibold">
+              <i class="bi bi-person-badge me-2"></i>Rôle
+            </label>
+            <div class="role-cards">
+              <div *ngFor="let r of roles" class="role-card"
+                   [class.selected]="registerForm.get('role')?.value === r"
+                   (click)="registerForm.get('role')?.setValue(r)">
+                <i class="bi" [ngClass]="getRoleIcon(r)"></i>
+                <span>{{ getRoleLabel(r) }}</span>
+              </div>
+            </div>
+            <div class="invalid-feedback d-block" *ngIf="registerForm.get('role')?.touched && registerForm.get('role')?.invalid">
+              Le rôle est requis
+            </div>
+          </div>
+
+          <!-- Projets -->
+          <div class="mt-4">
+            <label class="form-label fw-semibold">
+              <i class="bi bi-diagram-3 me-2"></i>Projets
+            </label>
+            <div class="projects-container" [class.loading]="loadingProjets">
+              <div class="projects-grid">
+                <div *ngFor="let p of projets" class="project-chip"
+                     [class.selected]="isProjectSelected(p.name)"
+                     (click)="toggleProject(p.name)">
+                  {{ p.name }}
+                </div>
+              </div>
+              <div class="loading-overlay" *ngIf="loadingProjets">
+                <div class="spinner-border spinner-border-sm"></div>
+                <span>Chargement...</span>
+              </div>
+            </div>
+            <small class="text-muted">Cliquez sur les projets pour les sélectionner</small>
+            <div class="invalid-feedback d-block" *ngIf="registerForm.get('projets')?.touched && registerForm.get('projets')?.invalid">
+              Au moins un projet est requis
+            </div>
+          </div>
+
+          <!-- Site -->
+          <div class="mt-4">
+            <label class="form-label fw-semibold">
+              <i class="bi bi-building me-2"></i>Site
+            </label>
+            <div class="site-selector">
+              <div class="site-input-group">
+                <i class="bi bi-building"></i>
+                <select class="form-select" formControlName="siteName"
+                        [class.is-invalid]="registerForm.get('siteName')?.invalid && registerForm.get('siteName')?.touched"
+                        [disabled]="loadingSites">
+                  <option value="" disabled>Sélectionner un site</option>
+                  <option *ngFor="let site of sites" [value]="site.name">
+                    {{ site.name }}
+                  </option>
+                </select>
+              </div>
+              <div class="loading-indicator" *ngIf="loadingSites">
+                <div class="spinner-border spinner-border-sm"></div>
+              </div>
+            </div>
+            <div class="invalid-feedback d-block" *ngIf="registerForm.get('siteName')?.touched && registerForm.get('siteName')?.invalid">
+              Le site est requis
+            </div>
+          </div>
+        </div>
+
+        <!-- Messages -->
+        <div *ngIf="errorMessage" class="alert-message error">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          {{ errorMessage }}
+        </div>
+
+        <div *ngIf="successMessage" class="alert-message success">
+          <i class="bi bi-check-circle-fill"></i>
+          {{ successMessage }}
+        </div>
+
+        <!-- Navigation buttons -->
+        <div class="form-navigation">
+          <button type="button" class="btn-nav prev" *ngIf="currentStep > 1" (click)="prevStep()">
+            <i class="bi bi-arrow-left"></i> Précédent
+          </button>
+
+          <button type="button" class="btn-nav next" *ngIf="currentStep < 3" (click)="nextStep()">
+            Suivant <i class="bi bi-arrow-right"></i>
+          </button>
+
+          <button type="submit" class="btn-submit" *ngIf="currentStep === 3" [disabled]="registerForm.invalid || isLoading">
+            <span *ngIf="!isLoading">
+              <i class="bi bi-person-plus"></i> Créer l'utilisateur
+            </span>
+            <span *ngIf="isLoading">
+              <span class="spinner-border spinner-border-sm me-2"></span>
+              Création...
+            </span>
+          </button>
+        </div>
+
+      </form>
+
+      <!-- Footer -->
+      <div class="register-footer">
+        <a routerLink="/listeuser" class="footer-link">
+          <i class="bi bi-arrow-left"></i> Retour à la liste
+        </a>
       </div>
+
     </div>
   </div>
 </div>

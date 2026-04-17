@@ -39,7 +39,7 @@
       </button>
     </div>
   </div>
-  
+
   <!-- Afficher les filtres actifs -->
   <div class="mt-3 d-flex flex-wrap gap-2" *ngIf="hasActiveFilters()">
     <span class="badge bg-light text-dark p-2" *ngIf="searchTerm">
@@ -316,7 +316,12 @@
           title="Historique audité">
     <i class="bi bi-journal-check"></i>
   </button>
-
+<!-- technical-file-list.component.html - Ajouter ce bouton dans les actions de l'item -->
+<button class="btn-sm btn-compare"
+        (click)="compareVersions(item.id)"
+        title="Comparer les versions">
+  <i class="bi bi-git-compare"></i>
+</button>
   <!-- BOUTON DÉTAIL (toujours visible) -->
   <button class="btn-sm btn-detail"
           (click)="detailItem(item.id)"
@@ -358,7 +363,12 @@
           title="Supprimer">
     <i class="bi bi-trash"></i>
   </button>
-
+<!-- technical-file-list.component.html - Ajouter ce bouton dans les actions de l'item -->
+<button class="btn-sm btn-compare"
+        (click)="compareVersions(item.id)"
+        title="Comparer les versions">
+  <i class="bi bi-git-compare"></i>
+</button>
   <!-- Bouton Historique -->
   <button class="btn-icon-small"
           (click)="historyAuditedItem(item.id)"

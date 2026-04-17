@@ -4,6 +4,9 @@ import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } 
 import { CommonModule } from '@angular/common';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import { Site } from '../../../../../models/site.model';
+import { SiteService } from '../../../../../services/Site';
+import { Projet, ProjetService } from '../../../../../services/projet.service';
 
 @Component({
   selector: 'app-utilisateur',
@@ -19,7 +22,12 @@ export class UtilisateurComponent implements OnInit {
   loading = true;
   error = '';
   searchTerm = '';
-
+ filterRole: string = '';     // Filtre par rôle
+  filterSite: string = '';
+   sites: Site[] = [];
+  loadingSites = false;
+   projets: Projet[] = [];
+   loadingProjets = false;
   // Modal
   editForm!: FormGroup;
   selectedUserId!: number;
@@ -31,21 +39,54 @@ export class UtilisateurComponent implements OnInit {
 
   constructor(
     private userService: UserService,
-    private fb: FormBuilder
+    private fb: FormBuilder,private siteService: SiteService, private projetService: ProjetService
   ) {}
 
   ngOnInit(): void {
     this.loadUsers();
+    this.loadSites();
+    this.initPasswordForm();
+     this.loadProjets();
     this.initForm();
   }
 
+   loadProjets(): void {
+    this.loadingProjets = true;
+    this.projetService.getActive().subscribe({
+      next: (projets) => {
+        this.projets = projets;
+        this.loadingProjets = false;
+        console.log('✅ Projets chargés:', this.projets);
+      },
+      error: (err) => {
+        console.error('❌ Erreur chargement projets:', err);
+        this.loadingProjets = false;
+      }
+    });
+  }
+// ✅ Charger la liste des sites
+  loadSites(): void {
+    this.loadingSites = true;
+    this.siteService.getAll().subscribe({
+      next: (sites) => {
+        this.sites = sites;
+        this.loadingSites = false;
+        console.log('✅ Sites chargés:', this.sites);
+      },
+      error: (err) => {
+        console.error('❌ Erreur chargement sites:', err);
+        this.loadingSites = false;
+      }
+    });
+  }
   initForm() {
     this.editForm = this.fb.group({
       firstname: ['', Validators.required],
       lastname: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       matricule: ['', Validators.required],
-      projet: ['', Validators.required],
+    projets: [[], Validators.required],
+     siteName: ['', Validators.required],
       role: ['', Validators.required]
     });
   }
@@ -75,15 +116,28 @@ export class UtilisateurComponent implements OnInit {
   }
 
   applyFilter() {
-    const term = this.searchTerm.toLowerCase();
-    this.filteredUsers = this.users.filter(u =>
+  const term = this.searchTerm.toLowerCase();
+
+  this.filteredUsers = this.users.filter(u => {
+    // Filtre par recherche textuelle
+    const matchesSearch =
       u.firstname?.toLowerCase().includes(term) ||
       u.lastname?.toLowerCase().includes(term) ||
       u.email?.toLowerCase().includes(term) ||
-      ('' + u.matricule).includes(term)
-    );
-    this.currentPage = 1;
-  }
+      ('' + u.matricule).includes(term) ||
+      (u.site?.toLowerCase() || '').includes(term);
+
+    // Filtre par rôle
+    const matchesRole = !this.filterRole || u.role === this.filterRole;
+
+    // Filtre par site
+    const matchesSite = !this.filterSite || u.site === this.filterSite;
+
+    return matchesSearch && matchesRole && matchesSite;
+  });
+
+  this.currentPage = 1;
+}
 
   paginatedUsers() {
     const start = (this.currentPage - 1) * this.pageSize;
@@ -118,7 +172,8 @@ export class UtilisateurComponent implements OnInit {
       lastname: user.lastname,
       email: user.email,
       matricule: user.matricule,
-      projet: user.projet,
+     projets: user.projets || [],
+      siteName: user.site,
       role: user.role
     });
     this.showModal = true;
@@ -128,8 +183,14 @@ export class UtilisateurComponent implements OnInit {
     if (this.editForm.invalid) return;
 
     const updatedUser = {
-      id: this.selectedUserId,
-      ...this.editForm.value
+     id: this.selectedUserId,
+      firstname: this.editForm.value.firstname,
+      lastname: this.editForm.value.lastname,
+      email: this.editForm.value.email,
+      matricule: this.editForm.value.matricule,
+      projets: this.editForm.value.projets,
+      siteName: this.editForm.value.siteName,  // ✅ AJOUTER
+      role: this.editForm.value.role
     };
 
     this.userService.updateUser(this.selectedUserId, updatedUser).subscribe({
@@ -155,7 +216,7 @@ export class UtilisateurComponent implements OnInit {
     }
   }
 
-  
+
   // ==================== EXPORT EXCEL AVEC STYLES ====================
 
   /**
@@ -185,6 +246,7 @@ export class UtilisateurComponent implements OnInit {
       'Email': user.email || '-',
       'Matricule': user.matricule || '-',
       'Projet': user.projet || '-',
+      'Site': user.site || '-',
       'Rôle': this.getRoleLabel(user.role || '')
     };
   }
@@ -192,11 +254,10 @@ export class UtilisateurComponent implements OnInit {
   /**
    * Export les données vers Excel avec styles
    */
-  private exportToExcel(data: any[], fileName: string, sheetName: string) {
-    // Créer une feuille de calcul à partir des données
+   private exportToExcel(data: any[], fileName: string, sheetName: string) {
     const worksheet = XLSX.utils.json_to_sheet(data);
-    
-    // Définir la largeur des colonnes
+
+    // ✅ Mettre à jour les largeurs des colonnes (ajouter Site)
     const colWidths = [
       { wch: 8 },   // ID
       { wch: 15 },  // Prénom
@@ -204,32 +265,22 @@ export class UtilisateurComponent implements OnInit {
       { wch: 25 },  // Email
       { wch: 12 },  // Matricule
       { wch: 15 },  // Projet
-      { wch: 20 } // Rôle
-       
+      { wch: 20 },  // Site
+      { wch: 20 }   // Rôle
     ];
     worksheet['!cols'] = colWidths;
-    
-    // Appliquer les styles
-    const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:I1');
-    
-    // Style pour l'en-tête (première ligne)
+
+    const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:H1');
+
+    // Style pour l'en-tête
     for (let C = range.s.c; C <= range.e.c; ++C) {
       const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
       if (!worksheet[cellAddress]) continue;
-      
+
       worksheet[cellAddress].s = {
-        fill: {
-          fgColor: { rgb: "2E86C1" }  // Fond bleu
-        },
-        font: {
-          bold: true,
-          color: { rgb: "FFFFFF" },   // Texte blanc
-          sz: 12
-        },
-        alignment: {
-          horizontal: "center",
-          vertical: "center"
-        },
+        fill: { fgColor: { rgb: "2E86C1" } },
+        font: { bold: true, color: { rgb: "FFFFFF" }, sz: 12 },
+        alignment: { horizontal: "center", vertical: "center" },
         border: {
           top: { style: "thin", color: { rgb: "FFFFFF" } },
           bottom: { style: "thin", color: { rgb: "FFFFFF" } },
@@ -238,26 +289,19 @@ export class UtilisateurComponent implements OnInit {
         }
       };
     }
-    
-    // Appliquer les styles pour les lignes de données
+
+    // Style pour les lignes de données
     for (let R = 1; R <= range.e.r; ++R) {
       for (let C = range.s.c; C <= range.e.c; ++C) {
         const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
         if (!worksheet[cellAddress]) continue;
-        
-        // Alterner les couleurs des lignes
+
         const isEvenRow = R % 2 === 0;
-        
+
         worksheet[cellAddress].s = {
-          fill: {
-            fgColor: { rgb: isEvenRow ? "F8F9F9" : "FFFFFF" }  // Lignes gris clair alternées
-          },
-          font: {
-            sz: 11
-          },
-          alignment: {
-            vertical: "center"
-          },
+          fill: { fgColor: { rgb: isEvenRow ? "F8F9F9" : "FFFFFF" } },
+          font: { sz: 11 },
+          alignment: { vertical: "center" },
           border: {
             top: { style: "thin", color: { rgb: "E0E0E0" } },
             bottom: { style: "thin", color: { rgb: "E0E0E0" } },
@@ -265,10 +309,11 @@ export class UtilisateurComponent implements OnInit {
             right: { style: "thin", color: { rgb: "E0E0E0" } }
           }
         };
-        
-        // Style spécial pour la colonne Rôle
+
         const colLetter = XLSX.utils.encode_col(C);
-        if (colLetter === 'G') { // Colonne Rôle (index 6)
+
+        // Style pour la colonne Rôle (colonne H)
+        if (colLetter === 'H') {
           const roleValue = worksheet[cellAddress].v;
           if (roleValue === 'Administrateur') {
             worksheet[cellAddress].s.font = { color: { rgb: "C0392B" }, bold: true };
@@ -280,24 +325,16 @@ export class UtilisateurComponent implements OnInit {
             worksheet[cellAddress].s.font = { color: { rgb: "F39C12" }, bold: true };
           }
         }
-        
-        // Style spécial pour la colonne Statut
-        if (colLetter === 'H') { // Colonne Statut (index 7)
-          const statusValue = worksheet[cellAddress].v;
-          if (statusValue === 'Actif') {
-            worksheet[cellAddress].s.font = { color: { rgb: "27AE60" }, bold: true };
-          } else {
-            worksheet[cellAddress].s.font = { color: { rgb: "E74C3C" }, bold: true };
-          }
+
+        // Style pour la colonne Site (colonne G)
+        if (colLetter === 'G') {
+          worksheet[cellAddress].s.font = { color: { rgb: "8E44AD" }, italic: true };
         }
       }
     }
-    
-    // Créer un classeur et ajouter la feuille
+
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-    
-    // Générer le fichier Excel
     const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
     const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     saveAs(blob, fileName);
@@ -338,4 +375,127 @@ export class UtilisateurComponent implements OnInit {
     };
     return icons[role] || 'bi-person';
   }
+   getSiteName(site: any): string {
+    if (typeof site === 'string') return site;
+    return site?.name || '-';
+  }
+  // Ajoutez ces propriétés dans la classe UtilisateurComponent
+showPasswordModal = false;
+selectedUserForPassword: any = null;
+passwordForm!: FormGroup;
+showNewPassword = false;
+showConfirmPassword = false;
+
+// Ajoutez cette méthode dans ngOnInit
+initPasswordForm() {
+  this.passwordForm = this.fb.group({
+    newPassword: ['', [Validators.required, Validators.minLength(6)]],
+    confirmPassword: ['', Validators.required]
+  }, { validators: this.passwordMatchValidator });
+}
+
+// Validateur personnalisé pour vérifier que les mots de passe correspondent
+passwordMatchValidator(group: FormGroup): any {
+  const newPassword = group.get('newPassword')?.value;
+  const confirmPassword = group.get('confirmPassword')?.value;
+  return newPassword === confirmPassword ? null : { passwordMismatch: true };
+}
+
+// Ouvrir la modal de changement de mot de passe
+openChangePasswordModal(user: any) {
+  this.selectedUserForPassword = user;
+  this.passwordForm.reset();
+  this.showPasswordModal = true;
+}
+
+// Fermer la modal
+// Fermer la modal
+closePasswordModal() {
+  this.showPasswordModal = false;
+  this.selectedUserForPassword = null;
+  this.passwordForm.reset();
+  this.showNewPassword = false;
+  this.showConfirmPassword = false;
+}
+
+// Sauvegarder le nouveau mot de passe
+savePassword() {
+  if (this.passwordForm.invalid) return;
+
+  const newPassword = this.passwordForm.get('newPassword')?.value;
+
+  this.userService.changeUserPassword(this.selectedUserForPassword.id, newPassword).subscribe({
+    next: (response) => {
+      alert('✅ ' + response.message);
+      this.closePasswordModal();
+      // Optionnel: recharger la liste des utilisateurs
+      this.loadUsers();
+    },
+    error: (err) => {
+      alert('❌ ' + (err.error?.error || 'Erreur lors du changement de mot de passe'));
+    }
+  });
+}
+
+// Toggle password visibility
+toggleNewPasswordVisibility() {
+  this.showNewPassword = !this.showNewPassword;
+}
+
+toggleConfirmPasswordVisibility() {
+  this.showConfirmPassword = !this.showConfirmPassword;
+}
+// Ajoutez ces propriétés et méthodes
+Math = Math;
+
+// Statistiques
+get totalUsers(): number {
+  return this.users.length;
+}
+
+get adminCount(): number {
+  return this.users.filter(u => u.role === 'ADMIN').length;
+}
+
+get ingCount(): number {
+  return this.users.filter(u => u.role === 'ING').length;
+}
+
+get uniqueSites(): number {
+  return new Set(this.users.map(u => u.site).filter(s => s)).size;
+}
+
+get siteList(): string[] {
+  return [...new Set(this.users.map(u => u.site).filter(s => s))];
+}
+
+// Initiales
+getInitials(firstname: string, lastname: string): string {
+  return `${firstname?.charAt(0) || ''}${lastname?.charAt(0) || ''}`.toUpperCase();
+}
+
+// Réinitialiser tous les filtres
+resetFilters(): void {
+  this.searchTerm = '';
+  this.filterRole = '';
+  this.filterSite = '';
+  this.applyFilter();
+}
+
+// Ouvrir modal avec Bootstrap
+openEditModal(): void {
+  const modalElement = document.getElementById('editModal');
+  if (modalElement) {
+    const modal = new (window as any).bootstrap.Modal(modalElement);
+    modal.show();
+  }
+}
+
+closeEditModal(): void {
+  const modalElement = document.getElementById('editModal');
+  if (modalElement) {
+    const modal = (window as any).bootstrap.Modal.getInstance(modalElement);
+    modal?.hide();
+  }
+}
 }

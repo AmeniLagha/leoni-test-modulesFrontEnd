@@ -1,8 +1,12 @@
+// register.component.ts
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../../services/auth.service';
+import { Site } from '../../../../../models/site.model';
+import { SiteService } from '../../../../../services/Site';
+import { ProjetService } from '../../../../../services/projet.service'; // ✅ AJOUTER
 
 @Component({
   selector: 'app-register',
@@ -15,13 +19,22 @@ export class RegisterComponent implements OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private siteService = inject(SiteService);
+  private projetService = inject(ProjetService); // ✅ AJOUTER
 
   registerForm: FormGroup;
   errorMessage = '';
   isLoading = false;
+  successMessage: string = '';
   showPassword = false;
   roles = ['ADMIN', 'ING', 'PT', 'PP', 'MC', 'MP'];
-  projets = ['BMW', 'Mercedes', 'FORD', 'Audi', 'Porsche', 'Volkswagen'];
+
+  // ✅ Remplacer par une liste dynamique depuis la base
+  projets: any[] = [];
+  loadingProjets = false;
+
+  sites: Site[] = [];
+  loadingSites = false;
 
   constructor() {
     this.registerForm = this.fb.group({
@@ -31,7 +44,8 @@ export class RegisterComponent implements OnInit {
       matricule: ['', [Validators.required]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       role: ['', [Validators.required]],
-      projet: ['', [Validators.required]]
+      projets: [[], [Validators.required]], // ✅ Tableau de projets
+      siteName: ['', [Validators.required]]
     });
   }
 
@@ -45,6 +59,41 @@ export class RegisterComponent implements OnInit {
       this.router.navigate(['/dashboard']);
       return;
     }
+
+    this.loadSites();
+    this.loadProjets(); // ✅ Charger les projets
+  }
+
+  // ✅ Charger les projets depuis l'API
+  loadProjets(): void {
+    this.loadingProjets = true;
+    this.projetService.getActive().subscribe({
+      next: (projets) => {
+        this.projets = projets;
+        this.loadingProjets = false;
+        console.log('✅ Projets chargés:', this.projets);
+      },
+      error: (err) => {
+        console.error('❌ Erreur chargement projets:', err);
+        this.loadingProjets = false;
+      }
+    });
+  }
+
+  loadSites(): void {
+    this.loadingSites = true;
+    this.siteService.getAll().subscribe({
+      next: (sites) => {
+        this.sites = sites;
+        this.loadingSites = false;
+        console.log('✅ Sites chargés:', this.sites);
+      },
+      error: (err) => {
+        console.error('❌ Erreur chargement sites:', err);
+        this.loadingSites = false;
+        this.errorMessage = 'Impossible de charger la liste des sites';
+      }
+    });
   }
 
   togglePassword(): void {
@@ -80,9 +129,24 @@ export class RegisterComponent implements OnInit {
       this.isLoading = true;
       this.errorMessage = '';
 
-      console.log('🚀 Tentative de création utilisateur:', this.registerForm.value);
+      // ✅ Transformer les données pour l'envoi (tableau de noms de projets)
+      const selectedProjets = this.registerForm.value.projets;
+      const projetNames = selectedProjets.map((p: any) => typeof p === 'string' ? p : p.name);
 
-      this.authService.register(this.registerForm.value).subscribe({
+      const registerData = {
+        firstname: this.registerForm.value.firstname,
+        lastname: this.registerForm.value.lastname,
+        email: this.registerForm.value.email,
+        matricule: this.registerForm.value.matricule,
+        password: this.registerForm.value.password,
+        role: this.registerForm.value.role,
+        projets: projetNames, // ✅ Tableau de noms de projets
+        siteName: this.registerForm.value.siteName
+      };
+
+      console.log('🚀 Tentative de création utilisateur:', registerData);
+       this.successMessage = '';
+      this.authService.register(registerData).subscribe({
         next: (response) => {
           console.log('✅ Utilisateur créé avec succès:', response);
           this.router.navigate(['/listeuser']);
@@ -108,4 +172,55 @@ export class RegisterComponent implements OnInit {
       });
     }
   }
+  // Ajoutez ces propriétés et méthodes
+currentStep: number = 1;
+
+nextStep(): void {
+  if (this.currentStep < 3) {
+    this.currentStep++;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+prevStep(): void {
+  if (this.currentStep > 1) {
+    this.currentStep--;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+getPasswordStrength(): number {
+  const password = this.registerForm.get('password')?.value || '';
+  let strength = 0;
+
+  if (password.length >= 6) strength += 20;
+  if (password.length >= 8) strength += 10;
+  if (/[A-Z]/.test(password)) strength += 20;
+  if (/[a-z]/.test(password)) strength += 20;
+  if (/[0-9]/.test(password)) strength += 15;
+  if (/[^A-Za-z0-9]/.test(password)) strength += 15;
+
+  return Math.min(strength, 100);
+}
+
+getPasswordStrengthText(): string {
+  const strength = this.getPasswordStrength();
+  if (strength <= 33) return 'Mot de passe faible';
+  if (strength <= 66) return 'Mot de passe moyen';
+  return 'Mot de passe fort';
+}
+
+isProjectSelected(projectName: string): boolean {
+  const projets = this.registerForm.get('projets')?.value || [];
+  return projets.includes(projectName);
+}
+
+toggleProject(projectName: string): void {
+  const projets = this.registerForm.get('projets')?.value || [];
+  if (projets.includes(projectName)) {
+    this.registerForm.get('projets')?.setValue(projets.filter((p: string) => p !== projectName));
+  } else {
+    this.registerForm.get('projets')?.setValue([...projets, projectName]);
+  }
+}
 }

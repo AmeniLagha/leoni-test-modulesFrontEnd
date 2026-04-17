@@ -26,6 +26,9 @@ import { AuthService } from '../../../../services/auth.service';
           <button class="btn-refresh" (click)="loadAllReceptions()" [disabled]="loading">
             <i class="bi bi-arrow-repeat" [class.spinning]="loading"></i> Actualiser
           </button>
+          <button class="btn-refresh" (click)="gotostat()" >
+            <i class="bi bi-arrow-repeat" ></i> Statistiques
+          </button>
         </div>
       </div>
 
@@ -719,6 +722,9 @@ export class ReceptionlistglobalComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadAllReceptions();
+  }
+  gotostat():void{
+     this.router.navigate(['/reception/stat']);
   }
 
   loadAllReceptions(): void {

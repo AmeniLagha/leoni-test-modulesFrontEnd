@@ -1,100 +1,229 @@
-<!-- statistiques.component.html -->
-<div class="stats-container">
-  <div class="stats-header">
-    <h2>
-      <i class="bi bi-bar-chart-fill"></i>
-      Statistiques du projet {{ stats?.projectName }}
-    </h2>
-    <div class="project-badge">
-      <i class="bi bi-folder"></i> {{ stats?.userProject }}
+<div class="container-fluid px-4 py-4">
+  <!-- Header -->
+  <div class="card border-0 shadow-lg mb-4" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+          <h1 class="text-white mb-2">
+            <i class="bi bi-bar-chart-fill me-2"></i>
+            Statistiques globales
+          </h1>
+          <p class="text-white-50 mb-0">Vue d'ensemble de tous les sites</p>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-light" (click)="refreshStats()">
+            <i class="bi bi-arrow-repeat me-2"></i>Actualiser
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- Loading -->
-  <div *ngIf="loading" class="loading-container">
-    <div class="spinner"></div>
-    <p>Chargement des statistiques...</p>
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p class="text-muted mt-3">Chargement des statistiques...</p>
   </div>
 
   <!-- Error -->
-  <div *ngIf="error" class="error-container">
-    <i class="bi bi-exclamation-triangle-fill"></i>
-    <span>{{ error }}</span>
+  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error = null"></button>
   </div>
 
-  <!-- Stats Cards -->
-  <div *ngIf="!loading && !error && stats" class="stats-grid">
+  <!-- Stats Globales -->
+  <div *ngIf="!loading && !error" class="stats-section">
 
-    <!-- Carte Total -->
-    <div class="stat-card total">
-      <div class="stat-icon">
-        <i class="bi bi-files"></i>
+    <!-- Cartes récapitulatives globales -->
+    <div class="row g-4 mb-4">
+      <div class="col-md-3 col-sm-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body text-center">
+            <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex p-3 mb-3">
+              <i class="bi bi-files fs-1 text-primary"></i>
+            </div>
+            <h2 class="display-4 fw-bold text-primary mb-0">{{ totalSheetsAllSites | number }}</h2>
+            <p class="text-muted mb-0">Total Cahiers</p>
+            <small class="text-muted">Tous sites confondus</small>
+          </div>
+        </div>
       </div>
-      <div class="stat-content">
-        <h3>Total Cahiers</h3>
-        <p class="stat-value">{{ stats.totalSheets }}</p>
+
+      <div class="col-md-3 col-sm-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body text-center">
+            <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex p-3 mb-3">
+              <i class="bi bi-check-all fs-1 text-success"></i>
+            </div>
+            <h2 class="display-4 fw-bold text-success mb-0">{{ totalCompletedAllSites | number }}</h2>
+            <p class="text-muted mb-0">Complétés</p>
+            <small>{{ getGlobalCompletionRate() | number:'1.1-1' }}% du total</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3 col-sm-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body text-center">
+            <div class="rounded-circle bg-warning bg-opacity-10 d-inline-flex p-3 mb-3">
+              <i class="bi bi-clock-history fs-1 text-warning"></i>
+            </div>
+            <h2 class="display-4 fw-bold text-warning mb-0">{{ totalPendingAllSites | number }}</h2>
+            <p class="text-muted mb-0">En cours</p>
+            <small>{{ (100 - getGlobalCompletionRate()) | number:'1.1-1' }}% du total</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3 col-sm-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body text-center">
+            <div class="rounded-circle bg-info bg-opacity-10 d-inline-flex p-3 mb-3">
+              <i class="bi bi-building fs-1 text-info"></i>
+            </div>
+            <h2 class="display-4 fw-bold text-info mb-0">{{ siteStats.length }}</h2>
+            <p class="text-muted mb-0">Sites actifs</p>
+            <small>Sites avec activité</small>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Carte En attente ING -->
-    <div class="stat-card pending-ing">
-      <div class="stat-icon">
-        <i class="bi bi-hourglass-split"></i>
+    <!-- Graphique par site -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-white border-0 pt-4 pb-0">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">
+            <i class="bi bi-bar-chart-steps me-2 text-primary"></i>
+            Cahiers par site
+          </h5>
+          <span class="badge bg-secondary">Comparaison entre sites</span>
+        </div>
       </div>
-      <div class="stat-content">
-        <h3>En attente ING</h3>
-        <p class="stat-value">{{ stats.pendingIng }}</p>
-        <small>Validation initiale</small>
-      </div>
-    </div>
-
-    <!-- Carte En attente PT -->
-    <div class="stat-card pending-pt">
-      <div class="stat-icon">
-        <i class="bi bi-gear"></i>
-      </div>
-      <div class="stat-content">
-        <h3>En attente PT</h3>
-        <p class="stat-value">{{ stats.pendingPt }}</p>
-        <small>Validés ING, en attente technique</small>
+      <div class="card-body">
+        <div style="height: 400px;">
+          <canvas #siteChart></canvas>
+        </div>
       </div>
     </div>
 
-    <!-- Carte En attente finale -->
-    <div class="stat-card pending-final">
-      <div class="stat-icon">
-        <i class="bi bi-check2-circle"></i>
+    <!-- Deux graphiques côte à côte -->
+    <div class="row g-4 mb-4">
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-white border-0 pt-4 pb-0">
+            <h5 class="mb-0">
+              <i class="bi bi-pie-chart me-2 text-success"></i>
+              Taux de complétion global
+            </h5>
+          </div>
+          <div class="card-body">
+            <div style="height: 300px;">
+              <canvas #statusChart></canvas>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="stat-content">
-        <h3>Validation finale</h3>
-        <p class="stat-value">{{ stats.pendingFinal }}</p>
-        <small>Validés PT, en attente finalisation</small>
+
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-white border-0 pt-4 pb-0">
+            <h5 class="mb-0">
+              <i class="bi bi-graph-up me-2 text-warning"></i>
+              Évolution mensuelle
+            </h5>
+          </div>
+          <div class="card-body">
+            <div style="height: 300px;">
+              <canvas #evolutionChart></canvas>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Carte Technique en cours -->
-    <div class="stat-card tech">
-      <div class="stat-icon">
-        <i class="bi bi-tools"></i>
+    <!-- Tableau détaillé par site -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white border-0 pt-4 pb-0">
+        <h5 class="mb-0">
+          <i class="bi bi-table me-2 text-primary"></i>
+          Détail par site
+        </h5>
       </div>
-      <div class="stat-content">
-        <h3>Technique en cours</h3>
-        <p class="stat-value">{{ stats.techFilled }}</p>
-        <small>Remplissage technique</small>
-      </div>
-    </div>
-
-    <!-- Carte Complétés -->
-    <div class="stat-card completed">
-      <div class="stat-icon">
-        <i class="bi bi-check-all"></i>
-      </div>
-      <div class="stat-content">
-        <h3>Complétés</h3>
-        <p class="stat-value">{{ stats.completed }}</p>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th><i class="bi bi-building me-1"></i> Site</th>
+                <th class="text-center"><i class="bi bi-files me-1"></i> Total</th>
+                <th class="text-center"><i class="bi bi-check-all me-1"></i> Complétés</th>
+                <th class="text-center"><i class="bi bi-clock-history me-1"></i> En cours</th>
+                <th class="text-center"><i class="bi bi-pie-chart me-1"></i> Taux</th>
+                <th class="text-center"><i class="bi bi-arrow-right me-1"></i> Progression</th>
+               </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let site of siteStats">
+                <td class="fw-semibold">
+                  <i class="bi bi-building text-primary me-2"></i>
+                  {{ site.siteName }}
+                </td>
+                <td class="text-center fw-bold">{{ site.totalSheets }}</td>
+                <td class="text-center text-success fw-semibold">{{ site.completedSheets }}</td>
+                <td class="text-center text-warning fw-semibold">{{ site.pendingSheets }}</td>
+                <td class="text-center">
+                  <span class="badge rounded-pill px-3 py-2 fs-6"
+                        [ngClass]="{
+                          'bg-success': site.completionRate >= 80,
+                          'bg-warning': site.completionRate >= 50 && site.completionRate < 80,
+                          'bg-danger': site.completionRate < 50
+                        }">
+                    {{ site.completionRate | number:'1.1-1' }}%
+                  </span>
+                </td>
+                <td class="text-center" style="width: 150px;">
+                  <div class="progress" style="height: 8px;">
+                    <div class="progress-bar"
+                         [ngClass]="{
+                           'bg-success': site.completionRate >= 80,
+                           'bg-warning': site.completionRate >= 50 && site.completionRate < 80,
+                           'bg-danger': site.completionRate < 50
+                         }"
+                         [style.width.%]="site.completionRate"
+                         role="progressbar">
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot class="table-light">
+              <tr class="fw-bold">
+                <td>TOTAL</td>
+                <td class="text-center">{{ totalSheetsAllSites }}</td>
+                <td class="text-center text-success">{{ totalCompletedAllSites }}</td>
+                <td class="text-center text-warning">{{ totalPendingAllSites }}</td>
+                <td class="text-center">
+                  <span class="badge rounded-pill bg-primary px-3 py-2">
+                    {{ getGlobalCompletionRate() | number:'1.1-1' }}%
+                  </span>
+                </td>
+                <td class="text-center">
+                  <div class="progress" style="height: 8px;">
+                    <div class="progress-bar bg-primary"
+                         [style.width.%]="getGlobalCompletionRate()"
+                         role="progressbar">
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
       </div>
     </div>
   </div>
-
-
 </div>

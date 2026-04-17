@@ -1,0 +1,312 @@
+<!-- ai-dashboard.component.html -->
+<div class="ai-dashboard">
+  <!-- En-tête -->
+  <div class="dashboard-header">
+    <h1>
+      <i class="bi bi-robot"></i>
+      Assistant Intelligence Artificielle
+    </h1>
+    <p class="subtitle">Analyse intelligente de votre stock - Prédictions et recommandations automatiques</p>
+  </div>
+
+  <!-- Section d'explication simple -->
+  <div class="explanation-card">
+    <div class="explanation-content">
+      <div class="explanation-icon">🤖</div>
+      <div class="explanation-text">
+        <h3>Comment fonctionne l'IA ?</h3>
+        <p>L'IA analyse l'historique de vos <strong>{{ totalModulesAnalyzed || '897' }}</strong> modules pour :</p>
+        <ul>
+          <li>📊 <strong>Prédire</strong> les quantités futures dont vous aurez besoin</li>
+          <li>🏷️ <strong>Classer</strong> automatiquement les modules (Disponible/Utilisé/Mis au rebut)</li>
+          <li>⚠️ <strong>Détecter</strong> les anomalies et comportements suspects</li>
+          <li>💡 <strong>Recommander</strong> des actions pour optimiser votre stock</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cartes de statistiques -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">📊</div>
+      <div class="stat-info">
+        <div class="stat-value">{{ (quantityScore * 100).toFixed(1) }}%</div>
+        <div class="stat-label">Précision des prédictions de quantité</div>
+        <div class="stat-help">L'IA prédit correctement les quantités dans {{ (quantityScore * 100).toFixed(0) }}% des cas</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">🎯</div>
+      <div class="stat-info">
+        <div class="stat-value">{{ (statusAccuracy * 100).toFixed(1) }}%</div>
+        <div class="stat-label">Précision de classification des statuts</div>
+        <div class="stat-help">L'IA classe correctement les modules dans {{ (statusAccuracy * 100).toFixed(0) }}% des cas</div>
+      </div>
+    </div>
+
+    <div class="stat-card warning">
+      <div class="stat-icon">⚠️</div>
+      <div class="stat-info">
+        <div class="stat-value">{{ anomalyCount }}</div>
+        <div class="stat-label">Anomalies détectées</div>
+        <div class="stat-help">Comportements inhabituels dans votre stock</div>
+        <button class="btn-small" (click)="detectAnomalies()">Voir détails</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onglets de navigation -->
+  <div class="tabs">
+    <button class="tab-btn" [class.active]="activeTab === 'recommendations'" (click)="activeTab = 'recommendations'">
+      💡 Recommandations
+    </button>
+    <button class="tab-btn" routerLink="/ai-alerts" routerLinkActive="active">Alert</button>
+    <button class="tab-btn" [class.active]="activeTab === 'train'" (click)="activeTab = 'train'">
+      🧠 Entraîner l'IA
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'predict'" (click)="activeTab = 'predict'">
+      🔮 Tester les prédictions
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'anomalies'" (click)="activeTab = 'anomalies'">
+      🔍 Anomalies
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'help'" (click)="activeTab = 'help'">
+      ❓ Aide
+    </button>
+  </div>
+
+  <!-- Onglet: Recommandations -->
+  <div class="tab-content" *ngIf="activeTab === 'recommendations'">
+    <div class="card">
+      <div class="card-header">
+        <h3>💡 Ce que l'IA vous recommande</h3>
+        <p>Actions prioritaires basées sur l'analyse de votre stock</p>
+      </div>
+      <div class="card-body">
+        <div *ngIf="recommendations.length === 0" class="empty-state">
+          <div class="empty-icon">📭</div>
+          <p>Aucune recommandation pour le moment</p>
+          <button class="btn-primary" (click)="trainModel()">Entraîner l'IA pour obtenir des recommandations</button>
+        </div>
+
+        <div *ngFor="let rec of recommendations" class="recommendation-item" [class]="getPriorityClass(rec.priority)">
+          <div class="recommendation-icon">{{ getTypeIcon(rec.type) }}</div>
+          <div class="recommendation-content">
+            <div class="recommendation-title">{{ rec.type }}</div>
+            <div class="recommendation-message">{{ rec.message }}</div>
+            <div class="recommendation-module" *ngIf="rec.reference">Module: {{ rec.reference }}</div>
+          </div>
+          <div class="recommendation-priority">
+            <span class="priority-badge" [class]="getPriorityClass(rec.priority)">
+              {{ getPriorityIcon(rec.priority) }} {{ rec.priority === 'HIGH' ? 'Urgent' : rec.priority === 'MEDIUM' ? 'Important' : 'Information' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onglet: Entraînement -->
+  <div class="tab-content" *ngIf="activeTab === 'train'">
+    <div class="card">
+      <div class="card-header">
+        <h3>🧠 Entraînement du modèle IA</h3>
+        <p>L'IA apprend à partir de vos données pour faire de meilleures prédictions</p>
+      </div>
+      <div class="card-body">
+        <div class="train-info">
+          <div class="info-box">
+            <div class="info-icon">📊</div>
+            <div class="info-text">
+              <strong>{{ totalModulesAnalyzed || '897' }}</strong> modules analysés
+            </div>
+          </div>
+          <div class="info-box">
+            <div class="info-icon">✅</div>
+            <div class="info-text" [class.trained]="modelTrained">
+              {{ modelTrained ? 'Modèle entraîné' : 'Modèle non entraîné' }}
+            </div>
+          </div>
+        </div>
+
+        <div class="train-status" *ngIf="training">
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="trainingProgress"></div>
+          </div>
+          <p class="training-message">{{ trainingMessage }}</p>
+        </div>
+
+        <div class="train-actions">
+          <button class="btn-train" (click)="trainModel()" [disabled]="training">
+            <i class="bi bi-play-circle"></i>
+            {{ training ? 'Entraînement en cours...' : 'Lancer l\'entraînement de l\'IA' }}
+          </button>
+          <p class="train-note" *ngIf="!modelTrained && !training">
+            ⚠️ L'IA n'a pas encore été entraînée. Cliquez sur le bouton pour commencer.
+          </p>
+          <p class="train-note success" *ngIf="modelTrained && !training">
+            ✅ L'IA est prête ! Elle analyse votre stock et fait des prédictions.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onglet: Prédiction -->
+  <div class="tab-content" *ngIf="activeTab === 'predict'">
+    <div class="card">
+      <div class="card-header">
+        <h3>🔮 Tester l'IA</h3>
+        <p>Simulez un module et voyez ce que l'IA prédit</p>
+      </div>
+      <div class="card-body">
+        <div class="predict-form">
+          <div class="form-group">
+            <label>Quantité en stock</label>
+            <input type="number" class="form-control" [(ngModel)]="testModule.quantite">
+          </div>
+          <div class="form-group">
+            <label>Fournisseur</label>
+            <select class="form-control" [(ngModel)]="testModule.fournisseur">
+              <option>MMC</option>
+              <option>TSK</option>
+              <option>MMC SV</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Index / Référence</label>
+            <select class="form-control" [(ngModel)]="testModule.indexValue">
+              <option>00DT</option>
+              <option>01DT</option>
+              <option>02DT</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>&nbsp;</label>
+            <button class="btn-predict" (click)="predict()">
+              🔮 Prédire
+            </button>
+          </div>
+        </div>
+
+        <div class="prediction-result" *ngIf="prediction">
+          <h4>Résultat de la prédiction IA :</h4>
+          <div class="result-grid">
+            <div class="result-card">
+              <div class="result-icon">📊</div>
+              <div class="result-label">Quantité à prévoir</div>
+              <div class="result-value">{{ prediction.predicted_quantity }} unités</div>
+              <div class="result-help">L'IA recommande de préparer cette quantité</div>
+            </div>
+            <div class="result-card">
+              <div class="result-icon">🏷️</div>
+              <div class="result-label">Statut prédit</div>
+              <div class="result-value">{{ prediction.predicted_status === 'AVAILABLE' ? 'Disponible' : prediction.predicted_status === 'USED' ? 'Utilisé' : 'Mis au rebut' }}</div>
+              <div class="result-help">Le module devrait être dans cet état</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onglet: Anomalies -->
+  <div class="tab-content" *ngIf="activeTab === 'anomalies'">
+    <div class="card">
+      <div class="card-header">
+        <h3>🔍 Détection d'anomalies</h3>
+        <p>L'IA identifie les comportements inhabituels dans votre stock</p>
+      </div>
+      <div class="card-body">
+        <div class="anomaly-actions">
+          <button class="btn-detect" (click)="detectAnomalies()">
+            🔍 Scanner les anomalies
+          </button>
+        </div>
+
+        <div class="anomaly-results" *ngIf="anomalyCount > 0">
+          <div class="anomaly-summary">
+            <span class="anomaly-count">{{ anomalyCount }}</span>
+            <span class="anomaly-text">anomalies détectées</span>
+          </div>
+
+          <div class="anomaly-list" *ngIf="showAnomaliesDetail">
+            <div *ngFor="let anomaly of anomalies" class="anomaly-item">
+              <div class="anomaly-icon">⚠️</div>
+              <div class="anomaly-details">
+                <div class="anomaly-title">Module #{{ anomaly.id }}</div>
+                <div class="anomaly-desc">{{ anomaly.leoni_numr || anomaly.stuff_numr }}</div>
+                <div class="anomaly-info">Quantité: {{ anomaly.quantite }} | Statut: {{ anomaly.status }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="anomalyCount === 0 && !showAnomaliesDetail">
+          <div class="empty-icon">✅</div>
+          <p>Cliquez sur "Scanner les anomalies" pour analyser votre stock</p>
+        </div>
+
+        <div class="empty-state" *ngIf="anomalyCount === 0 && showAnomaliesDetail">
+          <div class="empty-icon">🎉</div>
+          <p>Aucune anomalie détectée ! Votre stock semble bien géré.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onglet: Aide -->
+  <div class="tab-content" *ngIf="activeTab === 'help'">
+    <div class="card">
+      <div class="card-header">
+        <h3>❓ Comprendre l'IA - Guide simple</h3>
+      </div>
+      <div class="card-body">
+        <div class="help-section">
+          <div class="help-item">
+            <div class="help-icon">🤖</div>
+            <div class="help-text">
+              <h4>Qu'est-ce qu'un modèle IA ?</h4>
+              <p>C'est un programme qui apprend à partir de vos données pour faire des prédictions. Comme un expert qui devient meilleur avec l'expérience.</p>
+            </div>
+          </div>
+
+          <div class="help-item">
+            <div class="help-icon">📊</div>
+            <div class="help-text">
+              <h4>Précision des prédictions</h4>
+              <p>Un score de 85% signifie que l'IA a raison 85 fois sur 100. C'est excellent pour la gestion de stock !</p>
+            </div>
+          </div>
+
+          <div class="help-item">
+            <div class="help-icon">⚠️</div>
+            <div class="help-text">
+              <h4>Types d'anomalies</h4>
+              <ul>
+                <li><strong>Stock critique</strong> : Il ne reste presque plus rien</li>
+                <li><strong>Stock dormant</strong> : Beaucoup de stock qui ne bouge pas</li>
+                <li><strong>Rotation élevée</strong> : Le stock s'écoule très vite</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="help-item">
+            <div class="help-icon">💡</div>
+            <div class="help-text">
+              <h4>Comment utiliser l'IA ?</h4>
+              <ol>
+                <li>Cliquez sur "Entraîner l'IA" pour que le modèle apprenne de vos données</li>
+                <li>Consultez les recommandations pour voir les actions prioritaires</li>
+                <li>Utilisez le test de prédiction pour simuler des scénarios</li>
+                <li>Scannez régulièrement les anomalies pour détecter les problèmes</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

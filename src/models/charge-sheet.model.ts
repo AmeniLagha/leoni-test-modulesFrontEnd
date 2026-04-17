@@ -163,6 +163,8 @@ export interface ChargeSheetCreateDto {
 // ============================================
 export interface ChargeSheetUpdateTechDto {
   // Tous les champs techniques
+   housingReferenceLeoni?: string;
+   quantityOfTestModules: number;
   outsideHousingExist?: string;
   insideHousingExist?: string;
   mechanicalCoding?: string;
@@ -335,6 +337,9 @@ export interface ReceptionHistoryDto {
   item: {
     id: number;
     itemNumber: string;
+    housingReferenceLeoni: string;           // ✅ À AJOUTER
+    housingReferenceSupplierCustomer: string; // ✅ À AJOUTER
+    quantityOfTestModules: number;
   };
   quantityReceived: number;
   previousTotalReceived: number;
@@ -345,6 +350,8 @@ export interface ReceptionHistoryDto {
   receivedBy: string;
   comments: string;
   createdAt: string;
+  chargeSheetPlant?: string;                  // ✅ À AJOUTER (optionnel)
+  chargeSheetProject?: string;
 }
 export interface ReceptionSummary {
   receptionId: number;

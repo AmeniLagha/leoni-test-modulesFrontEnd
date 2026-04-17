@@ -1,18 +1,20 @@
-<div class="container-fluid px-4 py-4">
-  <!-- HEADER GRADIENT LEONI -->
-  <div class="card border-0 shadow-lg mb-4" style="background: linear-gradient(135deg, #1e3c72 0%, #0f2b4a 100%);">
-    <div class="card-body p-4">
-      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+<div class="container-fluid px-3 px-md-4 py-3 py-md-4">
+  <!-- HEADER GRADIENT -->
+  <div class="card border-0 shadow-lg mb-4 overflow-hidden">
+    <div class="card-body p-3 p-md-4 position-relative" style="background: linear-gradient(135deg, #1e3c72 0%, #0f2b4a 100%);">
+      <div class="position-absolute top-0 end-0 w-100 h-100 opacity-10"
+           style="background-image: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 30px 30px;"></div>
+      <div class="position-relative z-1 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
         <div>
-          <h2 class="text-white mb-2">
-            <i class="bi bi-people me-2"></i>
-            Gestion des utilisateurs
-            <span class="badge bg-white text-primary ms-2 fs-6">{{ filteredUsers.length }}</span>
+          <h2 class="text-white mb-2 d-flex align-items-center gap-2 flex-wrap">
+            <i class="bi bi-people-fill fs-1"></i>
+            <span>Gestion des utilisateurs</span>
+            <span class="badge bg-white text-primary ms-2 fs-6 px-3 py-2 rounded-pill">{{ filteredUsers.length }}</span>
           </h2>
-          <p class="text-white-50 mb-0">Gestion et suivi des utilisateurs du système LEONI</p>
+          <p class="text-white-50 mb-0 small">Gestion et suivi des utilisateurs du système LEONI</p>
         </div>
         <div class="d-flex gap-2">
-          <button class="btn btn-light" (click)="exportAllUsers()">
+          <button class="btn btn-light btn-sm btn-md-auto" (click)="exportAllUsers()">
             <i class="bi bi-file-earmark-spreadsheet me-2"></i>Exporter tout
           </button>
         </div>
@@ -20,11 +22,11 @@
     </div>
   </div>
 
-  <!-- BARRE DE RECHERCHE -->
+  <!-- BARRE DE RECHERCHE ET FILTRES -->
   <div class="card border-0 shadow-sm mb-4">
-    <div class="card-body">
+    <div class="card-body p-3 p-md-4">
       <div class="row g-3">
-        <div class="col-md-8">
+        <div class="col-12 col-md-6 col-lg-5">
           <div class="input-group">
             <span class="input-group-text bg-white border-end-0">
               <i class="bi bi-search text-muted"></i>
@@ -33,15 +35,35 @@
                    placeholder="Rechercher par nom, email, matricule..."
                    [(ngModel)]="searchTerm"
                    (input)="applyFilter()">
+            <button *ngIf="searchTerm" class="btn btn-outline-danger" type="button" (click)="clearSearch()">
+              <i class="bi bi-x-lg"></i>
+            </button>
           </div>
         </div>
-        <div class="col-md-4">
-          <div class="d-flex gap-2 justify-content-end">
+        <div class="col-6 col-md-3 col-lg-2">
+          <select class="form-select" [(ngModel)]="filterRole" (change)="applyFilter()">
+            <option value="">Tous les rôles</option>
+            <option value="ADMIN">Administrateur</option>
+            <option value="ING">Ingénieur</option>
+            <option value="PT">Production Tech</option>
+            <option value="PP">Préparation Prod</option>
+            <option value="MC">Maintenance Corr</option>
+            <option value="MP">Maintenance Prev</option>
+          </select>
+        </div>
+        <div class="col-6 col-md-3 col-lg-2">
+          <select class="form-select" [(ngModel)]="filterSite" (change)="applyFilter()">
+            <option value="">Tous les sites</option>
+            <option *ngFor="let site of siteList" [value]="site">{{ site }}</option>
+          </select>
+        </div>
+        <div class="col-12 col-md-12 col-lg-3">
+          <div class="d-flex justify-content-end align-items-center gap-2 flex-wrap">
             <span class="badge bg-light text-dark px-3 py-2">
               <i class="bi bi-people me-1"></i> {{ filteredUsers.length }} utilisateur(s)
             </span>
-            <button *ngIf="searchTerm" class="btn btn-outline-danger btn-sm" (click)="clearSearch()">
-              <i class="bi bi-x-circle me-1"></i>Effacer
+            <button *ngIf="searchTerm || filterRole || filterSite" class="btn btn-outline-secondary btn-sm" (click)="resetFilters()">
+              <i class="bi bi-arrow-counterclockwise me-1"></i>Réinitialiser
             </button>
           </div>
         </div>
@@ -70,62 +92,66 @@
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
           <thead class="bg-light">
-            <tr>
-              <th class="px-3 py-3" style="width: 70px;">ID</th>
+            <tr class="text-uppercase small fw-semibold text-muted">
+              <th class="px-3 py-3" style="width: 60px;">ID</th>
               <th class="px-3 py-3">Utilisateur</th>
               <th class="px-3 py-3">Email</th>
               <th class="px-3 py-3">Matricule</th>
-              <th class="px-3 py-3">Projet</th>
+              <th class="px-3 py-3">Projets</th>
+              <th class="px-3 py-3">Site</th>
               <th class="px-3 py-3">Rôle</th>
-              <th class="px-3 py-3 text-center">Actions</th>
-             </thead>
+              <th class="px-3 py-3 text-center" style="width: 140px;">Actions</th>
+            </tr>
+          </thead>
           <tbody>
             <tr *ngFor="let user of paginatedUsers()">
-              <!-- ID -->
               <td class="px-3 py-3">
                 <span class="badge bg-primary bg-opacity-10 text-primary fw-semibold">#{{ user.id }}</span>
-                </td>
-
-              <!-- Utilisateur -->
+              </td>
               <td class="px-3 py-3">
                 <div class="d-flex align-items-center gap-3">
                   <div class="avatar-circle">
-                    <span class="avatar-text">{{ user.firstname?.charAt(0) }}{{ user.lastname?.charAt(0) }}</span>
+                    <span class="avatar-text">{{ getInitials(user.firstname, user.lastname) }}</span>
                   </div>
                   <div>
                     <div class="fw-semibold">{{ user.firstname }} {{ user.lastname }}</div>
+                    <small class="text-muted">{{ user.email }}</small>
                   </div>
                 </div>
-                </td>
-
-              <!-- Email -->
+              </td>
               <td class="px-3 py-3">
-                <i class="bi bi-envelope me-1 text-muted"></i>{{ user.email }}
-                </td>
-
-              <!-- Matricule -->
+                <i class="bi bi-envelope me-1 text-muted"></i>
+                <span class="small">{{ user.email }}</span>
+              </td>
               <td class="px-3 py-3">
-                <code class="bg-light px-2 py-1 rounded">{{ user.matricule }}</code>
-                </td>
-
-              <!-- Projet -->
+                <code class="bg-light px-2 py-1 rounded small">{{ user.matricule }}</code>
+              </td>
               <td class="px-3 py-3">
-                <span class="badge bg-info bg-opacity-10 text-info">{{ user.projet }}</span>
-                </td>
-
-              <!-- Rôle -->
+                <div class="d-flex flex-wrap gap-1">
+                  <span *ngFor="let p of user.projets" class="badge bg-info bg-opacity-10 text-info px-2 py-1 small">
+                    {{ p }}
+                  </span>
+                  <span *ngIf="!user.projets || user.projets.length === 0" class="text-muted small">-</span>
+                </div>
+              </td>
               <td class="px-3 py-3">
-                <span class="badge" [ngClass]="getRoleBadgeClass(user.role)">
+                <span class="badge bg-secondary bg-opacity-10 text-secondary">
+                  <i class="bi bi-building me-1"></i>{{ user.site || '-' }}
+                </span>
+              </td>
+              <td class="px-3 py-3">
+                <span class="badge rounded-pill px-3 py-2" [ngClass]="getRoleBadgeClass(user.role)">
                   <i class="bi" [ngClass]="getRoleIcon(user.role)"></i>
                   {{ getRoleLabel(user.role) }}
                 </span>
-                </td>
-
-              <!-- Actions -->
+              </td>
               <td class="px-3 py-3 text-center">
-                <div class="btn-group btn-group-sm" role="group">
+                <div class="btn-group btn-group-sm gap-1" role="group">
                   <button class="btn btn-outline-primary" (click)="editUser(user)" title="Modifier">
                     <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-outline-warning" (click)="openChangePasswordModal(user)" title="Changer mot de passe">
+                    <i class="bi bi-key"></i>
                   </button>
                   <button class="btn btn-outline-success" (click)="exportUser(user)" title="Exporter">
                     <i class="bi bi-download"></i>
@@ -134,8 +160,8 @@
                     <i class="bi bi-trash"></i>
                   </button>
                 </div>
-                </td>
-              </tr>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -143,12 +169,14 @@
 
     <!-- PAGINATION -->
     <div class="card-footer bg-white border-0 py-3 px-4" *ngIf="totalPages() > 1">
-      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-        <div class="text-muted small">
-          Page <strong>{{ currentPage }}</strong> sur <strong>{{ totalPages() }}</strong>
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+        <div class="text-muted small order-2 order-md-1">
+          Affichage de <strong>{{ (currentPage - 1) * pageSize + 1 }}</strong> à
+          <strong>{{ Math.min(currentPage * pageSize, filteredUsers.length) }}</strong>
+          sur <strong>{{ filteredUsers.length }}</strong> utilisateurs
         </div>
-        <nav aria-label="Page navigation">
-          <ul class="pagination mb-0">
+        <nav aria-label="Page navigation" class="order-1 order-md-2">
+          <ul class="pagination pagination-sm mb-0">
             <li class="page-item" [class.disabled]="currentPage === 1">
               <a class="page-link" (click)="previousPage()" href="javascript:void(0)">
                 <i class="bi bi-chevron-left"></i>
@@ -164,8 +192,8 @@
             </li>
           </ul>
         </nav>
-        <div class="d-flex align-items-center gap-2">
-          <span class="text-muted small">Lignes par page:</span>
+        <div class="d-flex align-items-center gap-2 order-3">
+          <span class="text-muted small">Lignes:</span>
           <select class="form-select form-select-sm" style="width: 70px;" [(ngModel)]="pageSize" (change)="onPageSizeChange()">
             <option [value]="5">5</option>
             <option [value]="10">10</option>
@@ -184,94 +212,150 @@
         <i class="bi bi-people display-1 text-muted"></i>
         <h3 class="mt-3 text-muted">Aucun utilisateur trouvé</h3>
         <p class="text-muted">Aucun utilisateur ne correspond à votre recherche.</p>
-        <button *ngIf="searchTerm" class="btn btn-outline-primary mt-3" (click)="clearSearch()">
-          <i class="bi bi-arrow-counterclockwise me-2"></i>Réinitialiser
+        <button *ngIf="searchTerm || filterRole || filterSite" class="btn btn-outline-primary mt-3" (click)="resetFilters()">
+          <i class="bi bi-arrow-counterclockwise me-2"></i>Réinitialiser les filtres
         </button>
       </div>
     </div>
   </div>
 
   <!-- MODAL DE MODIFICATION -->
-  <div class="modal fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'" tabindex="-1" style="background: rgba(0,0,0,0.5);">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header" style="background: linear-gradient(135deg, #1e3c72 0%, #0f2b4a 100%);">
-          <h5 class="modal-title text-white">
-            <i class="bi bi-pencil-square me-2"></i>Modifier l'utilisateur
-          </h5>
-          <button type="button" class="btn-close btn-close-white" (click)="closeModal()"></button>
-        </div>
-        <div class="modal-body">
-          <form [formGroup]="editForm" (ngSubmit)="saveUpdate()">
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label fw-semibold small text-muted text-uppercase">Prénom</label>
-                <input type="text" class="form-control" formControlName="firstname" placeholder="Prénom">
-                <div class="invalid-feedback" *ngIf="editForm.get('firstname')?.invalid && editForm.get('firstname')?.touched">
-                  Prénom requis
-                </div>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label fw-semibold small text-muted text-uppercase">Nom</label>
-                <input type="text" class="form-control" formControlName="lastname" placeholder="Nom">
-                <div class="invalid-feedback" *ngIf="editForm.get('lastname')?.invalid && editForm.get('lastname')?.touched">
-                  Nom requis
-                </div>
-              </div>
-              <div class="col-12">
-                <label class="form-label fw-semibold small text-muted text-uppercase">Email</label>
-                <input type="email" class="form-control" formControlName="email" placeholder="exemple@leoni.com">
-                <div class="invalid-feedback" *ngIf="editForm.get('email')?.invalid && editForm.get('email')?.touched">
-                  <span *ngIf="editForm.get('email')?.errors?.['required']">Email requis</span>
-                  <span *ngIf="editForm.get('email')?.errors?.['email']">Email invalide</span>
-                </div>
-              </div>
-              <div class="col-12">
-                <label class="form-label fw-semibold small text-muted text-uppercase">Matricule</label>
-                <input type="text" class="form-control" formControlName="matricule" placeholder="Matricule">
-                <div class="invalid-feedback" *ngIf="editForm.get('matricule')?.invalid && editForm.get('matricule')?.touched">
-                  Matricule requis
-                </div>
-              </div>
-              <div class="col-12">
-                <label class="form-label fw-semibold small text-muted text-uppercase">Projet</label>
-                <select class="form-select" formControlName="projet">
-                  <option value="" disabled>Sélectionner un projet</option>
-                  <option value="BMW">BMW</option>
-                  <option value="Mercedes">Mercedes</option>
-                  <option value="Audi">Audi</option>
-                  <option value="Porsche">Porsche</option>
-                  <option value="Volkswagen">Volkswagen</option>
-                </select>
-                <div class="invalid-feedback" *ngIf="editForm.get('projet')?.invalid && editForm.get('projet')?.touched">
-                  Projet requis
-                </div>
-              </div>
-              <div class="col-12">
-                <label class="form-label fw-semibold small text-muted text-uppercase">Rôle</label>
-                <select class="form-select" formControlName="role">
-                  <option value="" disabled>Sélectionner un rôle</option>
-                  <option value="ADMIN">Administrateur</option>
-                  <option value="ING">Ingénieur</option>
-                  <option value="PT">Technologie Production</option>
-                  <option value="PP">Préparation Production</option>
-                  <option value="MC">Maintenance Corrective</option>
-                  <option value="MP">Maintenance Préventive</option>
-                </select>
-                <div class="invalid-feedback" *ngIf="editForm.get('role')?.invalid && editForm.get('role')?.touched">
-                  Rôle requis
-                </div>
+<div class="modal" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'" id="editModal" tabindex="-1" style="background: rgba(0,0,0,0.5); z-index: 1050;">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header" style="background: linear-gradient(135deg, #1e3c72 0%, #0f2b4a 100%);">
+        <h5 class="modal-title text-white">
+          <i class="bi bi-pencil-square me-2"></i>Modifier l'utilisateur
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeModal()"></button>
+      </div>
+      <div class="modal-body p-4">
+        <form [formGroup]="editForm" (ngSubmit)="saveUpdate()">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small text-muted text-uppercase">Prénom</label>
+              <input type="text" class="form-control" formControlName="firstname"
+                     [class.is-invalid]="editForm.get('firstname')?.invalid && editForm.get('firstname')?.touched">
+              <div class="invalid-feedback">Prénom requis</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small text-muted text-uppercase">Nom</label>
+              <input type="text" class="form-control" formControlName="lastname"
+                     [class.is-invalid]="editForm.get('lastname')?.invalid && editForm.get('lastname')?.touched">
+              <div class="invalid-feedback">Nom requis</div>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold small text-muted text-uppercase">Email</label>
+              <input type="email" class="form-control" formControlName="email"
+                     [class.is-invalid]="editForm.get('email')?.invalid && editForm.get('email')?.touched">
+              <div class="invalid-feedback">
+                <span *ngIf="editForm.get('email')?.errors?.['required']">Email requis</span>
+                <span *ngIf="editForm.get('email')?.errors?.['email']">Email invalide</span>
               </div>
             </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small text-muted text-uppercase">Matricule</label>
+              <input type="text" class="form-control" formControlName="matricule"
+                     [class.is-invalid]="editForm.get('matricule')?.invalid && editForm.get('matricule')?.touched">
+              <div class="invalid-feedback">Matricule requis</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small text-muted text-uppercase">Rôle</label>
+              <select class="form-select" formControlName="role"
+                      [class.is-invalid]="editForm.get('role')?.invalid && editForm.get('role')?.touched">
+                <option value="" disabled>Sélectionner un rôle</option>
+                <option value="ADMIN">Administrateur</option>
+                <option value="ING">Ingénieur</option>
+                <option value="PT">Technologie Production</option>
+                <option value="PP">Préparation Production</option>
+                <option value="MC">Maintenance Corrective</option>
+                <option value="MP">Maintenance Préventive</option>
+              </select>
+              <div class="invalid-feedback">Rôle requis</div>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold small text-muted text-uppercase">Projets</label>
+              <select multiple class="form-select" formControlName="projets" style="min-height: 100px;">
+                <option *ngFor="let p of projets" [value]="p.name">{{ p.name }}</option>
+              </select>
+              <small class="text-muted">Maintenez Ctrl (Cmd) pour sélectionner plusieurs projets</small>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold small text-muted text-uppercase">Site</label>
+              <select class="form-select" formControlName="siteName"
+                      [class.is-invalid]="editForm.get('siteName')?.invalid && editForm.get('siteName')?.touched">
+                <option value="" disabled>Sélectionner un site</option>
+                <option *ngFor="let site of sites" [value]="site.name">{{ site.name }}</option>
+              </select>
+              <div class="invalid-feedback">Site requis</div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
+            <button type="button" class="btn btn-outline-secondary" (click)="closeModal()">Annuler</button>
+            <button type="submit" class="btn btn-primary" [disabled]="editForm.invalid">
+              <i class="bi bi-check-circle me-2"></i>Enregistrer
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
-            <div class="d-flex justify-content-end gap-3 mt-4">
-              <button type="button" class="btn btn-outline-secondary" (click)="closeModal()">Annuler</button>
-              <button type="submit" class="btn btn-primary" [disabled]="editForm.invalid">
-                <i class="bi bi-check-circle me-2"></i>Enregistrer
+ <!-- MODAL CHANGEMENT MOT DE PASSE -->
+<div class="modal" [class.show]="showPasswordModal" [style.display]="showPasswordModal ? 'block' : 'none'" id="passwordModal" tabindex="-1" style="background: rgba(0,0,0,0.5); z-index: 1050;">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header" style="background: linear-gradient(135deg, #1e3c72 0%, #0f2b4a 100%);">
+        <h5 class="modal-title text-white">
+          <i class="bi bi-key me-2"></i>Changer le mot de passe
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closePasswordModal()"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="alert alert-info mb-3">
+          <i class="bi bi-info-circle me-2"></i>
+          Utilisateur: <strong>{{ selectedUserForPassword?.firstname }} {{ selectedUserForPassword?.lastname }}</strong>
+        </div>
+        <form [formGroup]="passwordForm" (ngSubmit)="savePassword()">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Nouveau mot de passe</label>
+            <div class="input-group">
+              <input [type]="showNewPassword ? 'text' : 'password'" class="form-control" formControlName="newPassword"
+                     [class.is-invalid]="passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched">
+              <button class="btn btn-outline-secondary" type="button" (click)="toggleNewPasswordVisibility()">
+                <i [class]="showNewPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
               </button>
             </div>
-          </form>
-        </div>
+            <div class="invalid-feedback d-block" *ngIf="passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched">
+              <span *ngIf="passwordForm.get('newPassword')?.errors?.['required']">Mot de passe requis</span>
+              <span *ngIf="passwordForm.get('newPassword')?.errors?.['minlength']">Minimum 6 caractères</span>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Confirmer le mot de passe</label>
+            <div class="input-group">
+              <input [type]="showConfirmPassword ? 'text' : 'password'" class="form-control" formControlName="confirmPassword"
+                     [class.is-invalid]="passwordForm.errors?.['passwordMismatch'] && passwordForm.get('confirmPassword')?.touched">
+              <button class="btn btn-outline-secondary" type="button" (click)="toggleConfirmPasswordVisibility()">
+                <i [class]="showConfirmPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+              </button>
+            </div>
+            <div class="invalid-feedback d-block" *ngIf="passwordForm.errors?.['passwordMismatch'] && passwordForm.get('confirmPassword')?.touched">
+              Les mots de passe ne correspondent pas
+            </div>
+          </div>
+          <div class="alert alert-warning small">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            Après modification, l'utilisateur devra se reconnecter avec le nouveau mot de passe.
+          </div>
+          <div class="d-flex justify-content-end gap-3 mt-4">
+            <button type="button" class="btn btn-outline-secondary" (click)="closePasswordModal()">Annuler</button>
+            <button type="submit" class="btn btn-primary" [disabled]="passwordForm.invalid">
+              <i class="bi bi-key me-2"></i>Changer le mot de passe
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>

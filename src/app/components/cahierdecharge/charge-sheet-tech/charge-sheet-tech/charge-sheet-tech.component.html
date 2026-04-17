@@ -55,6 +55,7 @@
                   <th [attr.colspan]="fasteningFields.length" class="bg-warning bg-opacity-10 text-warning">Fastening / Assembly</th>
                   <th [attr.colspan]="cableFields.length" class="bg-info bg-opacity-10 text-info">Cable / Conduit</th>
                   <th [attr.colspan]="electricalFields.length" class="bg-danger bg-opacity-10 text-danger">Electrical / Tests</th>
+                  <th rowspan="3" class="bg-secondary bg-opacity-10">Clip Orientation / Remarques</th>
                   <th rowspan="2" class="bg-secondary bg-opacity-10">Prix unitaire</th>
                   <th rowspan="2" class="bg-secondary bg-opacity-10">Prix total</th>
                 </tr>
@@ -63,15 +64,15 @@
                 <tr class="text-center">
                   <th>#</th>
                   <th>Item</th>
-                  <th>Échant.</th>
-                  <th>Voies</th>
-                  <th>Couleur</th>
-                  <th>Module DB</th>
-                  <th>Réf. Leoni</th>
-                  <th>Réf. client</th>
-                  <th>Réf. joints</th>
-                  <th>Photo</th>
-                  <th>Quantité</th>
+                  <th>Samples exist</th>
+                  <th>Ways</th>
+                  <th>Housing colour</th>
+                  <th>Test module already exist in IDA-Database(Yes/No)</th>
+                  <th>Housing Reference (Leoni)</th>  <!-- ✅ Ajouté -->
+                  <th>Housing Reference (Supplier)</th>
+                  <th>Reference Seals,clips,cable ties,cap</th>
+                  <th>Real connector Picture</th>
+                  <th>Quantity of test modules</th>
                   <th *ngFor="let key of housingFields">{{ formatLabel(key) }}</th>
                   <th *ngFor="let key of fasteningFields">{{ formatLabel(key) }}</th>
                   <th *ngFor="let key of cableFields">{{ formatLabel(key) }}</th>
@@ -88,7 +89,14 @@
                     <td>{{ item.ways || '-' }}</td>
                     <td><span class="badge" [ngClass]="getColourBadge(item.housingColour)">{{ item.housingColour || '-' }}</span></td>
                     <td>{{ item.testModuleExistInDatabase === 'Yes' ? 'Oui' : 'Non' }}</td>
-                    <td><code>{{ item.housingReferenceLeoni || '-' }}</code></td>
+                     <td>
+    <input type="text"
+           class="form-control form-control-sm"
+           [formControlName]="'housingReferenceLeoni'"
+           placeholder="Référence Leoni"
+           style="min-width: 140px;">
+  </td>
+
                     <td><code>{{ item.housingReferenceSupplierCustomer || '-' }}</code></td>
                     <td>{{ item.referenceSealsClipsCableTiesCap || '-' }}</td>
                     <td class="text-center">
@@ -97,12 +105,19 @@
                       </div>
                       <span *ngIf="!itemImages[item.id!]" class="text-muted">-</span>
                     </td>
-                    <td><span class="badge bg-info">{{ item.quantityOfTestModules || 0 }}</span></td>
+                    <td>
+                      <input type="text"
+                            class="form-control form-control-sm"
+                            [formControlName]="'quantityOfTestModules'"
+                            placeholder="Quantite"
+                            style="min-width: 140px;">
+                    </td>
+            
 
                     <!-- Housing Tests - radio buttons -->
                     <td *ngFor="let key of housingFields">
                       <div class="btn-group btn-group-sm" role="group">
-                        <input type="radio" class="btn-check" [id]="'housing_ok_' + i + '_' + key" [formControlName]="key" value="*" autocomplete="off">
+                        <input type="radio" class="btn-check" [id]="'housing_ok_' + i + '_' + key" [formControlName]="key" value="*" autocomplete="off"   (click)="addToRemarks(i, key, $event)">
                         <label class="btn btn-outline-success" [for]="'housing_ok_' + i + '_' + key">✓</label>
                         <input type="radio" class="btn-check" [id]="'housing_nok_' + i + '_' + key" [formControlName]="key" value="" autocomplete="off">
                         <label class="btn btn-outline-danger" [for]="'housing_nok_' + i + '_' + key">✗</label>
@@ -112,7 +127,7 @@
                     <!-- Fastening Tests - radio buttons -->
                     <td *ngFor="let key of fasteningFields">
                       <div class="btn-group btn-group-sm" role="group">
-                        <input type="radio" class="btn-check" [id]="'fastening_ok_' + i + '_' + key" [formControlName]="key" value="*" autocomplete="off">
+                        <input type="radio" class="btn-check" [id]="'fastening_ok_' + i + '_' + key" [formControlName]="key" value="*" autocomplete="off"   (click)="addToRemarks(i, key, $event)">
                         <label class="btn btn-outline-success" [for]="'fastening_ok_' + i + '_' + key">✓</label>
                         <input type="radio" class="btn-check" [id]="'fastening_nok_' + i + '_' + key" [formControlName]="key" value="" autocomplete="off">
                         <label class="btn btn-outline-danger" [for]="'fastening_nok_' + i + '_' + key">✗</label>
@@ -122,7 +137,7 @@
                     <!-- Cable Tests - radio buttons -->
                     <td *ngFor="let key of cableFields">
                       <div class="btn-group btn-group-sm" role="group">
-                        <input type="radio" class="btn-check" [id]="'cable_ok_' + i + '_' + key" [formControlName]="key" value="*" autocomplete="off">
+                        <input type="radio" class="btn-check" [id]="'cable_ok_' + i + '_' + key" [formControlName]="key" value="*" autocomplete="off"   (click)="addToRemarks(i, key, $event)">
                         <label class="btn btn-outline-success" [for]="'cable_ok_' + i + '_' + key">✓</label>
                         <input type="radio" class="btn-check" [id]="'cable_nok_' + i + '_' + key" [formControlName]="key" value="" autocomplete="off">
                         <label class="btn btn-outline-danger" [for]="'cable_nok_' + i + '_' + key">✗</label>
@@ -132,13 +147,18 @@
                     <!-- Electrical Tests - radio buttons -->
                     <td *ngFor="let key of electricalFields">
                       <div class="btn-group btn-group-sm" role="group">
-                        <input type="radio" class="btn-check" [id]="'electrical_ok_' + i + '_' + key" [formControlName]="key" value="*" autocomplete="off">
+                        <input type="radio" class="btn-check" [id]="'electrical_ok_' + i + '_' + key" [formControlName]="key" value="*" autocomplete="off"   (click)="addToRemarks(i, key, $event)">
                         <label class="btn btn-outline-success" [for]="'electrical_ok_' + i + '_' + key">✓</label>
                         <input type="radio" class="btn-check" [id]="'electrical_nok_' + i + '_' + key" [formControlName]="key" value="" autocomplete="off">
                         <label class="btn btn-outline-danger" [for]="'electrical_nok_' + i + '_' + key">✗</label>
                       </div>
                     </td>
-
+                    <td>
+                      <textarea class="form-control form-control-sm"
+                                [formControlName]="'clipOrientation'"
+                                rows="2"
+                                placeholder="Remarques..."></textarea>
+                    </td>
                     <!-- Prix -->
                     <td><input type="number" class="form-control form-control-sm" [formControlName]="'unitPrice'" step="0.01" placeholder="0.00"></td>
                     <td><input type="number" class="form-control form-control-sm" [formControlName]="'totalPrice'" step="0.01" placeholder="0.00"></td>

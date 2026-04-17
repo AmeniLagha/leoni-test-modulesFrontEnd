@@ -1,3 +1,5 @@
+import { Component } from '@angular/core';
+
 // app.routes.ts
 import { CreateConformeComponent } from './components/compliance/create/create-conforme/create-conforme.component';
 import { Routes } from '@angular/router';
@@ -33,7 +35,13 @@ import { ReceptionlistglobalComponent } from './components/cahierdecharge/recept
 import { ChatbotComponent } from './components/chatbot/chatbot.component';
 import { ResetPasswordComponent } from './components/login/reset-password/reset-password.component.component';
 import { NotificationsComponent } from './components/notifications/notifications.component';
-
+import { GestionConfigComponent } from './components/gestion-config/gestion-config.component';
+import { StockAddComponent } from './components/stock-list/stock-add/stock-add.component';
+import { CompareVersionsComponent } from './components/technicalFile/compare-versions/compare-versions.component';
+import {AIDashboardComponent} from './components/IA/aidashboard/aidashboard.component';
+import { AiAlertsComponent } from './components/IA/ai-alerts/ai-alerts.component';
+import { ChargeReceptionDashboardComponent } from './components/IA/charge-reception-dashboard/charge-reception-dashboard.component';
+import { ReceptionstatsComponent } from './components/cahierdecharge/receptionstats/receptionstats.component';
 export const routes: Routes = [
   // Public routes
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -54,6 +62,9 @@ export const routes: Routes = [
     path: 'reset-password',
     component:ResetPasswordComponent
   },
+  { path: 'ai-alerts', component: AiAlertsComponent },
+  { path: 'charge-reception', component: ChargeReceptionDashboardComponent },
+  {path: 'reception/stat', component: ReceptionstatsComponent},
   {
     path:'chat',
     component: ChatbotComponent,
@@ -260,7 +271,16 @@ export const routes: Routes = [
   component:NotificationsComponent,
   canActivate:[authGuard]
 },
-
+{ path: 'stock/add', component: StockAddComponent , canActivate: [authGuard] },
+// app.routes.ts - Ajouter cette route
+{
+  path: 'technical-files/items/:itemId/compare',
+  component: CompareVersionsComponent , canActivate: [authGuard]
+},
+{
+  path:'aiStock', component: AIDashboardComponent
+},
+{ path: 'gestion-config', component: GestionConfigComponent, canActivate: [authGuard] },
   // Catch-all route
   { path: '**', redirectTo: 'login' }
 ];

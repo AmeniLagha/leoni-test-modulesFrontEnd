@@ -1,6 +1,7 @@
 export interface LoginRequest {
   email: string;
   password: string;
+  siteName: string;
 }
 
 export interface RegisterRequest {
@@ -10,7 +11,8 @@ export interface RegisterRequest {
   matricule: number;
   password: string;
   role: string;
-  projet:string;
+  projets: string[];
+  siteName: string;
 }
 
 export interface AuthResponse {
@@ -25,6 +27,8 @@ export interface User {
   email: string;
   matricule: number;
   role: string;
-  projet:string;
+  projets: string[];
+  site?: string;      // ✅ AJOUTER - nom du site
+  siteId?: number;
 }
 

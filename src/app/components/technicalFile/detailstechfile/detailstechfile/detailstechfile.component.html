@@ -3,7 +3,7 @@
 
 <div class="tech-file-detail-container" *ngIf="item && !loading && !error">
 
-  <!-- Informations du dossier parent (si existe) -->
+  <!-- Informations du dossier parent -->
   <div class="excel-section" *ngIf="parentFile">
     <div class="section-header">
       <h3><i class="bi bi-folder"></i> Dossier parent #{{ parentFile.id }}</h3>
@@ -11,12 +11,7 @@
     <div class="excel-table-container">
       <table class="excel-table info-table">
         <thead>
-          <tr>
-            <th>Date Maintenance</th>
-            <th>Technicien</th>
-            <th>X Code</th>
-            <th>Statut</th>
-          </tr>
+          <tr><th>Date Maintenance</th><th>Technicien</th><th>X Code</th><th>Statut validation</th></tr>
         </thead>
         <tbody>
           <tr>
@@ -24,8 +19,8 @@
             <td>{{ parentFile.technicianName }}</td>
             <td>{{ parentFile.xCode || '-' }}</td>
             <td>
-              <span class="status-badge" [class]="'status-' + (parentFile.status || 'draft').toLowerCase()">
-                {{ parentFile.status || 'DRAFT' }}
+              <span class="status-badge" [class]="'status-' + (item.validationStatus || 'draft').toLowerCase()">
+                {{ item.validationStatusDisplay || 'BROUILLON' }}
               </span>
             </td>
           </tr>
@@ -34,32 +29,31 @@
     </div>
   </div>
 
-  <!-- ===== INFORMATIONS DE L'ITEM ===== -->
+  <!-- ===== DERNIÈRES VALEURS TECHNIQUES ===== -->
   <div class="excel-section">
     <div class="section-header">
-      <h3><i class="bi bi-info-circle"></i> Informations de l'item</h3>
+      <h3><i class="bi bi-graph-up"></i> Dernières valeurs techniques</h3>
     </div>
-
     <div class="excel-table-container">
-      <table class="excel-table item-info-table">
+      <table class="excel-table">
         <thead>
-          <tr>
-            <th>Position</th>
-            <th>ChargeSheetItemId</th>
-            <th>Créé par</th>
-            <th>Créé le</th>
-            <th>Modifié par</th>
-            <th>Modifié le</th>
-          </tr>
+          <tr><th>Paramètre</th><th>Valeur finale</th><th>Unité</th></tr>
         </thead>
         <tbody>
           <tr>
-            <td>{{ item.position || '-' }}</td>
-            <td>{{ item.chargeSheetItemId || '-' }}</td>
-            <td>{{ item.createdBy || '-' }}</td>
-            <td>{{ item.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
-            <td>{{ item.updatedBy || '-' }}</td>
-            <td>{{ item.updatedAt | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td><strong>Déplacement max</strong></td>
+            <td>{{ getFinalDisplacement() || '-' }}</td>
+            <td>mm</td>
+          </tr>
+          <tr>
+            <td><strong>Programmed sealing</strong></td>
+            <td>{{ getFinalProgrammedSealing() || '-' }}</td>
+            <td>N</td>
+          </tr>
+          <tr>
+            <td><strong>Détection finale</strong></td>
+            <td>{{ getFinalDetection() || '-' }}</td>
+            <td>-</td>
           </tr>
         </tbody>
       </table>
@@ -73,16 +67,8 @@
     </div>
     <div class="excel-table-container">
       <table class="excel-table">
-        <thead>
-          <tr><th>M1</th><th>M2</th><th>M3</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{{ item.pinRigidityM1 || '-' }}</td>
-            <td>{{ item.pinRigidityM2 || '-' }}</td>
-            <td>{{ item.pinRigidityM3 || '-' }}</td>
-          </tr>
-        </tbody>
+        <thead><tr><th>M1</th><th>M2</th><th>M3</th></tr></thead>
+        <tbody><tr><td>{{ item.pinRigidityM1 || '-' }}</td><td>{{ item.pinRigidityM2 || '-' }}</td><td>{{ item.pinRigidityM3 || '-' }}</td></tr></tbody>
       </table>
     </div>
   </div>
@@ -94,37 +80,8 @@
     </div>
     <div class="excel-table-container">
       <table class="excel-table">
-        <thead>
-          <tr><th>M1</th><th>M2</th><th>M3</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{{ item.displacementPathM1 || '-' }}</td>
-            <td>{{ item.displacementPathM2 || '-' }}</td>
-            <td>{{ item.displacementPathM3 || '-' }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- ===== MAX SEALING ===== -->
-  <div class="excel-section">
-    <div class="section-header">
-      <h3><i class="bi bi-water"></i> Max sealing</h3>
-    </div>
-    <div class="excel-table-container">
-      <table class="excel-table">
-        <thead>
-          <tr><th>M1</th><th>M2</th><th>M3</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{{ item.maxSealingValueM1 || '-' }}</td>
-            <td>{{ item.maxSealingValueM2 || '-' }}</td>
-            <td>{{ item.maxSealingValueM3 || '-' }}</td>
-          </tr>
-        </tbody>
+        <thead><tr><th>M1</th><th>M2</th><th>M3</th></tr></thead>
+        <tbody><tr><td>{{ item.displacementPathM1 || '-' }}</td><td>{{ item.displacementPathM2 || '-' }}</td><td>{{ item.displacementPathM3 || '-' }}</td></tr></tbody>
       </table>
     </div>
   </div>
@@ -136,16 +93,8 @@
     </div>
     <div class="excel-table-container">
       <table class="excel-table">
-        <thead>
-          <tr><th>M1</th><th>M2</th><th>M3</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{{ item.programmedSealingValueM1 || '-' }}</td>
-            <td>{{ item.programmedSealingValueM2 || '-' }}</td>
-            <td>{{ item.programmedSealingValueM3 || '-' }}</td>
-          </tr>
-        </tbody>
+        <thead><tr><th>M1</th><th>M2</th><th>M3</th></tr></thead>
+        <tbody><tr><td>{{ item.programmedSealingValueM1 || '-' }}</td><td>{{ item.programmedSealingValueM2 || '-' }}</td><td>{{ item.programmedSealingValueM3 || '-' }}</td></tr></tbody>
       </table>
     </div>
   </div>
@@ -157,27 +106,9 @@
     </div>
     <div class="excel-table-container">
       <table class="excel-table">
-        <thead>
-          <tr><th>M1</th><th>M2</th><th>M3</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{{ item.detectionsM1 || '-' }}</td>
-            <td>{{ item.detectionsM2 || '-' }}</td>
-            <td>{{ item.detectionsM3 || '-' }}</td>
-          </tr>
-        </tbody>
+        <thead><tr><th>M1</th><th>M2</th><th>M3</th></tr></thead>
+        <tbody><tr><td>{{ item.detectionsM1 || '-' }}</td><td>{{ item.detectionsM2 || '-' }}</td><td>{{ item.detectionsM3 || '-' }}</td></tr></tbody>
       </table>
-    </div>
-  </div>
-
-  <!-- ===== REMARQUES ===== -->
-  <div class="excel-section" *ngIf="item.remarks">
-    <div class="section-header">
-      <h3><i class="bi bi-chat"></i> Remarques</h3>
-    </div>
-    <div class="remarks-box">
-      {{ item.remarks }}
     </div>
   </div>
 
@@ -186,11 +117,127 @@
     <button class="btn btn-secondary" (click)="goBack()">
       <i class="bi bi-arrow-left"></i> Retour
     </button>
-    <button class="btn btn-primary" (click)="moveToStock()">
+    <button class="btn btn-primary" (click)="openStockForm()" [disabled]="item?.validationStatus === 'DRAFT'">
       <i class="bi bi-box"></i> Déplacer en stock
     </button>
   </div>
 
+</div>
+
+<!-- MODAL FORMULAIRE STOCK -->
+<div class="modal-overlay" *ngIf="showStockForm">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3><i class="bi bi-box-seam"></i> Ajouter au stock</h3>
+      <button class="modal-close" (click)="closeStockForm()">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Informations techniques (non modifiables) -->
+      <div class="info-section">
+        <h4>Informations techniques</h4>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Item #</label>
+            <span>{{ preStockInfo?.itemNumber || item?.itemNumber }}</span>
+          </div>
+          <div class="info-item">
+            <label>Position</label>
+            <span>{{ preStockInfo?.position || item?.position }}</span>
+          </div>
+          <div class="info-item">
+            <label>Déplacement final</label>
+            <span>{{ preStockInfo?.finalDisplacement || '-' }} mm</span>
+          </div>
+          <div class="info-item">
+            <label>Programmed sealing final</label>
+            <span>{{ preStockInfo?.finalProgrammedSealing || '-' }} N</span>
+          </div>
+          <div class="info-item">
+            <label>Détection finale</label>
+            <span>{{ preStockInfo?.finalDetection || '-' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulaire stock -->
+      <div class="form-section">
+        <h4>Informations de stockage</h4>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Casier *</label>
+            <input type="text" [(ngModel)]="stockForm.casier" placeholder="Ex: A-12-34" class="form-control">
+          </div>
+          <div class="form-group">
+            <label>STUFF NUMR</label>
+            <input type="text" [(ngModel)]="stockForm.stuffNumr" placeholder="Numéro STUFF" class="form-control">
+          </div>
+          <div class="form-group">
+            <label>LEONI NUMR</label>
+            <input type="text" [(ngModel)]="stockForm.leoniNumr" placeholder="Numéro LEONI" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Index</label>
+            <input type="text" [(ngModel)]="stockForm.indexValue" placeholder="Index" class="form-control">
+          </div>
+          <div class="form-group">
+            <label>Quantité</label>
+            <input type="number" [(ngModel)]="stockForm.quantite" min="1" class="form-control">
+          </div>
+          <div class="form-group">
+            <label>État</label>
+            <select [(ngModel)]="stockForm.etat" class="form-control">
+              <option value="OK">OK</option>
+              <option value="NOK">NOK</option>
+              <option value="À réparer">À réparer</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Fournisseur</label>
+            <input type="text" [(ngModel)]="stockForm.fournisseur" placeholder="Fournisseur" class="form-control">
+          </div>
+          <div class="form-group">
+            <label>Caisse</label>
+            <input type="text" [(ngModel)]="stockForm.caisse" placeholder="Caisse" class="form-control">
+          </div>
+          <div class="form-group">
+            <label>Date demande</label>
+            <input type="date" [(ngModel)]="stockForm.dateDemande" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Spécifications</label>
+          <textarea [(ngModel)]="stockForm.specifications" rows="2" class="form-control" placeholder="Spécifications techniques..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Info sur modules</label>
+          <textarea [(ngModel)]="stockForm.infoSurModules" rows="2" class="form-control" placeholder="Informations supplémentaires..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Demandeur et explication</label>
+          <textarea [(ngModel)]="stockForm.demandeurExplication" rows="2" class="form-control" placeholder="Qui a fait la demande ? Pourquoi ?"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeStockForm()" [disabled]="submitting">Annuler</button>
+      <button class="btn btn-primary" (click)="submitMoveToStock()" [disabled]="submitting">
+        <i class="bi bi-box-arrow-in-right"></i>
+        {{ submitting ? 'Déplacement...' : 'Déplacer en stock' }}
+      </button>
+    </div>
+  </div>
 </div>
 
 <!-- Loading -->

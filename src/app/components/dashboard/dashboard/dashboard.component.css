@@ -8,7 +8,7 @@
 /* ==================== DASHBOARD PRINCIPAL ==================== */
 .leoni-dashboard {
   min-height: 100vh;
-  background: #0A0E1A;
+  background: #314171;
   font-family: 'Inter', 'Segoe UI', sans-serif;
 }
 
@@ -21,7 +21,7 @@
   z-index: 1000;
   background: rgba(10, 14, 26, 0.95);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+  border-bottom: 1px solid rgba(0, 51, 255, 0.2);
 }
 
 .nav-container {
@@ -109,7 +109,7 @@
 }
 
 .notif-btn {
-  background: rgba(255, 255, 255, 0.05);
+  background: #00D4FF;
   border: none;
   border-radius: 50%;
   width: 40px;
@@ -135,6 +135,10 @@
 }
 .notif-count{
   color: #FF4444;
+  font-size: 10px;
+}
+.dropdown-header{
+  background: rgba(0, 212, 255, 0.15);
 }
 
 /* User Menu */
@@ -2025,7 +2029,9 @@ input[type="month"]::-webkit-calendar-picker-indicator {
 
 /* ==================== SÉLECTION DES SITES ==================== */
 .site-selector-section {
+  background-color: #314171;
   margin-bottom: 24px;
+  border-radius: 16px;
 }
 
 .site-selector-header {
@@ -2034,8 +2040,8 @@ input[type="month"]::-webkit-calendar-picker-indicator {
 
 .site-selector-header h2 {
   font-size: 20px;
-  color: #1e3c72;
-  margin-bottom: 4px;
+  color: #bbc8e0;
+  margin-bottom: 9px;
 }
 
 .site-selector-header p {
@@ -2045,7 +2051,7 @@ input[type="month"]::-webkit-calendar-picker-indicator {
 
 .sites-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 16px;
 }
 
@@ -2054,7 +2060,7 @@ input[type="month"]::-webkit-calendar-picker-indicator {
   align-items: center;
   gap: 16px;
   padding: 20px;
-  background: white;
+  background: rgb(16, 13, 49);
   border-radius: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -2168,7 +2174,8 @@ input[type="month"]::-webkit-calendar-picker-indicator {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  background: white;
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
   padding: 8px;
   border-radius: 60px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
@@ -2312,7 +2319,7 @@ input[type="month"]::-webkit-calendar-picker-indicator {
 
 /* ==================== VARIATION CARD SIMPLIFIÉE ==================== */
 .variation-card {
-  background: white;
+  background: #314171;
   border-radius: 16px;
   padding: 20px;
   margin-top: 20px;
@@ -2407,9 +2414,195 @@ input[type="month"]::-webkit-calendar-picker-indicator {
 }
 .variation-card {
   display: block !important;
-  background: white;
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 16px;
   padding: 20px;
   margin: 20px 0;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+/* ==================== DROPDOWN MENU STYLES ==================== */
+.dropdown-menu.user-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 320px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(20px);
+  z-index: 1000;
+}
+
+.dropdown-menu.user-dropdown.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-menu.user-dropdown::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  right: 20px;
+  width: 16px;
+  height: 16px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-left: 1px solid rgba(0, 212, 255, 0.2);
+  border-top: 1px solid rgba(0, 212, 255, 0.2);
+  transform: rotate(45deg);
+}
+
+.dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  background: rgba(0, 212, 255, 0.05);
+  border-radius: 16px 16px 0 0;
+}
+
+.dropdown-avatar {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #00D4FF, #0052CC);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: white;
+}
+
+.dropdown-user-info {
+  flex: 1;
+}
+
+.dropdown-user-info h6 {
+  margin: 0 0 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+}
+
+.dropdown-user-info small {
+  font-size: 0.75rem;
+  color: #00D4FF;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.user-email-badge {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.5);
+  display: block;
+  word-break: break-all;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0;
+}
+
+.dropdown-section {
+  padding: 8px 0;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.dropdown-item i {
+  font-size: 1.1rem;
+  width: 20px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.dropdown-item span {
+  flex: 1;
+  font-size: 0.85rem;
+}
+
+.dropdown-item:hover {
+  background: rgba(0, 212, 255, 0.1);
+  color: white;
+}
+
+.dropdown-item:hover i {
+  color: #00D4FF;
+}
+
+.badge-notification {
+  background: #FF4444;
+  color: white;
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.shortcut-hint {
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.3);
+  margin-left: auto;
+}
+
+.logout-item {
+  color: #FF4444;
+}
+
+.logout-item i {
+  color: #FF4444;
+}
+
+.logout-item:hover {
+  background: rgba(255, 68, 68, 0.1);
+  color: #FF4444;
+}
+
+.logout-item:hover i {
+  color: #FF4444;
+}
+
+.dropdown-footer {
+  padding: 8px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Animation de la flèche */
+.dropdown-arrow {
+  transition: transform 0.3s ease;
+}
+
+.dropdown-arrow.rotated {
+  transform: rotate(180deg);
+}
+
+/* Position relative pour le conteneur parent */
+.nav-actions {
+  position: relative;
+}
+
+/* Assurez-vous que le menu est au-dessus des autres éléments */
+.user-menu {
+  position: relative;
+  z-index: 1001;
+}
+
+.dropdown-menu.user-dropdown {
+  z-index: 1002;
 }

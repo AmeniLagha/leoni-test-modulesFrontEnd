@@ -29,6 +29,9 @@ import { AuthService } from '../../../../services/auth.service';
           <button class="btn-refresh" (click)="gotostat()" >
             <i class="bi bi-arrow-repeat" ></i> Statistiques
           </button>
+           <a routerLink="/dashboard" class="btn btn-light">
+          <i class="bi bi-arrow-left me-2"></i>Retour
+        </a>
         </div>
       </div>
 

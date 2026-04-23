@@ -16,6 +16,9 @@
           <button class="btn btn-light" (click)="exportAllClaimsPDF()">
             <i class="bi bi-file-earmark-pdf me-2"></i>Export PDF
           </button>
+         <a [routerLink]="['/dashboard']" class="btn btn-light">
+    <i class="bi bi-arrow-left me-2"></i>Retour
+  </a>
         </div>
       </div>
     </div>
@@ -125,7 +128,7 @@
         <table class="table table-hover align-middle mb-0">
           <thead class="bg-light">
             <tr>
-              
+
                <th>Type</th>
               <th>Image</th>
               <th>Plant</th>

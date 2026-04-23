@@ -15,6 +15,9 @@
             <button class="btn btn-light" (click)="exportAllToExcel()">
               <i class="bi bi-file-earmark-excel me-2"></i>Exporter
             </button>
+              <a routerLink="/dashboard" class="btn btn-light">
+          <i class="bi bi-arrow-left me-2"></i>Retour
+        </a>
         </div>
       </div>
     </div>
@@ -37,7 +40,7 @@
                  [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()">
         </div>
       </div>
-      
+
       <!-- Filtre par année -->
       <div class="col-md-2">
         <label class="form-label fw-semibold small text-muted text-uppercase">
@@ -48,7 +51,7 @@
           <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
         </select>
       </div>
-      
+
       <!-- Filtre par mois -->
       <div class="col-md-2">
         <label class="form-label fw-semibold small text-muted text-uppercase">
@@ -59,7 +62,7 @@
           <option *ngFor="let month of availableMonths" [value]="month.value">{{ month.label }}</option>
         </select>
       </div>
-      
+
       <!-- Filtre par date exacte -->
       <div class="col-md-2">
         <label class="form-label fw-semibold small text-muted text-uppercase">
@@ -68,7 +71,7 @@
         <input type="date" class="form-control" [(ngModel)]="dateFilter"
                (change)="applyFilters()">
       </div>
-      
+
       <!-- Bouton effacer -->
       <div class="col-md-2">
         <button *ngIf="searchTerm || dateFilter || monthFilter || yearFilter"
@@ -77,7 +80,7 @@
         </button>
       </div>
     </div>
-    
+
     <!-- Afficher les filtres actifs -->
     <div class="mt-3 d-flex flex-wrap gap-2" *ngIf="searchTerm || dateFilter || monthFilter || yearFilter">
       <span class="badge bg-light text-dark p-2" *ngIf="searchTerm">

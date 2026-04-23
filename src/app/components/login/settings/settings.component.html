@@ -1,0 +1,353 @@
+<div class="container-fluid px-4 py-4">
+  <!-- HEADER -->
+  <div class="card border-0 shadow-lg mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+          <h1 class="text-white mb-2">
+            <i class="bi bi-gear me-2"></i>
+            Paramètres & Support
+          </h1>
+          <p class="text-white-50 mb-0">Gérez vos préférences et accédez à l'aide</p>
+        </div>
+        <button class="btn btn-light" routerLink="/dashboard">
+          <i class="bi bi-arrow-left me-2"></i>Retour au Dashboard
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- MENU LATÉRAL -->
+    <div class="col-md-3">
+      <div class="list-group shadow-sm mb-4">
+        <button class="list-group-item list-group-item-action" [class.active]="activeTab === 'general'" (click)="activeTab = 'general'">
+          <i class="bi bi-sliders2 me-2"></i> Général
+        </button>
+        <button class="list-group-item list-group-item-action" [class.active]="activeTab === 'notifications'" (click)="activeTab = 'notifications'">
+          <i class="bi bi-bell me-2"></i> Notifications
+        </button>
+        <button class="list-group-item list-group-item-action" [class.active]="activeTab === 'appearance'" (click)="activeTab = 'appearance'">
+          <i class="bi bi-palette me-2"></i> Apparence
+        </button>
+        <button class="list-group-item list-group-item-action" [class.active]="activeTab === 'security'" (click)="activeTab = 'security'">
+          <i class="bi bi-shield-lock me-2"></i> Sécurité
+        </button>
+        <button class="list-group-item list-group-item-action" [class.active]="activeTab === 'faq'" (click)="activeTab = 'faq'">
+          <i class="bi bi-question-circle me-2"></i> FAQ
+        </button>
+        <button class="list-group-item list-group-item-action" [class.active]="activeTab === 'support'" (click)="activeTab = 'support'">
+          <i class="bi bi-headset me-2"></i> Support
+        </button>
+        <button class="list-group-item list-group-item-action" [class.active]="activeTab === 'status'" (click)="activeTab = 'status'">
+          <i class="bi bi-hdd-stack me-2"></i> Statut système
+        </button>
+      </div>
+    </div>
+
+    <div class="col-md-9">
+      <!-- ==================== GÉNÉRAL ==================== -->
+      <div *ngIf="activeTab === 'general'" class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h5 class="mb-3"><i class="bi bi-sliders2 me-2 text-primary"></i>Paramètres généraux</h5>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Langue</label>
+              <select class="form-select" [(ngModel)]="language">
+                <option value="fr">Français</option>
+                <option value="en">English</option>
+                <option value="de">Deutsch</option>
+                <option value="es">Español</option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Fuseau horaire</label>
+              <select class="form-select" [(ngModel)]="timezone">
+                <option value="Europe/Paris">Europe/Paris (UTC+1)</option>
+                <option value="Europe/London">Europe/London (UTC+0)</option>
+                <option value="America/New_York">America/New_York (UTC-5)</option>
+                <option value="Asia/Dubai">Asia/Dubai (UTC+4)</option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Format de date</label>
+              <select class="form-select" [(ngModel)]="dateFormat">
+                <option value="DD/MM/YYYY">DD/MM/YYYY (31/12/2024)</option>
+                <option value="MM/DD/YYYY">MM/DD/YYYY (12/31/2024)</option>
+                <option value="YYYY-MM-DD">YYYY-MM-DD (2024-12-31)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== NOTIFICATIONS ==================== -->
+      <div *ngIf="activeTab === 'notifications'" class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h5 class="mb-3"><i class="bi bi-bell me-2 text-primary"></i>Préférences de notifications</h5>
+
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="emailNotif" [(ngModel)]="emailNotifications">
+            <label class="form-check-label" for="emailNotif">
+              <strong>Notifications par email</strong>
+              <p class="small text-muted mb-0">Recevez les alertes importantes par email</p>
+            </label>
+          </div>
+
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="pushNotif" [(ngModel)]="pushNotifications">
+            <label class="form-check-label" for="pushNotif">
+              <strong>Notifications push</strong>
+              <p class="small text-muted mb-0">Alertes en temps réel sur votre navigateur</p>
+            </label>
+          </div>
+
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="reminderNotif" [(ngModel)]="reminderNotifications">
+            <label class="form-check-label" for="reminderNotif">
+              <strong>Rappels de conformité</strong>
+              <p class="small text-muted mb-0">Recevez des rappels pour les fiches de conformité en attente</p>
+            </label>
+          </div>
+
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="weeklyReport" [(ngModel)]="weeklyReport">
+            <label class="form-check-label" for="weeklyReport">
+              <strong>Rapport hebdomadaire</strong>
+              <p class="small text-muted mb-0">Résumé de votre activité chaque lundi</p>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== APPARENCE ==================== -->
+      <div *ngIf="activeTab === 'appearance'" class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h5 class="mb-3"><i class="bi bi-palette me-2 text-primary"></i>Apparence</h5>
+
+          <div class="mb-3">
+            <label class="form-label">Thème</label>
+            <div class="btn-group w-100">
+              <button class="btn" [class.btn-primary]="theme === 'light'" [class.btn-outline-secondary]="theme !== 'light'" (click)="theme = 'light'">
+                <i class="bi bi-sun"></i> Clair
+              </button>
+              <button class="btn" [class.btn-primary]="theme === 'dark'" [class.btn-outline-secondary]="theme !== 'dark'" (click)="theme = 'dark'">
+                <i class="bi bi-moon"></i> Sombre
+              </button>
+              <button class="btn" [class.btn-primary]="theme === 'auto'" [class.btn-outline-secondary]="theme !== 'auto'" (click)="theme = 'auto'">
+                <i class="bi bi-display"></i> Auto
+              </button>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Taille de police: {{ fontSize }}px</label>
+            <input type="range" class="form-range" min="12" max="20" step="1" [(ngModel)]="fontSize" (change)="applyFontSize()">
+          </div>
+
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="compactMode" [(ngModel)]="compactMode">
+            <label class="form-check-label" for="compactMode">
+              <strong>Mode compact</strong>
+              <p class="small text-muted mb-0">Réduire les espacements pour afficher plus d'informations</p>
+            </label>
+          </div>
+
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="animations" [(ngModel)]="animations">
+            <label class="form-check-label" for="animations">
+              <strong>Animations</strong>
+              <p class="small text-muted mb-0">Activer les animations et transitions</p>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== SÉCURITÉ ==================== -->
+      <div *ngIf="activeTab === 'security'" class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h5 class="mb-3"><i class="bi bi-shield-lock me-2 text-primary"></i>Sécurité</h5>
+
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="twoFactorAuth" [(ngModel)]="twoFactorAuth">
+            <label class="form-check-label" for="twoFactorAuth">
+              <strong>Authentification à deux facteurs (2FA)</strong>
+              <p class="small text-muted mb-0">Renforcez la sécurité de votre compte</p>
+            </label>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Délai d'inactivité (minutes)</label>
+            <select class="form-select" [(ngModel)]="sessionTimeout">
+              <option value="15">15 minutes</option>
+              <option value="30">30 minutes</option>
+              <option value="60">1 heure</option>
+              <option value="120">2 heures</option>
+            </select>
+            <small class="text-muted">Déconnexion automatique après inactivité</small>
+          </div>
+
+          <hr>
+
+          <div class="d-flex flex-wrap gap-3">
+            <button class="btn btn-outline-primary" (click)="changePassword()">
+              <i class="bi bi-key me-2"></i>Changer le mot de passe
+            </button>
+            <button class="btn btn-outline-info" (click)="viewSessions()">
+              <i class="bi bi-window me-2"></i>Gérer les sessions
+            </button>
+            <button class="btn btn-outline-danger" (click)="exportData()">
+              <i class="bi bi-download me-2"></i>Exporter mes données
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== FAQ ==================== -->
+      <div *ngIf="activeTab === 'faq'" class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h5 class="mb-3"><i class="bi bi-question-circle me-2 text-primary"></i>Foire aux questions</h5>
+
+          <div class="accordion" id="faqAccordion">
+            <div class="accordion-item" *ngFor="let faq of faqs; let i = index">
+              <h2 class="accordion-header">
+                <button class="accordion-button" [class.collapsed]="!faq.open" type="button" (click)="toggleFaq(i)">
+                  <strong>{{ faq.question }}</strong>
+                </button>
+              </h2>
+              <div class="accordion-collapse collapse" [class.show]="faq.open">
+                <div class="accordion-body">
+                  {{ faq.answer }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== SUPPORT ==================== -->
+      <div *ngIf="activeTab === 'support'" class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h5 class="mb-3"><i class="bi bi-headset me-2 text-primary"></i>Contacter le support</h5>
+
+          <form (ngSubmit)="sendSupportRequest()">
+            <div class="mb-3">
+              <label class="form-label">Sujet <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" [(ngModel)]="supportRequest.subject" name="subject" required placeholder="Ex: Problème d'accès, Bug, Question...">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Priorité</label>
+              <select class="form-select" [(ngModel)]="supportRequest.priority" name="priority">
+                <option value="urgent">🔴 Urgent - Bloquant</option>
+                <option value="high">🟠 Haute - Important</option>
+                <option value="normal">🔵 Normale - Question</option>
+                <option value="low">🟢 Basse - Information</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Message <span class="text-danger">*</span></label>
+              <textarea class="form-control" rows="5" [(ngModel)]="supportRequest.message" name="message" required placeholder="Décrivez votre problème en détail..."></textarea>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Pièce jointe (optionnel)</label>
+              <input type="file" class="form-control" (change)="onFileSelected($event)">
+              <small class="text-muted">Formats acceptés: images, PDF, ZIP (max 10MB)</small>
+            </div>
+
+            <div class="d-flex gap-3">
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-send me-2"></i>Envoyer
+              </button>
+              <button type="button" class="btn btn-outline-secondary" (click)="supportRequest = { subject: '', message: '', priority: 'normal', attachment: null }">
+                <i class="bi bi-eraser me-2"></i>Effacer
+              </button>
+            </div>
+          </form>
+
+          <hr>
+
+          <div class="row text-center">
+            <div class="col-md-4">
+              <i class="bi bi-telephone fs-2 text-primary"></i>
+              <p class="mb-0"><strong>Téléphone</strong></p>
+              <small>+216 71 234 567</small>
+              <small class="d-block text-muted">Lun-Ven, 9h-17h</small>
+            </div>
+            <div class="col-md-4">
+              <i class="bi bi-envelope fs-2 text-primary"></i>
+              <p class="mb-0"><strong>Email</strong></p>
+              <small>support&#64;leoni.com</small>
+              <small class="d-block text-muted">Réponse sous 24h</small>
+            </div>
+            <div class="col-md-4">
+              <i class="bi bi-chat-dots fs-2 text-primary"></i>
+              <p class="mb-0"><strong>Chat en ligne</strong></p>
+              <small>Disponible 9h-17h</small>
+              <small class="d-block text-muted">Temps de réponse: ~2min</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== STATUT SYSTÈME ==================== -->
+      <div *ngIf="activeTab === 'status'" class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h5 class="mb-3"><i class="bi bi-hdd-stack me-2 text-primary"></i>Statut du système</h5>
+
+          <div class="alert alert-success">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            Tous les services sont opérationnels
+          </div>
+
+          <div class="mb-3" *ngFor="let service of systemStatus | keyvalue">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <strong>{{ service.key | uppercase }}</strong>
+                <span class="ms-2" [ngClass]="getStatusClass(service.value.status)">
+                  {{ getStatusIcon(service.value.status) }} {{ service.value.status === 'operational' ? 'Opérationnel' : 'Problème' }}
+                </span>
+              </div>
+              <span class="text-muted">Uptime: {{ service.value.uptime }}</span>
+            </div>
+            <div class="progress mt-1" style="height: 4px;">
+              <div class="progress-bar bg-success" [style.width.%]="service.value.status === 'operational' ? 100 : 95"></div>
+            </div>
+          </div>
+
+          <hr>
+
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <i class="bi bi-calendar me-1"></i>
+              <small class="text-muted">Dernière mise à jour: {{ lastUpdate | date:'dd/MM/yyyy HH:mm' }}</small>
+            </div>
+           <button class="btn btn-sm btn-outline-secondary" (click)="updateLastUpdate()">
+  <i class="bi bi-arrow-repeat me-1"></i>Actualiser
+</button>
+          </div>
+
+          <div class="mt-3 p-3 bg-light rounded">
+            <small class="text-muted">
+              <i class="bi bi-info-circle me-1"></i>
+              Vous pouvez signaler un incident technique via l'onglet "Support"
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOUTONS D'ACTION -->
+      <div class="mt-3 d-flex justify-content-between">
+        <button class="btn btn-outline-danger" (click)="resetSettings()">
+          <i class="bi bi-arrow-counterclockwise me-2"></i>Réinitialiser
+        </button>
+        <button class="btn btn-primary" (click)="saveSettings()">
+          <i class="bi bi-save me-2"></i>Sauvegarder
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

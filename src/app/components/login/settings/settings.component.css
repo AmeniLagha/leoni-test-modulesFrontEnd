@@ -1,0 +1,76 @@
+/* Styles pour les onglets actifs */
+.list-group-item.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #667eea;
+  color: white;
+}
+
+.list-group-item.active i {
+  color: white;
+}
+
+.list-group-item {
+  transition: all 0.3s ease;
+  border-left: 3px solid transparent;
+}
+
+.list-group-item:hover:not(.active) {
+  background: #f8f9fa;
+  border-left-color: #667eea;
+  padding-left: 1.5rem;
+}
+
+/* Accordion styles */
+.accordion-button:not(.collapsed) {
+  background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+  color: #667eea;
+}
+
+.accordion-button:focus {
+  box-shadow: none;
+  border-color: #667eea;
+}
+
+/* Form controls */
+.form-range::-webkit-slider-thumb {
+  background: #667eea;
+}
+
+.form-range::-webkit-slider-thumb:hover {
+  background: #764ba2;
+}
+
+/* Dark theme support */
+.dark-theme {
+  background: #1a1a2e;
+  color: #e0e0e0;
+}
+
+.dark-theme .card,
+.dark-theme .list-group-item,
+.dark-theme .accordion-item {
+  background: #16213e;
+  border-color: #2a3a5a;
+  color: #e0e0e0;
+}
+
+.dark-theme .bg-light {
+  background: #0f1525 !important;
+  color: #e0e0e0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .btn-group {
+    flex-wrap: wrap;
+  }
+
+  .btn-group .btn {
+    flex: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .row.text-center .col-md-4 {
+    margin-bottom: 1rem;
+  }
+}

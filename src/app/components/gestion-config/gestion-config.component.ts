@@ -6,11 +6,12 @@ import { ProjetService } from '../../../services/projet.service';
 import { SiteService } from '../../../services/Site';
 import { Site } from '../../../models/site.model';
 import { Projet } from '../../../services/projet.service';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-gestion-config',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule,RouterLink],
   templateUrl: './gestion-config.component.html',
   styleUrls: ['./gestion-config.component.css']
 })

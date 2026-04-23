@@ -22,7 +22,11 @@ import { ChargeSheetService } from '../../../../services/charge-sheet.service';
           <a routerLink="/charge-sheets/list">📋 Liste des cahiers</a>
           <i class="bi bi-chevron-right"></i>
           <span class="current">📦 Réception</span>
+
         </div>
+         <a routerLink="/charge-sheets/list" class="btn btn-light">
+          <i class="bi bi-arrow-left me-2"></i>Retour
+        </a>
       </div>
 
       <!-- LOADING -->

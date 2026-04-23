@@ -157,7 +157,20 @@ export class DashboardComponent implements OnInit {
     console.log('📊 claimVariation:', this.claimVariation);
   }, 3000);
   }
+goToProfile(): void {
+  this.router.navigate(['/profile']);
+  this.isUserMenuOpen = false;
+}
 
+goToSettings(): void {
+  this.router.navigate(['/settings']);
+  this.isUserMenuOpen = false;
+}
+
+goToHelp(): void {
+  this.router.navigate(['/help']);
+  this.isUserMenuOpen = false;
+}
   ngOnDestroy(): void {
     if (this.notificationRefreshInterval) {
       clearInterval(this.notificationRefreshInterval);

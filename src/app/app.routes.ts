@@ -42,6 +42,8 @@ import {AIDashboardComponent} from './components/IA/aidashboard/aidashboard.comp
 import { AiAlertsComponent } from './components/IA/ai-alerts/ai-alerts.component';
 import { ChargeReceptionDashboardComponent } from './components/IA/charge-reception-dashboard/charge-reception-dashboard.component';
 import { ReceptionstatsComponent } from './components/cahierdecharge/receptionstats/receptionstats.component';
+import { ProfilComponent } from './components/login/profil/profil.component';
+import { SettingsComponent } from './components/login/settings/settings.component';
 export const routes: Routes = [
   // Public routes
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -280,6 +282,8 @@ export const routes: Routes = [
 {
   path:'aiStock', component: AIDashboardComponent
 },
+{ path: 'profile', component: ProfilComponent },
+{ path: 'settings', component: SettingsComponent },
 { path: 'gestion-config', component: GestionConfigComponent, canActivate: [authGuard] },
   // Catch-all route
   { path: '**', redirectTo: 'login' }

@@ -4,13 +4,14 @@ import { ProjectStats } from '../../../models/stats.model';
 import { ChargeSheetService } from '../../../services/charge-sheet.service';
 import { SiteService } from '../../../services/Site';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
+import { RouterLink } from '@angular/router';
 
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-statistiques',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,RouterLink],
   templateUrl: './statistiques.component.html',
   styleUrls: ['./statistiques.component.css']
 })

@@ -8,11 +8,12 @@ import { ReactiveFormsModule } from '@angular/forms';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-claimsliste',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule,RouterLink],
   templateUrl: './claimsliste.component.html',
   styleUrls: ['./claimsliste.component.css']
 })

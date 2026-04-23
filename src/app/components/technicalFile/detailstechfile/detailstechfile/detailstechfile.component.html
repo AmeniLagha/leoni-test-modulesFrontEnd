@@ -1,6 +1,8 @@
 <!-- detailstechfile.component.html -->
 <h2 class="title" *ngIf="item">Détail de l'item #{{ item.itemNumber || item.id }}</h2>
-
+  <a routerLink="/technical-files/list" class="btn btn-light">
+          <i class="bi bi-arrow-left me-2"></i>Retour
+        </a>
 <div class="tech-file-detail-container" *ngIf="item && !loading && !error">
 
   <!-- Informations du dossier parent -->

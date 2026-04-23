@@ -17,6 +17,9 @@ import { FormsModule } from '@angular/forms';
           Centre d'alertes intelligent
         </h1>
         <p>Surveillance automatique du stock - Alertes en temps réel</p>
+         <a routerLink="/dashboard" class="btn btn-light">
+          <i class="bi bi-arrow-left me-2"></i>Retour
+        </a>
       </div>
 
       <!-- Statistiques des alertes -->

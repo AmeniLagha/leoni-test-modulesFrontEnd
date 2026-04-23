@@ -13,11 +13,14 @@
           </h2>
           <p class="text-white-50 mb-0 small">Gestion et suivi des utilisateurs du système LEONI</p>
         </div>
-        <div class="d-flex gap-2">
-          <button class="btn btn-light btn-sm btn-md-auto" (click)="exportAllUsers()">
-            <i class="bi bi-file-earmark-spreadsheet me-2"></i>Exporter tout
-          </button>
-        </div>
+       <div class="d-flex gap-2">
+  <button class="btn btn-light btn-sm btn-md-auto" (click)="exportAllUsers()">
+    <i class="bi bi-file-earmark-spreadsheet me-2"></i>Exporter tout
+  </button>
+  <a [routerLink]="['/dashboard']" class="btn btn-light">
+    <i class="bi bi-arrow-left me-2"></i>Retour
+  </a>
+</div>
       </div>
     </div>
   </div>

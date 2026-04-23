@@ -27,23 +27,12 @@
           </div>
           <div class="brand-text">
             <span class="brand-name">LEONI</span>
-            <span class="brand-sub">Industrial Intelligence</span>
+            <span class="brand-sub">Système de gestion des tests modules</span>
           </div>
         </div>
       </div>
 
       <div class="nav-actions" [class.open]="isNavbarOpen">
-        <div class="system-health">
-          <div class="health-indicator">
-            <svg width="20" height="20" viewBox="0 0 20 20">
-              <circle cx="10" cy="10" r="8" fill="none" stroke="#00D4FF" stroke-width="1.5"/>
-              <circle cx="10" cy="10" r="4" fill="#00FF88" opacity="0.8">
-                <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite"/>
-              </circle>
-            </svg>
-            <span>Système opérationnel</span>
-          </div>
-        </div>
 
         <div class="nav-notifications">
           <button class="notif-btn" (click)="goToNotifications()">
@@ -54,31 +43,51 @@
           </button>
         </div>
 
-        <div class="user-menu" (click)="toggleUserMenuDropdown($event)">
-          <div class="user-avatar">
-            <span class="avatar-initial">{{ userEmail.charAt(0).toUpperCase() }}</span>
-            <div class="avatar-ring"></div>
-          </div>
-          <div class="user-info">
-            <span class="user-name">{{ userEmail.split('@')[0] }}</span>
-            <span class="user-role">{{ getUserRoleLabel(userRole) }}</span>
-          </div>
-          <i class="bi bi-chevron-down"></i>
-        </div>
+      <div class="user-menu" (click)="toggleUserMenuDropdown($event)">
+  <div class="user-avatar">
+    <span class="avatar-initial">{{ userEmail.charAt(0).toUpperCase() }}</span>
+    <div class="avatar-ring"></div>
+    <div class="avatar-status online"></div>
+  </div>
+  <div class="user-info">
+    <span class="user-name">{{ userEmail.split('@')[0] }}</span>
+    <span class="user-role">{{ getUserRoleLabel(userRole) }}</span>
+  </div>
+  <i class="bi bi-chevron-down dropdown-arrow" [class.rotated]="isUserMenuOpen"></i>
+</div>
 
-        <div class="dropdown-menu user-dropdown" [class.show]="isUserMenuOpen">
-          <div class="dropdown-header">
-            <div class="dropdown-avatar">{{ userEmail.charAt(0).toUpperCase() }}</div>
-            <div class="dropdown-user-info">
-              <h6>{{ userEmail.split('@')[0] }}</h6>
-              <small>{{ getUserRoleLabel(userRole) }}</small>
-            </div>
-          </div>
-          <div class="dropdown-divider"></div>
-          <a class="dropdown-item" (click)="logout($event)">
-            <i class="bi bi-box-arrow-right"></i> Déconnexion
-          </a>
-        </div>
+<div class="dropdown-menu user-dropdown" [class.show]="isUserMenuOpen">
+  <div class="dropdown-header">
+    <div class="dropdown-avatar">
+      <span>{{ userEmail.charAt(0).toUpperCase() }}</span>
+    </div>
+    <div class="dropdown-user-info">
+      <h6>{{ userEmail.split('@')[0] }}</h6>
+      <small>{{ getUserRoleLabel(userRole) }}</small>
+      <span class="user-email-badge">{{ userEmail }}</span>
+    </div>
+  </div>
+
+  <div class="dropdown-divider"></div>
+
+  <div class="dropdown-section">
+    <div class="dropdown-item" (click)="goToProfile(); $event.stopPropagation()">
+      <i class="bi bi-person-circle"></i>
+      <span>Mon profil</span>
+      <i class="bi bi-chevron-right ms-auto"></i>
+    </div>
+
+  </div>
+
+  <div class="dropdown-divider"></div>
+
+  <div class="dropdown-footer">
+    <div class="dropdown-item logout-item" (click)="logout($event)">
+      <i class="bi bi-box-arrow-right"></i>
+      <span>Déconnexion</span>
+    </div>
+  </div>
+</div>
       </div>
     </div>
   </nav>
@@ -147,7 +156,7 @@
           </svg>
         </div>
         <span>© 2026 LEONI Group</span>
-        <small>Industrial Intelligence Platform</small>
+        <small>Système de gestion des tests modules </small>
       </div>
     </aside>
 
@@ -156,7 +165,7 @@
         <div class="hero-content">
           <div class="hero-text">
             <h1>Bienvenue, <span class="highlight">{{ userFirstName || userEmail.split('@')[0] }}</span></h1>
-            <p>Plateforme de gestion industrielle intelligente</p>
+            <p>Plateforme de gestion des tests modules</p>
             <div class="hero-stats">
               <div class="hero-stat"><i class="bi bi-calendar"></i><span>{{ today | date:'EEEE dd MMMM yyyy' }}</span></div>
               <div class="hero-stat"><i class="bi bi-clock"></i><span>{{ today | date:'HH:mm' }}</span></div>
@@ -244,12 +253,7 @@
           <button class="tab-btn" [class.active]="activeDashboardTab === 'claims'" (click)="setActiveTab('claims')">
             <i class="bi bi-chat-dots"></i><span>Réclamations</span><span class="tab-count">{{ claimsCount }}</span>
           </button>
-          <button *ngIf="hasPermission(['stock:read'])" class="tab-btn" [class.active]="activeDashboardTab === 'stock'" (click)="setActiveTab('stock')">
-            <i class="bi bi-box-seam"></i><span>Stock</span>
-          </button>
-          <button *ngIf="hasPermission(['reception:read'])" class="tab-btn" [class.active]="activeDashboardTab === 'reception'" (click)="setActiveTab('reception')">
-            <i class="bi bi-truck"></i><span>Réception</span>
-          </button>
+
         </div>
       </div>
 

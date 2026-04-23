@@ -6,6 +6,9 @@
 
   <div *ngIf="!loading && history.length === 0" class="no-data">
     Aucune modification trouvée
+     <a routerLink="/technical-files/list" class="btn btn-light">
+          <i class="bi bi-arrow-left me-2"></i>Retour
+        </a>
   </div>
 
   <table *ngIf="!loading && history.length > 0" class="history-table">

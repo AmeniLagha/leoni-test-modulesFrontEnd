@@ -287,4 +287,10 @@ export class CreatetechniquefileComponent implements OnInit {
             }
         });
     }
+    // Dans votre composant TypeScript
+goBack(): void {
+  window.history.back();
+  // Ou
+  // this.router.navigate(['/dashboard']);
+}
 }

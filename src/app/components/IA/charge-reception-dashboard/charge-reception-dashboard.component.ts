@@ -3,11 +3,12 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Alert, ChargeReceptionService, ChargeSheet, Dashboard, ReceptionHistory } from '../charge-reception.service';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-charge-reception-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule,RouterLink],
   template: `
     <div class="dashboard-container">
       <!-- En-tête -->
@@ -17,6 +18,9 @@ import { Alert, ChargeReceptionService, ChargeSheet, Dashboard, ReceptionHistory
           Gestion intelligente des Cahiers des Charges
         </h1>
         <p>IA pour anticiper les retards, suivre les réceptions et optimiser les processus</p>
+        <a [routerLink]="['/dashboard']" class="btn btn-light">
+    <i class="bi bi-arrow-left me-2"></i>Retour
+  </a>
       </div>
 
       <!-- Cartes de contrôle -->

@@ -1,0 +1,102 @@
+.avatar-profile {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-initial {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: white;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 1rem;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.2s ease;
+}
+
+.timeline-item:hover {
+  background: #f8f9fa;
+}
+
+.timeline-item:last-child {
+  border-bottom: none;
+}
+
+.timeline-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.timeline-icon.cahier {
+  background: rgba(13, 110, 253, 0.1);
+  color: #0d6efd;
+}
+
+.timeline-icon.conformite {
+  background: rgba(25, 135, 84, 0.1);
+  color: #198754;
+}
+
+.timeline-icon.technique {
+  background: rgba(13, 202, 240, 0.1);
+  color: #0dcaf0;
+}
+
+.timeline-icon.reclamation {
+  background: rgba(255, 193, 7, 0.1);
+  color: #ffc107;
+}
+
+.timeline-icon.reception {
+  background: rgba(111, 66, 193, 0.1);
+  color: #6f42c1;
+}
+
+.timeline-content {
+  flex: 1;
+}
+
+/* Progress bars */
+.progress {
+  background-color: #e9ecef;
+  border-radius: 10px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .timeline-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .timeline-icon {
+    margin-bottom: 0.5rem;
+  }
+
+  .btn-group {
+    width: 100%;
+  }
+
+  .btn-group .btn {
+    flex: 1;
+  }
+}

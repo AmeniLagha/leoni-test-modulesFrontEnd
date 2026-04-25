@@ -39,6 +39,186 @@
   border-radius: 50%;
   animation: pulse 2s infinite;
 }
+/* login.component.css - Ajouter ces styles */
+
+/* Flags Container */
+.flags-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.flag-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.flag-wrapper:hover {
+  transform: translateY(-5px);
+}
+
+.flag {
+  width: 70px;
+  height: 50px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.flag:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+}
+
+/* 🇹🇳 Drapeau Tunisie */
+.flag.tunisia {
+  background: linear-gradient(135deg, #E70013 0%, #C41230 100%);
+  position: relative;
+}
+
+.flag-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.red-circle {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.red-crescent {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: #E70013;
+  border-radius: 50%;
+  margin-left: 4px;
+}
+
+.red-crescent::before {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: white;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+}
+
+.red-star {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #E70013;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  margin-left: 2px;
+  margin-top: 1px;
+}
+
+/* 🇩🇪 Drapeau Allemagne */
+.flag.germany {
+  background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+}
+
+.flag-stripes {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.stripe {
+  flex: 1;
+}
+
+.stripe.black {
+  background: #000000;
+}
+
+.stripe.red {
+  background: #DD0000;
+}
+
+.stripe.gold {
+  background: #FFCE00;
+}
+
+/* Flag connector (symbole + entre les drapeaux) */
+.flag-connector {
+  width: 30px;
+  height: 30px;
+  background: rgba(0, 212, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00D4FF;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.flag-label {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Animation au hover */
+.flag-wrapper:hover .flag-label {
+  color: #00D4FF;
+}
+
+/* Version responsive */
+@media (max-width: 768px) {
+  .flag {
+    width: 55px;
+    height: 40px;
+  }
+
+  .red-circle {
+    width: 22px;
+    height: 22px;
+  }
+
+  .red-crescent {
+    width: 14px;
+    height: 14px;
+  }
+
+  .red-star {
+    width: 6px;
+    height: 6px;
+  }
+
+  .flag-connector {
+    width: 25px;
+    height: 25px;
+    font-size: 0.8rem;
+  }
+
+  .flag-label {
+    font-size: 0.6rem;
+  }
+}
 .bg-overlay {
   position: absolute;
   top: 0;

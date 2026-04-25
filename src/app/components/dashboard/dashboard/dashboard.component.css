@@ -1365,11 +1365,11 @@
 }
 /* ==================== CARTE DE VARIATION MENSUELLE ==================== */
 .variation-card {
-  background: linear-gradient(135deg, #0F1525 0%, #0A0E1A 100%);
+  background:  rgba(10, 14, 26, 0.95);
   border-radius: 20px;
   padding: 1.5rem;
   margin-bottom: 2rem;
-  border: 1px solid rgba(10, 14, 26, 0.95);;
+  border: 1px solid rgba(10, 14, 26, 0.95);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
@@ -1560,7 +1560,7 @@
 .month-selector input {
   width: 100%;
   padding: 0.75rem;
-  background: rgba(0, 0, 0, 0.3);
+  background:  rgba(10, 14, 26, 0.95);
   border: 1px solid rgba(0, 212, 255, 0.2);
   border-radius: 12px;
   color: white;
@@ -1700,7 +1700,7 @@ input[type="month"]::-webkit-calendar-picker-indicator {
 }
 
 .project-selector select {
-  background: rgba(0, 0, 0, 0.3);
+  background:  rgba(10, 14, 26, 0.95);
   border: 1px solid rgba(0, 212, 255, 0.2);
   border-radius: 12px;
   padding: 0.5rem 1rem;
@@ -2029,9 +2029,9 @@ input[type="month"]::-webkit-calendar-picker-indicator {
 
 /* ==================== SÉLECTION DES SITES ==================== */
 .site-selector-section {
-   background: rgb(16, 13, 49);
+   background: rgba(0, 212, 255, 0.1);
   margin-bottom: 24px;
-  border-radius: 16px;
+  border-radius: 20px;
 }
 
 .site-selector-header {

@@ -39,18 +39,18 @@
   border-radius: 50%;
   animation: pulse 2s infinite;
 }
-/* login.component.css - Ajouter ces styles */
+/* login.component.css - Styles complets */
 
 /* Flags Container */
 .flags-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
-  margin-bottom: 25px;
+  gap: 30px;
+  margin: 20px 0;
 }
 
-.flag-wrapper {
+.flag-card {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -58,23 +58,23 @@
   transition: all 0.3s ease;
 }
 
-.flag-wrapper:hover {
+.flag-card:hover {
   transform: translateY(-5px);
 }
 
 .flag {
-  width: 70px;
-  height: 50px;
-  border-radius: 8px;
+  width: 80px;
+  height: 55px;
+  border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
   cursor: pointer;
 }
 
 .flag:hover {
   transform: scale(1.05);
-  box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+  box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
 }
 
 /* 🇹🇳 Drapeau Tunisie */
@@ -94,19 +94,20 @@
 
 .red-circle {
   position: relative;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   background: white;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
 }
 
 .red-crescent {
   position: absolute;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   background: #E70013;
   border-radius: 50%;
   margin-left: 4px;
@@ -115,8 +116,8 @@
 .red-crescent::before {
   content: '';
   position: absolute;
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   background: white;
   border-radius: 50%;
   top: 2px;
@@ -125,8 +126,8 @@
 
 .red-star {
   position: absolute;
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
   background: #E70013;
   clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
   margin-left: 2px;
@@ -161,37 +162,66 @@
   background: #FFCE00;
 }
 
-/* Flag connector (symbole + entre les drapeaux) */
-.flag-connector {
-  width: 30px;
-  height: 30px;
-  background: rgba(0, 212, 255, 0.2);
+/* Badge entre les drapeaux */
+.vs-badge {
+  width: 40px;
+  height: 40px;
+  background: rgba(0, 212, 255, 0.15);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #00D4FF;
-  font-size: 1rem;
+  font-size: 1.2rem;
   font-weight: bold;
+  border: 1px solid rgba(0, 212, 255, 0.3);
 }
 
-.flag-label {
+/* Noms des pays */
+.flag-name {
   font-size: 0.7rem;
   color: rgba(255, 255, 255, 0.6);
   text-transform: uppercase;
   letter-spacing: 1px;
+  font-weight: 500;
 }
 
-/* Animation au hover */
-.flag-wrapper:hover .flag-label {
+.flag-card:hover .flag-name {
   color: #00D4FF;
+}
+
+/* Titre LEONI */
+.leoni-title {
+  background: linear-gradient(135deg, #FFFFFF, #00D4FF);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: 2px;
+}
+
+/* Animation subtile */
+@keyframes flagGlow {
+  0%, 100% {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(0, 212, 255, 0.2);
+  }
+}
+
+.flag {
+  animation: flagGlow 3s ease-in-out infinite;
 }
 
 /* Version responsive */
 @media (max-width: 768px) {
+  .flags-container {
+    gap: 15px;
+  }
+
   .flag {
     width: 55px;
-    height: 40px;
+    height: 38px;
   }
 
   .red-circle {
@@ -209,13 +239,13 @@
     height: 6px;
   }
 
-  .flag-connector {
-    width: 25px;
-    height: 25px;
-    font-size: 0.8rem;
+  .vs-badge {
+    width: 30px;
+    height: 30px;
+    font-size: 0.9rem;
   }
 
-  .flag-label {
+  .flag-name {
     font-size: 0.6rem;
   }
 }

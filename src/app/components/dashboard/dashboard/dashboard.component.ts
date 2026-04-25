@@ -166,7 +166,15 @@ goToSettings(): void {
   this.router.navigate(['/settings']);
   this.isUserMenuOpen = false;
 }
-
+isAdmin(): boolean {
+  return this.authService.getUserRole() === 'ADMIN';
+}
+isMC(): boolean{
+  return this.authService.getUserRole() ==='MC'
+}
+isMP(): boolean{
+  return this.authService.getUserRole() ==='MP'
+}
 goToHelp(): void {
   this.router.navigate(['/help']);
   this.isUserMenuOpen = false;

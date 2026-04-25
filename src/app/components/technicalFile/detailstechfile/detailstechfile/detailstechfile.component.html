@@ -1,256 +1,382 @@
 <!-- detailstechfile.component.html -->
-<h2 class="title" *ngIf="item">Détail de l'item #{{ item.itemNumber || item.id }}</h2>
-  <a routerLink="/technical-files/list" class="btn btn-light">
-          <i class="bi bi-arrow-left me-2"></i>Retour
-        </a>
-<div class="tech-file-detail-container" *ngIf="item && !loading && !error">
+<div class="container-fluid px-4 py-3">
 
-  <!-- Informations du dossier parent -->
-  <div class="excel-section" *ngIf="parentFile">
-    <div class="section-header">
-      <h3><i class="bi bi-folder"></i> Dossier parent #{{ parentFile.id }}</h3>
+  <!-- Header avec breadcrumb -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1">
+          <li class="breadcrumb-item">
+            <a routerLink="/technical-files/list" class="text-decoration-none">
+              <i class="bi bi-folder2 me-1"></i>Fichiers techniques
+            </a>
+          </li>
+          <li class="breadcrumb-item active" *ngIf="item">
+            Item #{{ item.itemNumber || item.id }}
+          </li>
+        </ol>
+      </nav>
+      <h2 class="h4 mb-0 fw-semibold text-dark" *ngIf="item">
+        <i class="bi bi-cpu me-2 text-primary"></i>
+        Détail de l'item #{{ item.itemNumber || item.id }}
+      </h2>
     </div>
-    <div class="excel-table-container">
-      <table class="excel-table info-table">
-        <thead>
-          <tr><th>Date Maintenance</th><th>Technicien</th><th>X Code</th><th>Statut validation</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{{ parentFile.maintenanceDate | date:'dd/MM/yyyy' }}</td>
-            <td>{{ parentFile.technicianName }}</td>
-            <td>{{ parentFile.xCode || '-' }}</td>
-            <td>
-              <span class="status-badge" [class]="'status-' + (item.validationStatus || 'draft').toLowerCase()">
-                {{ item.validationStatusDisplay || 'BROUILLON' }}
-              </span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- ===== DERNIÈRES VALEURS TECHNIQUES ===== -->
-  <div class="excel-section">
-    <div class="section-header">
-      <h3><i class="bi bi-graph-up"></i> Dernières valeurs techniques</h3>
-    </div>
-    <div class="excel-table-container">
-      <table class="excel-table">
-        <thead>
-          <tr><th>Paramètre</th><th>Valeur finale</th><th>Unité</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Déplacement max</strong></td>
-            <td>{{ getFinalDisplacement() || '-' }}</td>
-            <td>mm</td>
-          </tr>
-          <tr>
-            <td><strong>Programmed sealing</strong></td>
-            <td>{{ getFinalProgrammedSealing() || '-' }}</td>
-            <td>N</td>
-          </tr>
-          <tr>
-            <td><strong>Détection finale</strong></td>
-            <td>{{ getFinalDetection() || '-' }}</td>
-            <td>-</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- ===== RAIDURE DES PINS ===== -->
-  <div class="excel-section">
-    <div class="section-header">
-      <h3><i class="bi bi-activity"></i> Raideur des pins</h3>
-    </div>
-    <div class="excel-table-container">
-      <table class="excel-table">
-        <thead><tr><th>M1</th><th>M2</th><th>M3</th></tr></thead>
-        <tbody><tr><td>{{ item.pinRigidityM1 || '-' }}</td><td>{{ item.pinRigidityM2 || '-' }}</td><td>{{ item.pinRigidityM3 || '-' }}</td></tr></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- ===== DÉPLACEMENT ===== -->
-  <div class="excel-section">
-    <div class="section-header">
-      <h3><i class="bi bi-arrow-left-right"></i> Déplacement</h3>
-    </div>
-    <div class="excel-table-container">
-      <table class="excel-table">
-        <thead><tr><th>M1</th><th>M2</th><th>M3</th></tr></thead>
-        <tbody><tr><td>{{ item.displacementPathM1 || '-' }}</td><td>{{ item.displacementPathM2 || '-' }}</td><td>{{ item.displacementPathM3 || '-' }}</td></tr></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- ===== PROGRAMMED SEALING ===== -->
-  <div class="excel-section">
-    <div class="section-header">
-      <h3><i class="bi bi-calendar-check"></i> Programmed sealing</h3>
-    </div>
-    <div class="excel-table-container">
-      <table class="excel-table">
-        <thead><tr><th>M1</th><th>M2</th><th>M3</th></tr></thead>
-        <tbody><tr><td>{{ item.programmedSealingValueM1 || '-' }}</td><td>{{ item.programmedSealingValueM2 || '-' }}</td><td>{{ item.programmedSealingValueM3 || '-' }}</td></tr></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- ===== DÉTECTIONS ===== -->
-  <div class="excel-section">
-    <div class="section-header">
-      <h3><i class="bi bi-eye"></i> Détections</h3>
-    </div>
-    <div class="excel-table-container">
-      <table class="excel-table">
-        <thead><tr><th>M1</th><th>M2</th><th>M3</th></tr></thead>
-        <tbody><tr><td>{{ item.detectionsM1 || '-' }}</td><td>{{ item.detectionsM2 || '-' }}</td><td>{{ item.detectionsM3 || '-' }}</td></tr></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Boutons d'action -->
-  <div class="form-actions">
-    <button class="btn btn-secondary" (click)="goBack()">
-      <i class="bi bi-arrow-left"></i> Retour
-    </button>
-    <button class="btn btn-primary" (click)="openStockForm()" [disabled]="item?.validationStatus === 'DRAFT'">
-      <i class="bi bi-box"></i> Déplacer en stock
+    <button class="btn btn-outline-secondary" (click)="goBack()">
+      <i class="bi bi-arrow-left me-2"></i>Retour
     </button>
   </div>
 
-</div>
+  <!-- Contenu principal -->
+  <div *ngIf="item && !loading && !error">
 
-<!-- MODAL FORMULAIRE STOCK -->
-<div class="modal-overlay" *ngIf="showStockForm">
-  <div class="modal-container">
-    <div class="modal-header">
-      <h3><i class="bi bi-box-seam"></i> Ajouter au stock</h3>
-      <button class="modal-close" (click)="closeStockForm()">&times;</button>
-    </div>
-
-    <div class="modal-body">
-      <!-- Informations techniques (non modifiables) -->
-      <div class="info-section">
-        <h4>Informations techniques</h4>
-        <div class="info-grid">
-          <div class="info-item">
-            <label>Item #</label>
-            <span>{{ preStockInfo?.itemNumber || item?.itemNumber }}</span>
-          </div>
-          <div class="info-item">
-            <label>Position</label>
-            <span>{{ preStockInfo?.position || item?.position }}</span>
-          </div>
-          <div class="info-item">
-            <label>Déplacement final</label>
-            <span>{{ preStockInfo?.finalDisplacement || '-' }} mm</span>
-          </div>
-          <div class="info-item">
-            <label>Programmed sealing final</label>
-            <span>{{ preStockInfo?.finalProgrammedSealing || '-' }} N</span>
-          </div>
-          <div class="info-item">
-            <label>Détection finale</label>
-            <span>{{ preStockInfo?.finalDetection || '-' }}</span>
-          </div>
-        </div>
+    <!-- Carte dossier parent -->
+    <div class="card shadow-sm border-0 rounded-3 mb-4" *ngIf="parentFile">
+      <div class="card-header bg-white border-bottom-0 pt-3 pb-0">
+        <h5 class="fw-semibold text-primary mb-0">
+          <i class="bi bi-folder2-open me-2"></i>Dossier parent #{{ parentFile.id }}
+        </h5>
       </div>
-
-      <!-- Formulaire stock -->
-      <div class="form-section">
-        <h4>Informations de stockage</h4>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Casier *</label>
-            <input type="text" [(ngModel)]="stockForm.casier" placeholder="Ex: A-12-34" class="form-control">
-          </div>
-          <div class="form-group">
-            <label>STUFF NUMR</label>
-            <input type="text" [(ngModel)]="stockForm.stuffNumr" placeholder="Numéro STUFF" class="form-control">
-          </div>
-          <div class="form-group">
-            <label>LEONI NUMR</label>
-            <input type="text" [(ngModel)]="stockForm.leoniNumr" placeholder="Numéro LEONI" class="form-control">
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Index</label>
-            <input type="text" [(ngModel)]="stockForm.indexValue" placeholder="Index" class="form-control">
-          </div>
-          <div class="form-group">
-            <label>Quantité</label>
-            <input type="number" [(ngModel)]="stockForm.quantite" min="1" class="form-control">
-          </div>
-          <div class="form-group">
-            <label>État</label>
-            <select [(ngModel)]="stockForm.etat" class="form-control">
-              <option value="OK">OK</option>
-              <option value="NOK">NOK</option>
-              <option value="À réparer">À réparer</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Fournisseur</label>
-            <input type="text" [(ngModel)]="stockForm.fournisseur" placeholder="Fournisseur" class="form-control">
-          </div>
-          <div class="form-group">
-            <label>Caisse</label>
-            <input type="text" [(ngModel)]="stockForm.caisse" placeholder="Caisse" class="form-control">
-          </div>
-          <div class="form-group">
-            <label>Date demande</label>
-            <input type="date" [(ngModel)]="stockForm.dateDemande" class="form-control">
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Spécifications</label>
-          <textarea [(ngModel)]="stockForm.specifications" rows="2" class="form-control" placeholder="Spécifications techniques..."></textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Info sur modules</label>
-          <textarea [(ngModel)]="stockForm.infoSurModules" rows="2" class="form-control" placeholder="Informations supplémentaires..."></textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Demandeur et explication</label>
-          <textarea [(ngModel)]="stockForm.demandeurExplication" rows="2" class="form-control" placeholder="Qui a fait la demande ? Pourquoi ?"></textarea>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th class="fw-semibold"><i class="bi bi-calendar3 me-1"></i>Date Maintenance</th>
+                <th class="fw-semibold"><i class="bi bi-person-badge me-1"></i>Technicien</th>
+                <th class="fw-semibold"><i class="bi bi-upc-scan me-1"></i>X Code</th>
+                <th class="fw-semibold"><i class="bi bi-check-circle me-1"></i>Statut validation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{ parentFile.maintenanceDate | date:'dd/MM/yyyy' }}</td>
+                <td>{{ parentFile.technicianName }}</td>
+                <td><code>{{ parentFile.xCode || '-' }}</code></td>
+                <td>
+                  <span class="badge rounded-pill px-3 py-2"
+                        [ngClass]="{
+                          'bg-warning text-dark': item.validationStatus === 'DRAFT',
+                          'bg-info text-white': item.validationStatus === 'PENDING',
+                          'bg-success text-white': item.validationStatus === 'APPROVED',
+                          'bg-secondary text-white': !item.validationStatus
+                        }">
+                    <i class="bi bi-dot me-1"></i>
+                    {{ item.validationStatusDisplay || 'BROUILLON' }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
 
-    <div class="modal-footer">
-      <button class="btn btn-secondary" (click)="closeStockForm()" [disabled]="submitting">Annuler</button>
-      <button class="btn btn-primary" (click)="submitMoveToStock()" [disabled]="submitting">
-        <i class="bi bi-box-arrow-in-right"></i>
-        {{ submitting ? 'Déplacement...' : 'Déplacer en stock' }}
+    <!-- Section Dernières valeurs techniques -->
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+      <div class="card-header bg-gradient-primary text-white rounded-top-3">
+        <h5 class="fw-semibold mb-0">
+          <i class="bi bi-graph-up me-2"></i>Dernières valeurs techniques
+        </h5>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 40%">Paramètre</th>
+                <th style="width: 40%">Valeur finale</th>
+                <th style="width: 20%">Unité</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="fw-semibold"><i class="bi bi-arrow-left-right me-2 text-primary"></i>Déplacement max</td>
+                <td><span class="fw-bold text-primary">{{ getFinalDisplacement() || '-' }}</span></td>
+                <td>mm</td>
+              </tr>
+              <tr>
+                <td class="fw-semibold"><i class="bi bi-calendar-check me-2 text-success"></i>Programmed sealing</td>
+                <td><span class="fw-bold text-success">{{ getFinalProgrammedSealing() || '-' }}</span></td>
+                <td>N</td>
+              </tr>
+              <tr>
+                <td class="fw-semibold"><i class="bi bi-eye me-2 text-info"></i>Détection finale</td>
+                <td><span class="fw-bold text-info">{{ getFinalDetection() || '-' }}</span></td>
+                <td>-</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grille des mesures techniques -->
+    <div class="row g-4 mb-4">
+      <!-- Raideur des pins -->
+      <div class="col-md-6 col-lg-3">
+        <div class="card shadow-sm border-0 rounded-3 h-100">
+          <div class="card-header bg-white border-bottom-0 pt-3">
+            <h5 class="fw-semibold text-secondary mb-0">
+              <i class="bi bi-activity me-2"></i>Raideur des pins
+            </h5>
+          </div>
+          <div class="card-body pt-0">
+            <div class="table-responsive">
+              <table class="table table-sm table-borderless">
+                <thead class="table-light">
+                  <tr><th>M1</th><th>M2</th><th>M3</th></tr>
+                </thead>
+                <tbody>
+                  <tr class="text-center">
+                    <td class="fw-semibold">{{ item.pinRigidityM1 || '-' }}</td>
+                    <td class="fw-semibold">{{ item.pinRigidityM2 || '-' }}</td>
+                    <td class="fw-semibold">{{ item.pinRigidityM3 || '-' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Déplacement -->
+      <div class="col-md-6 col-lg-3">
+        <div class="card shadow-sm border-0 rounded-3 h-100">
+          <div class="card-header bg-white border-bottom-0 pt-3">
+            <h5 class="fw-semibold text-secondary mb-0">
+              <i class="bi bi-arrow-left-right me-2"></i>Déplacement
+            </h5>
+          </div>
+          <div class="card-body pt-0">
+            <div class="table-responsive">
+              <table class="table table-sm table-borderless">
+                <thead class="table-light">
+                  <tr><th>M1</th><th>M2</th><th>M3</th></tr>
+                </thead>
+                <tbody>
+                  <tr class="text-center">
+                    <td>{{ item.displacementPathM1 || '-' }}</td>
+                    <td>{{ item.displacementPathM2 || '-' }}</td>
+                    <td>{{ item.displacementPathM3 || '-' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Programmed sealing -->
+      <div class="col-md-6 col-lg-3">
+        <div class="card shadow-sm border-0 rounded-3 h-100">
+          <div class="card-header bg-white border-bottom-0 pt-3">
+            <h5 class="fw-semibold text-secondary mb-0">
+              <i class="bi bi-calendar-check me-2"></i>Programmed sealing
+            </h5>
+          </div>
+          <div class="card-body pt-0">
+            <div class="table-responsive">
+              <table class="table table-sm table-borderless">
+                <thead class="table-light">
+                  <tr><th>M1</th><th>M2</th><th>M3</th></tr>
+                </thead>
+                <tbody>
+                  <tr class="text-center">
+                    <td>{{ item.programmedSealingValueM1 || '-' }}</td>
+                    <td>{{ item.programmedSealingValueM2 || '-' }}</td>
+                    <td>{{ item.programmedSealingValueM3 || '-' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Détections -->
+      <div class="col-md-6 col-lg-3">
+        <div class="card shadow-sm border-0 rounded-3 h-100">
+          <div class="card-header bg-white border-bottom-0 pt-3">
+            <h5 class="fw-semibold text-secondary mb-0">
+              <i class="bi bi-eye me-2"></i>Détections
+            </h5>
+          </div>
+          <div class="card-body pt-0">
+            <div class="table-responsive">
+              <table class="table table-sm table-borderless">
+                <thead class="table-light">
+                  <tr><th>M1</th><th>M2</th><th>M3</th></tr>
+                </thead>
+                <tbody>
+                  <tr class="text-center">
+                    <td>{{ item.detectionsM1 || '-' }}</td>
+                    <td>{{ item.detectionsM2 || '-' }}</td>
+                    <td>{{ item.detectionsM3 || '-' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Boutons d'action -->
+    <div class="d-flex justify-content-end gap-3 mt-4 pt-2 border-top">
+      <button class="btn btn-light border px-4 py-2" (click)="goBack()">
+        <i class="bi bi-arrow-left me-2"></i>Retour
+      </button>
+      <button class="btn btn-primary px-4 py-2"
+              (click)="openStockForm()"
+              [disabled]="item?.validationStatus === 'DRAFT'"
+              [ngClass]="{'opacity-50': item?.validationStatus === 'DRAFT'}">
+        <i class="bi bi-box-seam me-2"></i>Déplacer en stock
       </button>
     </div>
   </div>
-</div>
 
-<!-- Loading -->
-<div *ngIf="loading" class="loading-container">
-  <div class="spinner"></div>
-  <p>Chargement de l'item...</p>
-</div>
+  <!-- MODAL STOCK - Version Bootstrap 5 -->
+  <div class="modal fade" #stockModal tabindex="-1" [class.show]="showStockForm"
+       [style.display]="showStockForm ? 'block' : 'none'"
+       style="background-color: rgba(0,0,0,0.5)" *ngIf="showStockForm">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content rounded-4 shadow-lg border-0">
 
-<!-- Error -->
-<div *ngIf="error" class="error-container">
-  <i class="bi bi-exclamation-triangle-fill"></i>
-  <p>{{ error }}</p>
-  <button class="btn btn-secondary" (click)="goBack()">Retour</button>
+        <!-- Modal Header -->
+        <div class="modal-header bg-gradient-primary text-white rounded-top-4 border-0 py-3">
+          <h4 class="modal-title fw-semibold">
+            <i class="bi bi-box-seam me-2"></i>Déplacer en stock
+          </h4>
+          <button type="button" class="btn-close btn-close-white" (click)="closeStockForm()"></button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body p-4">
+
+          <!-- Informations techniques (carte récapitulative) -->
+          <div class="card bg-light border-0 rounded-3 mb-4">
+            <div class="card-body">
+              <h6 class="fw-semibold text-primary mb-3">
+                <i class="bi bi-info-circle me-2"></i>Informations techniques
+              </h6>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <small class="text-secondary d-block">Item #</small>
+                  <strong class="fs-5">{{ preStockInfo?.itemNumber || item?.itemNumber }}</strong>
+                </div>
+                <div class="col-md-4">
+                  <small class="text-secondary d-block">Position</small>
+                  <strong>{{ preStockInfo?.position || item?.position || '-' }}</strong>
+                </div>
+                <div class="col-md-4">
+                  <small class="text-secondary d-block">Détection finale</small>
+                  <span class="badge bg-info">{{ preStockInfo?.finalDetection || '-' }}</span>
+                </div>
+                <div class="col-md-4">
+                  <small class="text-secondary d-block">Déplacement final</small>
+                  <strong class="text-primary">{{ preStockInfo?.finalDisplacement || '-' }} mm</strong>
+                </div>
+                <div class="col-md-4">
+                  <small class="text-secondary d-block">Programmed sealing</small>
+                  <strong class="text-success">{{ preStockInfo?.finalProgrammedSealing || '-' }} N</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Formulaire stock -->
+          <h6 class="fw-semibold text-secondary mb-3">
+            <i class="bi bi-pencil-square me-2"></i>Informations de stockage
+          </h6>
+
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Casier <span class="text-danger">*</span></label>
+              <input type="text" [(ngModel)]="stockForm.casier"
+                     placeholder="Ex: A-12-34" class="form-control">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">STUFF NUMR</label>
+              <input type="text" [(ngModel)]="stockForm.stuffNumr"
+                     placeholder="Numéro STUFF" class="form-control">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">LEONI NUMR</label>
+              <input type="text" [(ngModel)]="stockForm.leoniNumr"
+                     placeholder="Numéro LEONI" class="form-control">
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Index</label>
+              <input type="text" [(ngModel)]="stockForm.indexValue"
+                     placeholder="Index" class="form-control">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Quantité</label>
+              <input type="number" [(ngModel)]="stockForm.quantite"
+                     min="1" class="form-control">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">État</label>
+              <select [(ngModel)]="stockForm.etat" class="form-select">
+                <option value="OK" class="text-success">✅ OK</option>
+                <option value="NOK" class="text-danger">❌ NOK</option>
+                <option value="À réparer" class="text-warning">🔧 À réparer</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Fournisseur</label>
+              <input type="text" [(ngModel)]="stockForm.fournisseur"
+                     placeholder="Fournisseur" class="form-control">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Caisse</label>
+              <input type="text" [(ngModel)]="stockForm.caisse"
+                     placeholder="Caisse" class="form-control">
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-semibold">Spécifications</label>
+              <textarea [(ngModel)]="stockForm.specifications" rows="2"
+                        class="form-control" placeholder="Spécifications techniques..."></textarea>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-semibold">Info sur modules</label>
+              <textarea [(ngModel)]="stockForm.infoSurModules" rows="2"
+                        class="form-control" placeholder="Informations supplémentaires sur le module..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer border-0 pt-0 pb-4 px-4">
+          <button class="btn btn-light border px-4" (click)="closeStockForm()" [disabled]="submitting">
+            Annuler
+          </button>
+          <button class="btn btn-primary px-4" (click)="submitMoveToStock()" [disabled]="submitting">
+            <i class="bi bi-box-arrow-in-right me-2"></i>
+            {{ submitting ? 'Déplacement...' : 'Déplacer en stock' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p class="mt-3 text-secondary">Chargement de l'item...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error" class="alert alert-danger shadow-sm rounded-3 text-center py-4">
+    <i class="bi bi-exclamation-triangle-fill fs-1 d-block mb-3"></i>
+    <p class="mb-3">{{ error }}</p>
+    <button class="btn btn-outline-danger" (click)="goBack()">Retour</button>
+  </div>
+
 </div>

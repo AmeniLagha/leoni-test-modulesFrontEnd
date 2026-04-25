@@ -1,301 +1,112 @@
-/* ====================== CONTAINERS ====================== */
-.tech-file-detail-container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 1rem auto;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #1f2937;
+/* styles-excel.css - À ajouter dans votre fichier .css */
+
+/* Gradient pour les headers */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
 }
 
-.title {
-  font-size: 1.5rem;
+/* Style Excel pour les tableaux */
+.table {
+  font-size: 0.875rem;
+  border-color: #dee2e6;
+}
+
+.table thead th {
+  background-color: #f8f9fa;
+  border-bottom-width: 2px;
   font-weight: 600;
-  margin-bottom: 1rem;
+  color: #1e293b;
 }
 
-/* ====================== SECTIONS ====================== */
-.excel-section {
-  margin-bottom: 2rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  background: #f9fafb;
-  overflow: hidden;
+.table tbody tr:hover {
+  background-color: rgba(13, 110, 253, 0.05);
+  transition: background-color 0.2s ease;
 }
 
-.section-header {
-  background: #e2e8f0;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid #cbd5e1;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.section-header i {
-  color: #3b82f6;
-}
-
-/* ====================== TABLES ====================== */
-.excel-table-container {
-  width: 100%;
-  overflow-x: auto;
-  padding: 0.75rem 1rem;
-}
-
-.excel-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-}
-
-.excel-table th,
-.excel-table td {
-  border: 1px solid #d1d5db;
-  padding: 0.5rem;
-  text-align: center;
-}
-
-.excel-table th {
-  background: #1f2937;
-  color: white;
-  font-weight: 600;
-}
-
-.item-info-table th {
-  background: #374151;
-}
-
-.status-badge {
-  padding: 0.25rem 0.5rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
+/* Badges personnalisés */
+.badge {
   font-weight: 500;
-  color: white;
+  font-size: 0.75rem;
 }
 
-.status-draft { background: #9ca3af; }
-.status-open { background: #3b82f6; }
-.status-closed { background: #10b981; }
-.status-inprogress { background: #f59e0b; }
-
-/* ====================== REMARQUES ====================== */
-.remarks-box {
-  padding: 0.75rem 1rem;
-  background: white;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  white-space: pre-line; /* permet sauts de ligne */
+/* Cartes */
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* ====================== ACTIONS ====================== */
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  margin-top: 1rem;
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
 }
 
-.form-actions .btn {
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-}
-
-.btn-secondary {
-  background: #f1f5f9;
-  color: #334155;
+/* Boutons */
+.btn {
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.2s ease;
 }
 
 .btn-primary {
-  background: #3b82f6;
-  color: white;
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  border: none;
 }
 
-/* ====================== LOADING & ERROR ====================== */
-.loading-container, .error-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 2rem 0;
-  color: #334155;
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
 }
 
-.loading-container .spinner {
-  width: 50px;
-  height: 50px;
-  border: 6px solid #e5e7eb;
-  border-top: 6px solid #3b82f6;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 1rem;
+/* Modal */
+.modal-content {
+  animation: modalFadeIn 0.3s ease;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.error-container i {
-  font-size: 2rem;
-  color: #ef4444;
-  margin-bottom: 0.5rem;
-}
-
-/* ====================== TABLET & MOBILE ====================== */
-@media (max-width: 768px) {
-  .excel-table th, .excel-table td {
-    padding: 0.35rem;
-    font-size: 0.8rem;
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
-/* detailstechfile.component.css - Ajouter ces styles */
 
-/* Modal overlay */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-container {
-  background: white;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 800px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 24px;
-  border-bottom: 1px solid #e0e0e0;
-  background: #f8f9fa;
-  border-radius: 12px 12px 0 0;
-}
-
-.modal-header h3 {
-  margin: 0;
-  color: #1a3a5c;
-}
-
-.modal-close {
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: #666;
-}
-
-.modal-body {
-  padding: 24px;
-}
-
-.modal-footer {
-  padding: 16px 24px;
-  border-top: 1px solid #e0e0e0;
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  background: #f8f9fa;
-  border-radius: 0 0 12px 12px;
-}
-
-/* Info section */
-.info-section {
-  background: #e8f0fe;
+/* Form controls */
+.form-control, .form-select {
   border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 24px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
 }
 
-.info-section h4 {
-  margin: 0 0 12px 0;
-  color: #1a3a5c;
+.form-control:focus, .form-select:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
 }
 
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 12px;
+/* Breadcrumb */
+.breadcrumb-item a {
+  color: #6c757d;
+  transition: color 0.2s ease;
 }
 
-.info-item {
-  display: flex;
-  flex-direction: column;
+.breadcrumb-item a:hover {
+  color: #0d6efd;
 }
 
-.info-item label {
-  font-size: 12px;
-  color: #666;
-  margin-bottom: 4px;
-}
+/* Responsive */
+@media (max-width: 768px) {
+  .container-fluid {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
 
-.info-item span {
-  font-weight: 500;
-  color: #333;
-}
+  .table {
+    font-size: 0.75rem;
+  }
 
-/* Form section */
-.form-section h4 {
-  margin: 0 0 16px 0;
-  color: #1a3a5c;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-group label {
-  font-size: 13px;
-  font-weight: 500;
-  margin-bottom: 6px;
-  color: #333;
-}
-
-.form-control {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
-.form-control:focus {
-  outline: none;
-  border-color: #1a3a5c;
-  box-shadow: 0 0 0 2px rgba(26, 58, 92, 0.1);
-}
-
-textarea.form-control {
-  resize: vertical;
-}
-
-.btn-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.status-badge.status-draft {
-  background: #f0f0f0;
-  color: #666;
+  .btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+  }
 }

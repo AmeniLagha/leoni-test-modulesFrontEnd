@@ -32,9 +32,9 @@
         </div>
       </div>
 
-      <div class="nav-actions" [class.open]="isNavbarOpen">
+      <div class="nav-actions"  [class.open]="isNavbarOpen" >
 
-        <div class="nav-notifications">
+        <div class="nav-notifications" *ngIf="(isMC() || isAdmin() || isMP())">
           <button class="notif-btn" (click)="goToNotifications()">
             <i class="bi bi-bell"></i>
             <span class="notif-dot" *ngIf="notificationCount > 0">
@@ -141,9 +141,6 @@
           <li *ngIf="hasPermission(['claim:read'])"><a routerLink="/claims/list" routerLinkActive="active" class="nav-item-leoni"><i class="bi bi-chat-dots"></i><span>Réclamations</span></a></li>
           <li class="nav-divider" *ngIf="userRole === 'ADMIN'"></li>
           <li *ngIf="userRole === 'ADMIN'"><a routerLink="/statistique" routerLinkActive="active" class="nav-item-leoni"><i class="bi bi-graph-up"></i><span>Statistiques</span></a></li>
-          <li *ngIf="userRole === 'ADMIN'"><a routerLink="/chat" routerLinkActive="active" class="nav-item-leoni"><i class="bi bi-robot"></i><span>ChatBot IA</span><i class="bi bi-stars ai-badge"></i></a></li>
-          <li><a routerLink="/aiStock" routerLinkActive="active" class="nav-item-leoni"><i class="bi bi-check2-square"></i><span>AI Stock</span></a></li>
-          <li><a routerLink="/charge-reception" routerLinkActive="active" class="nav-item-leoni"><i class="bi bi-check2-square"></i><span>AI Charge/Reception</span></a></li>
 
         </ul>
       </nav>
@@ -175,33 +172,6 @@
             <div class="decoration-circle"></div>
             <div class="decoration-line"></div>
             <div class="decoration-dots"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- NOTIFICATIONS TECHNIQUES -->
-      <div class="notifications-section"  *ngIf="technicalNotifications.length > 0">
-        <div class="section-header">
-          <h3><i class="bi bi-bell-fill"></i> Alertes techniques<span class="notif-badge">{{ technicalNotifications.length }}</span></h3>
-          <span class="section-line"></span>
-          <button class="clear-notif-btn" (click)="clearNotifications()"><i class="bi bi-check2-all"></i> Tout marquer comme lu</button>
-        </div>
-        <div class="notifications-list">
-          <div class="notification-item" *ngFor="let notif of technicalNotifications" [class.critical]="notif.priority === 'CRITICAL'" [class.high]="notif.priority === 'HIGH'" [class.medium]="notif.priority === 'MEDIUM'">
-            <div class="notif-icon"><i class="bi" [class.bi-exclamation-triangle-fill]="notif.priority === 'CRITICAL'" [class.bi-exclamation-circle-fill]="notif.priority === 'HIGH'" [class.bi-info-circle-fill]="notif.priority === 'MEDIUM'"></i></div>
-            <div class="notif-content">
-              <div class="notif-title">{{ notif.title }}</div>
-              <div class="notif-description">{{ notif.description }}</div>
-              <div class="notif-meta">
-                <span class="notif-project" *ngIf="notif.project"><i class="bi bi-folder"></i> Projet: {{ notif.project }}</span>
-                <span class="notif-days" [class.critical]="notif.daysWithoutUpdate > 30" [class.high]="notif.daysWithoutUpdate > 14 && notif.daysWithoutUpdate <= 30"><i class="bi bi-calendar"></i> {{ notif.daysWithoutUpdate }} jours sans modification</span>
-                <span class="notif-date"><i class="bi bi-clock"></i> {{ notif.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
-              </div>
-            </div>
-            <div class="notif-action">
-              <button class="btn-view" (click)="viewTechnicalItem(notif.id)"><i class="bi bi-eye"></i> Voir</button>
-              <button class="btn-dismiss" (click)="dismissNotification(notif.id)"><i class="bi bi-x-lg"></i></button>
-            </div>
           </div>
         </div>
       </div>
@@ -276,11 +246,6 @@
         <span class="month-count">{{ monthlyVariation.previousMonthCount || 0 }}</span>
         <span class="month-sub">cahiers créés</span>
       </div>
-      <div class="variation-arrow" [class.positive]="monthlyVariation.trend === 'hausse'"
-           [class.negative]="monthlyVariation.trend === 'baisse'">
-        <i [class]="getVariationIcon(monthlyVariation.trend)"></i>
-        <span class="variation-percent">{{ getVariationSign(monthlyVariation.variation) }}{{ monthlyVariation.variation }}%</span>
-      </div>
       <div class="month-card current">
         <span class="month-label">{{ monthlyVariation.currentMonth }}</span>
         <span class="month-count">{{ monthlyVariation.currentMonthCount || 0 }}</span>
@@ -310,26 +275,3 @@
   </div>
 </div>
 
-<!-- CHATBOT -->
-<div class="leoni-chatbot">
-  <button class="chat-trigger" (click)="toggleChat()"><div class="trigger-icon"><i class="bi bi-robot"></i></div><div class="trigger-pulse"></div><span class="trigger-text">Assistant LEONI</span></button>
-  <div class="chat-panel" *ngIf="isOpen">
-    <div class="chat-panel-header">
-      <div class="header-avatar"><i class="bi bi-robot"></i><div class="avatar-status"></div></div>
-      <div class="header-info"><h4>LEONI Assistant</h4><p>Support technique • IA avancée</p></div>
-      <button class="close-chat" (click)="closeChat()"><i class="bi bi-x-lg"></i></button>
-    </div>
-    <div class="chat-messages" #messagesContainer>
-      <div *ngFor="let msg of messages" class="chat-message" [class.user]="msg.isUser" [class.bot]="!msg.isUser">
-        <div class="message-avatar" *ngIf="!msg.isUser"><i class="bi bi-robot"></i></div>
-        <div class="message-bubble"><div class="message-text" [innerHTML]="formatMessage(msg.text)"></div><div class="message-time">{{ msg.timestamp | date:'HH:mm' }}</div></div>
-        <div class="message-avatar user-avatar" *ngIf="msg.isUser"><span>{{ userEmail.charAt(0).toUpperCase() }}</span></div>
-      </div>
-      <div *ngIf="isLoading" class="chat-message bot"><div class="message-avatar"><i class="bi bi-robot"></i></div><div class="message-bubble"><div class="typing-indicator"><span></span><span></span><span></span></div></div></div>
-    </div>
-    <div class="chat-input-area">
-      <div class="input-wrapper"><input type="text" [(ngModel)]="userInput" (keyup.enter)="sendMessage()" placeholder="Posez votre question..." [disabled]="isLoading"><button (click)="sendMessage()" [disabled]="!userInput || isLoading"><i class="bi bi-send"></i></button></div>
-      <div class="suggestions"><button *ngFor="let suggestion of suggestions" (click)="askSuggestion(suggestion)">{{ suggestion }}</button></div>
-    </div>
-  </div>
-</div>

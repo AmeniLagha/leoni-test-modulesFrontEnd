@@ -35,9 +35,6 @@ export class DetailstechfileComponent implements OnInit {
     caisse: '',
     specifications: '',
     infoSurModules: '',
-    demandeurExplication: '',
-    dateDemande: new Date().toISOString().split('T')[0],
-    newQuantite: null
   };
 
   preStockInfo: any = null;
@@ -114,9 +111,6 @@ export class DetailstechfileComponent implements OnInit {
           caisse: '',
           specifications: '',
           infoSurModules: '',
-          demandeurExplication: '',
-          dateDemande: new Date().toISOString().split('T')[0],
-          newQuantite: null,
           // Valeurs techniques (non modifiables)
           finalDisplacement: info.finalDisplacement,
           finalProgrammedSealing: info.finalProgrammedSealing,
@@ -166,9 +160,6 @@ export class DetailstechfileComponent implements OnInit {
       caisse: this.stockForm.caisse,
       specifications: this.stockForm.specifications,
       infoSurModules: this.stockForm.infoSurModules,
-      demandeurExplication: this.stockForm.demandeurExplication,
-      dateDemande: this.stockForm.dateDemande,
-      newQuantite: this.stockForm.newQuantite,
       finalDisplacement: this.preStockInfo?.finalDisplacement,
       finalProgrammedSealing: this.preStockInfo?.finalProgrammedSealing,
       finalDetection: this.preStockInfo?.finalDetection

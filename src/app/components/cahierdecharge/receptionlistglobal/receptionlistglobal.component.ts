@@ -22,17 +22,34 @@ import { AuthService } from '../../../../services/auth.service';
             {{ receptions.length }} réception(s)
           </span>
         </h1>
-        <div class="header-actions">
-          <button class="btn-refresh" (click)="loadAllReceptions()" [disabled]="loading">
-            <i class="bi bi-arrow-repeat" [class.spinning]="loading"></i> Actualiser
-          </button>
-          <button class="btn-refresh" (click)="gotostat()" >
-            <i class="bi bi-arrow-repeat" ></i> Statistiques
-          </button>
-           <a routerLink="/dashboard" class="btn btn-light">
-          <i class="bi bi-arrow-left me-2"></i>Retour
-        </a>
-        </div>
+       <div class="header-actions d-flex gap-2">
+  <!-- Bouton Actualiser avec effet de rotation -->
+  <button class="btn btn-primary"
+          (click)="loadAllReceptions()"
+          [disabled]="loading"
+          style="transition: all 0.3s ease;">
+    <i class="bi bi-arrow-repeat me-1"
+       [class.spinning]="loading"
+       style="transition: transform 0.3s ease;"></i>
+    <span>{{ loading ? 'Chargement...' : 'Actualiser' }}</span>
+  </button>
+
+  <!-- Bouton Statistiques avec icône -->
+  <button class="btn btn-success"
+          (click)="gotostat()"
+          style="transition: all 0.3s ease;">
+    <i class="bi bi-graph-up me-1"></i>
+    Statistiques
+  </button>
+
+  <!-- Bouton Retour -->
+  <a routerLink="/dashboard"
+     class="btn btn-outline-danger"
+     style="transition: all 0.3s ease;">
+    <i class="bi bi-house-door me-1"></i>
+    Retour au tableau de bord
+  </a>
+</div>
       </div>
 
       <!-- FILTRES RAPIDES -->
@@ -152,11 +169,11 @@ import { AuthService } from '../../../../services/auth.service';
               </td>
               <td>
                 <a [routerLink]="['/charge-sheets', reception.chargeSheetId]" class="sheet-link">
-                  #{{ reception.chargeSheetId }}
+                  #{{ reception.chargeSheetOrderNumber }}
                 </a>
               </td>
               <td>
-                <span class="item-badge">Item {{ reception.item.itemNumber }}</span>
+                <span class="item-badge">Item {{ reception.item.housingReferenceSupplierCustomer }}</span>
               </td>
               <td>
                 <span class="quantity-badge">{{ reception.quantityReceived }}</span>
@@ -269,7 +286,51 @@ import { AuthService } from '../../../../services/auth.service';
       font-size: 0.95rem;
       transition: all 0.2s;
     }
+/* styles.css ou component.css */
 
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+
+/* Effet de hover sur les boutons */
+.btn {
+  transition: all 0.2s ease-in-out;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Version avec icônes uniquement sur mobile */
+@media (max-width: 576px) {
+  .btn span {
+    display: none;
+  }
+
+  .btn i {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+
+  .btn {
+    padding: 0.375rem 0.75rem;
+  }
+}
     .btn-refresh:hover:not(:disabled) {
       background: rgba(255,255,255,0.3);
       transform: translateY(-2px);

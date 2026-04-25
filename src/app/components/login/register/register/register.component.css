@@ -67,7 +67,58 @@
   background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
   pointer-events: none;
 }
+/* register.component.css - Ajouter ces styles */
 
+/* Messages d'erreur spécifiques */
+.email-exists-error,
+.matricule-exists-error {
+  font-size: 0.8rem;
+  color: #dc3545;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Message de succès */
+.valid-feedback {
+  font-size: 0.8rem;
+  color: #198754;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 0.25rem;
+}
+
+/* Animation pour les messages */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Style pour les champs valides */
+.form-control.is-valid {
+  border-color: #198754;
+  background-image: none;
+}
+
+/* Style pour les champs invalides */
+.form-control.is-invalid {
+  border-color: #dc3545;
+}
+
+/* Icônes dans les labels */
+.form-floating label i {
+  font-size: 1rem;
+  color: #6c757d;
+}
 .header-content {
   position: relative;
   z-index: 1;

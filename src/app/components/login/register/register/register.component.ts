@@ -1,12 +1,14 @@
-// register.component.ts
+// register.component.ts - Version modifiée
+
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { debounceTime, distinctUntilChanged, switchMap, map, of, Observable } from 'rxjs';
 import { AuthService } from '../../../../../services/auth.service';
 import { Site } from '../../../../../models/site.model';
 import { SiteService } from '../../../../../services/Site';
-import { ProjetService } from '../../../../../services/projet.service'; // ✅ AJOUTER
+import { ProjetService } from '../../../../../services/projet.service';
 
 @Component({
   selector: 'app-register',
@@ -20,7 +22,7 @@ export class RegisterComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
   private siteService = inject(SiteService);
-  private projetService = inject(ProjetService); // ✅ AJOUTER
+  private projetService = inject(ProjetService);
 
   registerForm: FormGroup;
   errorMessage = '';
@@ -29,22 +31,31 @@ export class RegisterComponent implements OnInit {
   showPassword = false;
   roles = ['ADMIN', 'ING', 'PT', 'PP', 'MC', 'MP'];
 
-  // ✅ Remplacer par une liste dynamique depuis la base
   projets: any[] = [];
   loadingProjets = false;
-
   sites: Site[] = [];
   loadingSites = false;
+  currentStep: number = 1;
+
+  // ✅ Messages d'erreur spécifiques pour email et matricule
+  emailExistsError = '';
+  matriculeExistsError = '';
 
   constructor() {
     this.registerForm = this.fb.group({
       firstname: ['', [Validators.required]],
       lastname: ['', [Validators.required]],
-      email: ['', [Validators.required, Validators.email]],
-      matricule: ['', [Validators.required]],
+      email: ['',
+        [Validators.required, Validators.email],
+        [this.emailAsyncValidator.bind(this)] // ✅ Validateur asynchrone
+      ],
+      matricule: ['',
+        [Validators.required],
+        [this.matriculeAsyncValidator.bind(this)] // ✅ Validateur asynchrone
+      ],
       password: ['', [Validators.required, Validators.minLength(6)]],
       role: ['', [Validators.required]],
-      projets: [[], [Validators.required]], // ✅ Tableau de projets
+      projets: [[], [Validators.required]],
       siteName: ['', [Validators.required]]
     });
   }
@@ -61,10 +72,60 @@ export class RegisterComponent implements OnInit {
     }
 
     this.loadSites();
-    this.loadProjets(); // ✅ Charger les projets
+    this.loadProjets();
+
+    // ✅ Réinitialiser les messages d'erreur quand l'utilisateur tape
+    this.registerForm.get('email')?.valueChanges.subscribe(() => {
+      this.emailExistsError = '';
+    });
+
+    this.registerForm.get('matricule')?.valueChanges.subscribe(() => {
+      this.matriculeExistsError = '';
+    });
   }
 
-  // ✅ Charger les projets depuis l'API
+  // ✅ Validateur asynchrone pour l'email
+  emailAsyncValidator(control: AbstractControl): Promise<ValidationErrors | null> | Observable<ValidationErrors | null> {
+    if (!control.value) {
+      return of(null);
+    }
+
+    return of(control.value).pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      switchMap(email => this.authService.checkEmailExists(email)),
+      map(exists => {
+        if (exists) {
+          this.emailExistsError = 'Cet email est déjà utilisé';
+          return { emailExists: true };
+        }
+        this.emailExistsError = '';
+        return null;
+      })
+    );
+  }
+
+  // ✅ Validateur asynchrone pour le matricule
+  matriculeAsyncValidator(control: AbstractControl): Promise<ValidationErrors | null> | Observable<ValidationErrors | null> {
+    if (!control.value) {
+      return of(null);
+    }
+
+    return of(control.value).pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      switchMap(matricule => this.authService.checkMatriculeExists(matricule)),
+      map(exists => {
+        if (exists) {
+          this.matriculeExistsError = 'Ce matricule est déjà utilisé';
+          return { matriculeExists: true };
+        }
+        this.matriculeExistsError = '';
+        return null;
+      })
+    );
+  }
+
   loadProjets(): void {
     this.loadingProjets = true;
     this.projetService.getActive().subscribe({
@@ -129,7 +190,6 @@ export class RegisterComponent implements OnInit {
       this.isLoading = true;
       this.errorMessage = '';
 
-      // ✅ Transformer les données pour l'envoi (tableau de noms de projets)
       const selectedProjets = this.registerForm.value.projets;
       const projetNames = selectedProjets.map((p: any) => typeof p === 'string' ? p : p.name);
 
@@ -140,16 +200,20 @@ export class RegisterComponent implements OnInit {
         matricule: this.registerForm.value.matricule,
         password: this.registerForm.value.password,
         role: this.registerForm.value.role,
-        projets: projetNames, // ✅ Tableau de noms de projets
+        projets: projetNames,
         siteName: this.registerForm.value.siteName
       };
 
       console.log('🚀 Tentative de création utilisateur:', registerData);
-       this.successMessage = '';
+      this.successMessage = '';
+
       this.authService.register(registerData).subscribe({
         next: (response) => {
           console.log('✅ Utilisateur créé avec succès:', response);
-          this.router.navigate(['/listeuser']);
+          this.successMessage = 'Utilisateur créé avec succès ! Redirection...';
+          setTimeout(() => {
+            this.router.navigate(['/listeuser']);
+          }, 1500);
         },
         error: (error) => {
           console.error('❌ Erreur création:', error);
@@ -172,55 +236,96 @@ export class RegisterComponent implements OnInit {
       });
     }
   }
-  // Ajoutez ces propriétés et méthodes
-currentStep: number = 1;
 
-nextStep(): void {
-  if (this.currentStep < 3) {
-    this.currentStep++;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  nextStep(): void {
+    // Validation de l'étape 1 avant de passer à l'étape 2
+    if (this.currentStep === 1) {
+      const step1Controls = ['firstname', 'lastname', 'email', 'matricule'];
+      let isValid = true;
+
+      step1Controls.forEach(control => {
+        this.registerForm.get(control)?.markAsTouched();
+        if (this.registerForm.get(control)?.invalid) {
+          isValid = false;
+        }
+      });
+
+      if (!isValid) {
+        this.errorMessage = 'Veuillez remplir correctement tous les champs de l\'étape 1';
+        return;
+      }
+
+      // Vérifier les erreurs asynchrones
+      if (this.emailExistsError || this.matriculeExistsError) {
+        this.errorMessage = 'Veuillez corriger les erreurs avant de continuer';
+        return;
+      }
+    }
+
+    if (this.currentStep === 2) {
+      const step2Controls = ['password'];
+      let isValid = true;
+
+      step2Controls.forEach(control => {
+        this.registerForm.get(control)?.markAsTouched();
+        if (this.registerForm.get(control)?.invalid) {
+          isValid = false;
+        }
+      });
+
+      if (!isValid) {
+        this.errorMessage = 'Veuillez saisir un mot de passe valide (minimum 6 caractères)';
+        return;
+      }
+    }
+
+    if (this.currentStep < 3) {
+      this.currentStep++;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      this.errorMessage = '';
+    }
   }
-}
 
-prevStep(): void {
-  if (this.currentStep > 1) {
-    this.currentStep--;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  prevStep(): void {
+    if (this.currentStep > 1) {
+      this.currentStep--;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      this.errorMessage = '';
+    }
   }
-}
 
-getPasswordStrength(): number {
-  const password = this.registerForm.get('password')?.value || '';
-  let strength = 0;
+  getPasswordStrength(): number {
+    const password = this.registerForm.get('password')?.value || '';
+    let strength = 0;
 
-  if (password.length >= 6) strength += 20;
-  if (password.length >= 8) strength += 10;
-  if (/[A-Z]/.test(password)) strength += 20;
-  if (/[a-z]/.test(password)) strength += 20;
-  if (/[0-9]/.test(password)) strength += 15;
-  if (/[^A-Za-z0-9]/.test(password)) strength += 15;
+    if (password.length >= 6) strength += 20;
+    if (password.length >= 8) strength += 10;
+    if (/[A-Z]/.test(password)) strength += 20;
+    if (/[a-z]/.test(password)) strength += 20;
+    if (/[0-9]/.test(password)) strength += 15;
+    if (/[^A-Za-z0-9]/.test(password)) strength += 15;
 
-  return Math.min(strength, 100);
-}
-
-getPasswordStrengthText(): string {
-  const strength = this.getPasswordStrength();
-  if (strength <= 33) return 'Mot de passe faible';
-  if (strength <= 66) return 'Mot de passe moyen';
-  return 'Mot de passe fort';
-}
-
-isProjectSelected(projectName: string): boolean {
-  const projets = this.registerForm.get('projets')?.value || [];
-  return projets.includes(projectName);
-}
-
-toggleProject(projectName: string): void {
-  const projets = this.registerForm.get('projets')?.value || [];
-  if (projets.includes(projectName)) {
-    this.registerForm.get('projets')?.setValue(projets.filter((p: string) => p !== projectName));
-  } else {
-    this.registerForm.get('projets')?.setValue([...projets, projectName]);
+    return Math.min(strength, 100);
   }
-}
+
+  getPasswordStrengthText(): string {
+    const strength = this.getPasswordStrength();
+    if (strength <= 33) return 'Mot de passe faible';
+    if (strength <= 66) return 'Mot de passe moyen';
+    return 'Mot de passe fort';
+  }
+
+  isProjectSelected(projectName: string): boolean {
+    const projets = this.registerForm.get('projets')?.value || [];
+    return projets.includes(projectName);
+  }
+
+  toggleProject(projectName: string): void {
+    const projets = this.registerForm.get('projets')?.value || [];
+    if (projets.includes(projectName)) {
+      this.registerForm.get('projets')?.setValue(projets.filter((p: string) => p !== projectName));
+    } else {
+      this.registerForm.get('projets')?.setValue([...projets, projectName]);
+    }
+  }
 }

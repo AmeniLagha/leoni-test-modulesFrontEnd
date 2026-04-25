@@ -2437,7 +2437,29 @@ input[type="month"]::-webkit-calendar-picker-indicator {
   backdrop-filter: blur(20px);
   z-index: 1000;
 }
+.logo-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
 
+.logo-img {
+  height: 60px;
+  position: relative;
+  z-index: 1;
+}
+
+.logo-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
 .dropdown-menu.user-dropdown.show {
   opacity: 1;
   visibility: visible;

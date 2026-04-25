@@ -76,32 +76,66 @@
             </div>
           </div>
 
-          <div class="form-floating mt-4">
-            <input type="email" class="form-control" id="email"
-                   formControlName="email"
-                   [class.is-invalid]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
-                   placeholder="Email">
-            <label for="email">
-              <i class="bi bi-envelope me-2"></i>Email professionnel
-            </label>
-            <div class="invalid-feedback">
-              <span *ngIf="registerForm.get('email')?.errors?.['required']">L'email est requis</span>
-              <span *ngIf="registerForm.get('email')?.errors?.['email']">Format d'email invalide</span>
-            </div>
-          </div>
+          <!-- register.component.html - Modifier la section email -->
 
-          <div class="form-floating mt-4">
-            <input type="number" class="form-control" id="matricule"
-                   formControlName="matricule"
-                   [class.is-invalid]="registerForm.get('matricule')?.invalid && registerForm.get('matricule')?.touched"
-                   placeholder="Matricule">
-            <label for="matricule">
-              <i class="bi bi-card-heading me-2"></i>Matricule
-            </label>
-            <div class="invalid-feedback">
-              Le matricule est requis
-            </div>
-          </div>
+<div class="form-floating mt-4">
+  <input type="email" class="form-control" id="email"
+         formControlName="email"
+         [class.is-invalid]="(registerForm.get('email')?.invalid && registerForm.get('email')?.touched) || emailExistsError"
+         [class.is-valid]="registerForm.get('email')?.valid && registerForm.get('email')?.touched && !emailExistsError"
+         placeholder="Email">
+  <label for="email">
+    <i class="bi bi-envelope me-2"></i>Email professionnel
+  </label>
+
+  <!-- Message d'erreur pour email invalide -->
+  <div class="invalid-feedback" *ngIf="registerForm.get('email')?.errors?.['required'] && registerForm.get('email')?.touched">
+    L'email est requis
+  </div>
+  <div class="invalid-feedback" *ngIf="registerForm.get('email')?.errors?.['email'] && registerForm.get('email')?.touched">
+    Format d'email invalide
+  </div>
+
+  <!-- ✅ Message d'erreur pour email existant (en bas du champ) -->
+  <div class="email-exists-error" *ngIf="emailExistsError && registerForm.get('email')?.touched">
+    <i class="bi bi-exclamation-circle me-1"></i>
+    {{ emailExistsError }}
+  </div>
+
+  <!-- Message de succès -->
+  <div class="valid-feedback" *ngIf="registerForm.get('email')?.valid && registerForm.get('email')?.touched && !emailExistsError">
+    <i class="bi bi-check-circle me-1"></i> Email disponible
+  </div>
+</div>
+
+         <!-- register.component.html - Modifier la section matricule -->
+
+<div class="form-floating mt-4">
+  <input type="number" class="form-control" id="matricule"
+         formControlName="matricule"
+         [class.is-invalid]="(registerForm.get('matricule')?.invalid && registerForm.get('matricule')?.touched) || matriculeExistsError"
+         [class.is-valid]="registerForm.get('matricule')?.valid && registerForm.get('matricule')?.touched && !matriculeExistsError"
+         placeholder="Matricule">
+  <label for="matricule">
+    <i class="bi bi-card-heading me-2"></i>Matricule
+  </label>
+
+  <!-- Message d'erreur pour matricule requis -->
+  <div class="invalid-feedback" *ngIf="registerForm.get('matricule')?.errors?.['required'] && registerForm.get('matricule')?.touched">
+    Le matricule est requis
+  </div>
+
+  <!-- ✅ Message d'erreur pour matricule existant (en bas du champ) -->
+  <div class="matricule-exists-error" *ngIf="matriculeExistsError && registerForm.get('matricule')?.touched">
+    <i class="bi bi-exclamation-circle me-1"></i>
+    {{ matriculeExistsError }}
+  </div>
+
+  <!-- Message de succès -->
+  <div class="valid-feedback" *ngIf="registerForm.get('matricule')?.valid && registerForm.get('matricule')?.touched && !matriculeExistsError">
+    <i class="bi bi-check-circle me-1"></i> Matricule disponible
+  </div>
+</div>
         </div>
 
         <!-- ÉTAPE 2: SÉCURITÉ -->

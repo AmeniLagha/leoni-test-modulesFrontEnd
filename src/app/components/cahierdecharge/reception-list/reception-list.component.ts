@@ -15,6 +15,8 @@ import { ReceptionHistoryDto, ReceptionSummary } from '../../../../models/charge
 })
 export class ReceptionListComponent implements OnInit {
   chargeSheetId: number | null = null;
+   chargeSheetOrderNumber: string | null = null;
+    selectedItemDetails: any = null;
   selectedItemId: number | null = null;
   receptions: ReceptionHistoryDto[] = [];
   filteredReceptions: ReceptionHistoryDto[] = [];
@@ -36,6 +38,7 @@ export class ReceptionListComponent implements OnInit {
       const id = params.get('id');
       if (id) {
         this.chargeSheetId = +id;
+      this.loadChargeSheetDetails(); // ✅ CHARGER LES DÉTAILS DU CAHIER
       }
     });
 
@@ -43,8 +46,50 @@ export class ReceptionListComponent implements OnInit {
       const itemId = params['itemId'];
       if (itemId) {
         this.selectedItemId = +itemId;
+          this.loadItemDetails();
       }
       this.loadReceptions();
+    });
+  }
+
+ // ✅ AJOUTER CETTE MÉTHODE
+  loadChargeSheetDetails(): void {
+    if (!this.chargeSheetId) return;
+
+    this.chargeSheetService.getById(this.chargeSheetId).subscribe({
+      next: (chargeSheet) => {
+        this.chargeSheetOrderNumber = chargeSheet.orderNumber;
+        console.log('Order number chargé:', this.chargeSheetOrderNumber);
+      },
+      error: (err) => {
+        console.error('Erreur chargement du cahier:', err);
+        this.chargeSheetOrderNumber = null;
+      }
+    });
+  }
+  // ✅ AJOUTER CETTE MÉTHODE POUR CHARGER LES DÉTAILS DE L'ITEM
+  loadItemDetails(): void {
+    if (!this.selectedItemId || !this.chargeSheetId) return;
+
+    // Récupérer l'item spécifique depuis le cahier
+    this.chargeSheetService.getById(this.chargeSheetId).subscribe({
+      next: (chargeSheet) => {
+        const item = chargeSheet.items?.find((i: any) => i.id === this.selectedItemId);
+        if (item) {
+          this.selectedItemDetails = {
+            id: item.id,
+            itemNumber: item.itemNumber,
+            housingReferenceLeoni: item.housingReferenceLeoni,
+            housingReferenceSupplierCustomer: item.housingReferenceSupplierCustomer, // ✅ RÉFÉRENCE FOURNISSEUR
+            quantityOfTestModules: item.quantityOfTestModules,
+            status: item.itemStatus
+          };
+          console.log('Détails item chargé:', this.selectedItemDetails);
+        }
+      },
+      error: (err) => {
+        console.error('Erreur chargement détails item:', err);
+      }
     });
   }
 
@@ -58,6 +103,16 @@ export class ReceptionListComponent implements OnInit {
 
         if (this.selectedItemId) {
           this.receptions = this.receptions.filter(r => r.item.id === this.selectedItemId);
+           // ✅ Si on a des réceptions, enrichir avec les détails de l'item
+          if (this.receptions.length > 0 && !this.selectedItemDetails) {
+            this.selectedItemDetails = {
+              id: this.selectedItemId,
+              itemNumber: this.receptions[0].item.itemNumber,
+              housingReferenceLeoni: this.receptions[0].item.housingReferenceLeoni,
+              housingReferenceSupplierCustomer: this.receptions[0].item.housingReferenceSupplierCustomer,
+              quantityOfTestModules: this.receptions[0].item.quantityOfTestModules
+            };
+          }
         }
 
         this.filteredReceptions = this.receptions;
@@ -141,9 +196,16 @@ export class ReceptionListComponent implements OnInit {
     this.dateFilter = '';
     this.applyFilters();
   }
-
+ // ✅ GETTER POUR LA RÉFÉRENCE FOURNISSEUR
+  getSupplierReference(): string {
+    if (this.selectedItemDetails?.housingReferenceSupplierCustomer) {
+      return this.selectedItemDetails.housingReferenceSupplierCustomer;
+    }
+    return 'Non spécifiée';
+  }
   clearItemFilter(): void {
     this.selectedItemId = null;
+     this.selectedItemDetails = null;
     this.loadReceptions();
     this.router.navigate(['/charge-sheets', this.chargeSheetId, 'receptions']);
   }

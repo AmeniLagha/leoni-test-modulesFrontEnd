@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, throwError } from 'rxjs';
+import { map, Observable, tap, throwError } from 'rxjs';
 import { LoginRequest, AuthResponse, RegisterRequest, User } from '../models/auth.model';
 import { environment } from '../environments/environment';
 
@@ -185,5 +185,18 @@ getUserPlant(): string {
     const headers = { Authorization: `Bearer ${token}` };
     return this.http.get<{ token: string }>(`${this.apiUrl}/current-token`, { headers });
   }
+ // ✅ Vérifier si l'email existe déjà
+  // auth.service.ts
 
+checkEmailExists(email: string): Observable<boolean> {
+  
+  return this.http.get<{ exists: boolean }>(`${this.apiUrl}/users/check-email?email=${email}`)
+    .pipe(map(response => response.exists));
+}
+
+checkMatriculeExists(matricule: number): Observable<boolean> {
+
+  return this.http.get<{ exists: boolean }>(`${this.apiUrl}/users/check-matricule?matricule=${matricule}`)
+    .pipe(map(response => response.exists));
+}
 }

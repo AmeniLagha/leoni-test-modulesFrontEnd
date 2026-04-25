@@ -450,12 +450,27 @@
   </div>
 
   <!-- ===== AUCUN DOSSIER ===== -->
-  <div *ngIf="!loading && !error && technicalFiles.length === 0" class="empty-state">
-    <i class="bi bi-folder"></i>
-    <h3>Aucun dossier technique</h3>
-    <p>Commencez par créer votre premier dossier technique.</p>
-    <button class="btn btn-primary" routerLink="/technical-files/create">
-      <i class="bi bi-plus-circle"></i> Créer un dossier
-    </button>
-  </div>
+ <!-- technical-file-list.component.html - Modifier cette section -->
+
+<!-- ===== AUCUN RÉSULTAT ===== -->
+<!-- ✅ Ne s'affiche que si on a des dossiers mais que la recherche ne retourne rien -->
+<div *ngIf="!loading && !error && technicalFiles.length > 0 && filteredFiles.length === 0 && (searchTerm || yearFilter || monthFilter)" class="empty-state">
+  <i class="bi bi-search"></i>
+  <h3>Aucun résultat</h3>
+  <p>Aucun dossier ne correspond à votre recherche.</p>
+  <button class="btn btn-primary" (click)="resetFilters()">
+    <i class="bi bi-arrow-counterclockwise"></i> Réinitialiser les filtres
+  </button>
+</div>
+
+<!-- ===== AUCUN DOSSIER ===== -->
+<!-- ✅ Ne s'affiche que s'il n'y a aucun dossier dans la base -->
+<div *ngIf="!loading && !error && technicalFiles.length === 0" class="empty-state">
+  <i class="bi bi-folder"></i>
+  <h3>Aucun dossier technique</h3>
+  <p>Commencez par créer votre premier dossier technique.</p>
+  <button class="btn btn-primary" routerLink="/technical-files/create">
+    <i class="bi bi-plus-circle"></i> Créer un dossier
+  </button>
+</div>
 </div>

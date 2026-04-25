@@ -73,6 +73,9 @@ export class DetailstechfileComponent implements OnInit {
           this.service.getById(data.technicalFileId).subscribe({
             next: (fileData: any) => {
               this.parentFile = fileData;
+                // ✅ AFFICHER LA RÉFÉRENCE DU DOSSIER PARENT
+            console.log('Dossier parent - Référence:', this.parentFile.reference); // Devrait afficher "REF-001", etc.
+            console.log('Dossier parent - ID:', this.parentFile.id);
               this.loading = false;
             },
             error: (err: HttpErrorResponse) => {

@@ -62,27 +62,35 @@ export class TechnicalFileListComponent implements OnInit {
     this.loadAllTechnicalFiles();
   }
 
-  loadAllTechnicalFiles() {
-    this.loading = true;
-    this.service.getAllDetailed().subscribe({
-      next: (files) => {
-         this.applyFilters();
-         this.generateAvailableYears();
-        this.technicalFiles = files;
-        this.loading = false;
+  // technical-file-list.component.ts - Version corrigée
 
-        // Initialiser tous les dossiers comme fermés
-        files.forEach(file => {
-          this.expandedFolders[file.id] = false;
-        });
-      },
-      error: (err) => {
-        console.error('Erreur chargement:', err);
-        this.error = 'Impossible de charger les dossiers techniques';
-        this.loading = false;
-      }
-    });
-  }
+loadAllTechnicalFiles() {
+  this.loading = true;
+  this.service.getAllDetailed().subscribe({
+    next: (files) => {
+      this.technicalFiles = files;
+
+      // ✅ 1. D'abord, assigner les données
+      // ✅ 2. Initialiser tous les dossiers comme fermés
+      files.forEach(file => {
+        this.expandedFolders[file.id] = false;
+      });
+
+      // ✅ 3. Générer les années disponibles
+      this.generateAvailableYears();
+
+      // ✅ 4. ENFIN, appliquer les filtres (maintenant que technicalFiles est rempli)
+      this.applyFilters();
+
+      this.loading = false;
+    },
+    error: (err) => {
+      console.error('Erreur chargement:', err);
+      this.error = 'Impossible de charger les dossiers techniques';
+      this.loading = false;
+    }
+  });
+}
   // ==================== GÉNÉRER LES ANNÉES DISPONIBLES ====================
   generateAvailableYears(): void {
     const years = new Set<number>();
@@ -114,37 +122,47 @@ export class TechnicalFileListComponent implements OnInit {
     this.applyFilters();
   }
  // ==================== FONCTIONS DE RECHERCHE ====================
-   applyFilters(): void {
-    this.filteredFiles = this.technicalFiles.filter(file => {
-      // Filtre par recherche textuelle
-      if (this.searchTerm) {
-        const term = this.searchTerm.toLowerCase().trim();
-        const matchRef = file.reference?.toLowerCase().includes(term) || false;
-        const matchCreatedBy = file.createdBy?.toLowerCase().includes(term) || false;
-        if (!matchRef && !matchCreatedBy) {
-          return false;
-        }
-      }
+  // technical-file-list.component.ts
 
-      // Filtre par année
-      if (this.yearFilter && file.createdAt) {
-        const fileYear = new Date(file.createdAt).getFullYear();
-        if (fileYear.toString() !== this.yearFilter) {
-          return false;
-        }
-      }
-       // Filtre par mois
-      if (this.monthFilter && file.createdAt) {
-        const fileMonth = new Date(file.createdAt).getMonth() + 1;
-        const monthStr = fileMonth.toString().padStart(2, '0');
-        if (monthStr !== this.monthFilter) {
-          return false;
-        }
-      }
-
-      return true;
-    });
+applyFilters(): void {
+  // Si aucun fichier n'est chargé, ne rien faire
+  if (!this.technicalFiles || this.technicalFiles.length === 0) {
+    this.filteredFiles = [];
+    return;
   }
+
+  this.filteredFiles = this.technicalFiles.filter(file => {
+    // Filtre par recherche textuelle (seulement si searchTerm a du contenu)
+    if (this.searchTerm && this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase().trim();
+      const matchRef = file.reference?.toLowerCase().includes(term) || false;
+      const matchCreatedBy = file.createdBy?.toLowerCase().includes(term) || false;
+      if (!matchRef && !matchCreatedBy) {
+        return false;
+      }
+    }
+
+    // Filtre par année
+    if (this.yearFilter && file.createdAt) {
+      const fileYear = new Date(file.createdAt).getFullYear();
+      if (fileYear.toString() !== this.yearFilter) {
+        return false;
+      }
+    }
+
+    // Filtre par mois
+    if (this.monthFilter && file.createdAt) {
+      const fileMonth = new Date(file.createdAt).getMonth() + 1;
+      const monthStr = fileMonth.toString().padStart(2, '0');
+      if (monthStr !== this.monthFilter) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+}
+
 
   clearSearch() {
     this.searchTerm = '';

@@ -12,13 +12,13 @@
             </a>
           </li>
           <li class="breadcrumb-item active" *ngIf="item">
-            Item #{{ item.itemNumber || item.id }}
+            Item #{{ item.x_code }}
           </li>
         </ol>
       </nav>
       <h2 class="h4 mb-0 fw-semibold text-dark" *ngIf="item">
         <i class="bi bi-cpu me-2 text-primary"></i>
-        Détail de l'item #{{ item.itemNumber || item.id }}
+        Détail de l'item #{{ item.x_code}}
       </h2>
     </div>
     <button class="btn btn-outline-secondary" (click)="goBack()">
@@ -33,7 +33,7 @@
     <div class="card shadow-sm border-0 rounded-3 mb-4" *ngIf="parentFile">
       <div class="card-header bg-white border-bottom-0 pt-3 pb-0">
         <h5 class="fw-semibold text-primary mb-0">
-          <i class="bi bi-folder2-open me-2"></i>Dossier parent #{{ parentFile.id }}
+          <i class="bi bi-folder2-open me-2"></i>Dossier parent : {{ parentFile.reference || 'Sans référence' }}
         </h5>
       </div>
       <div class="card-body">

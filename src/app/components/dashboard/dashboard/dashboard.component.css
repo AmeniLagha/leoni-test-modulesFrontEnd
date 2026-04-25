@@ -1010,7 +1010,7 @@
 .input-wrapper input {
   flex: 1;
   padding: 0.75rem;
-  background: #0A0E1A;
+  background: #1a0a12;
   border: 1px solid rgba(0, 212, 255, 0.2);
   border-radius: 25px;
   color: white;
@@ -1181,7 +1181,7 @@
 /* Badges */
 .badge-count, .badge-warning {
   background: #00D4FF;
-  color: #0A0E1A;
+  color: #1a0a17;
   padding: 0.2rem 0.6rem;
   border-radius: 20px;
   font-size: 0.7rem;
@@ -1364,14 +1364,7 @@
   border-radius: 3px;
 }
 /* ==================== CARTE DE VARIATION MENSUELLE ==================== */
-.variation-card {
-  background:  rgba(10, 14, 26, 0.95);
-  border-radius: 20px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  border: 1px solid rgba(10, 14, 26, 0.95);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-}
+
 
 .variation-header {
   display: flex;
@@ -1560,7 +1553,7 @@
 .month-selector input {
   width: 100%;
   padding: 0.75rem;
-  background:  rgba(10, 14, 26, 0.95);
+  background:  rgba(26, 10, 16, 0.95);
   border: 1px solid rgba(0, 212, 255, 0.2);
   border-radius: 12px;
   color: white;
@@ -1700,7 +1693,7 @@ input[type="month"]::-webkit-calendar-picker-indicator {
 }
 
 .project-selector select {
-  background:  rgba(10, 14, 26, 0.95);
+  background:  rgba(26, 10, 23, 0.95);
   border: 1px solid rgba(0, 212, 255, 0.2);
   border-radius: 12px;
   padding: 0.5rem 1rem;
@@ -1745,7 +1738,7 @@ input[type="month"]::-webkit-calendar-picker-indicator {
 }
 
 .section-header h3 {
-  color: white;
+  color:#10306c;
   font-size: 1.2rem;
   margin: 0;
   display: flex;
@@ -2029,7 +2022,7 @@ input[type="month"]::-webkit-calendar-picker-indicator {
 
 /* ==================== SÉLECTION DES SITES ==================== */
 .site-selector-section {
-   background: rgba(0, 212, 255, 0.1);
+   background: white;
   margin-bottom: 24px;
   border-radius: 20px;
 }
@@ -2318,12 +2311,7 @@ input[type="month"]::-webkit-calendar-picker-indicator {
 }
 
 /* ==================== VARIATION CARD SIMPLIFIÉE ==================== */
-.variation-card {
-  background: #314171;
-  border-radius: 16px;
-  padding: 20px;
-  margin-top: 20px;
-}
+
 
 .variation-header {
   display: flex;
@@ -2340,6 +2328,7 @@ input[type="month"]::-webkit-calendar-picker-indicator {
 .variation-header h3 {
   font-size: 16px;
   margin: 0;
+  color : #1e3c72
 }
 
 .months-compare {
@@ -2414,7 +2403,7 @@ input[type="month"]::-webkit-calendar-picker-indicator {
 }
 .variation-card {
   display: block !important;
-  background: rgba(255, 255, 255, 0.05);
+  background:  white;
   border-radius: 16px;
   padding: 20px;
   margin: 20px 0;

@@ -8,7 +8,7 @@
 /* ==================== DASHBOARD PRINCIPAL ==================== */
 .leoni-dashboard {
   min-height: 100vh;
-  background: #e9ebf3;
+  background: white;
   font-family: 'Inter', 'Segoe UI', sans-serif;
 }
 
@@ -1369,7 +1369,7 @@
   border-radius: 20px;
   padding: 1.5rem;
   margin-bottom: 2rem;
-  border: 1px solid rgba(0, 212, 255, 0.2);
+  border: 1px solid rgba(10, 14, 26, 0.95);;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
@@ -2029,7 +2029,7 @@ input[type="month"]::-webkit-calendar-picker-indicator {
 
 /* ==================== SÉLECTION DES SITES ==================== */
 .site-selector-section {
-  background-color: #314171;
+   background: rgb(16, 13, 49);
   margin-bottom: 24px;
   border-radius: 16px;
 }
@@ -2040,12 +2040,12 @@ input[type="month"]::-webkit-calendar-picker-indicator {
 
 .site-selector-header h2 {
   font-size: 20px;
-  color: #bbc8e0;
+  color: #10306c;
   margin-bottom: 9px;
 }
 
 .site-selector-header p {
-  color: #6c757d;
+  color: #4d8cc4;
   font-size: 14px;
 }
 

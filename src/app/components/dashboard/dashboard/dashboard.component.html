@@ -1,10 +1,11 @@
+<!-- dashboard.component.html - Version Pro avec toutes les statistiques -->
 <div class="leoni-dashboard">
   <!-- ==================== TOP NAVIGATION BAR ==================== -->
   <nav class="leoni-navbar">
     <div class="nav-container">
       <div class="nav-brand">
         <div class="leoni-logo-3d">
-           <div class="logo-wrapper">
+          <div class="logo-wrapper">
             <img src="assets/leonilogo.png" alt="Leoni Logo" class="logo-img">
           </div>
           <div class="brand-text">
@@ -14,8 +15,7 @@
         </div>
       </div>
 
-      <div class="nav-actions"  [class.open]="isNavbarOpen" >
-
+      <div class="nav-actions">
         <div class="nav-notifications" *ngIf="(isMC() || isAdmin() || isMP())">
           <button class="notif-btn" (click)="goToNotifications()">
             <i class="bi bi-bell"></i>
@@ -25,51 +25,42 @@
           </button>
         </div>
 
-      <div class="user-menu" (click)="toggleUserMenuDropdown($event)">
-  <div class="user-avatar">
-    <span class="avatar-initial">{{ userEmail.charAt(0).toUpperCase() }}</span>
-    <div class="avatar-ring"></div>
-    <div class="avatar-status online"></div>
-  </div>
-  <div class="user-info">
-    <span class="user-name">{{ userEmail.split('@')[0] }}</span>
-    <span class="user-role">{{ getUserRoleLabel(userRole) }}</span>
-  </div>
-  <i class="bi bi-chevron-down dropdown-arrow" [class.rotated]="isUserMenuOpen"></i>
-</div>
+        <div class="user-menu" (click)="toggleUserMenuDropdown($event)">
+          <div class="user-avatar">
+            <span class="avatar-initial">{{ userEmail.charAt(0).toUpperCase() }}</span>
+            <div class="avatar-ring"></div>
+            <div class="avatar-status online"></div>
+          </div>
+          <div class="user-info">
+            <span class="user-name">{{ userEmail.split('@')[0] }}</span>
+            <span class="user-role">{{ getUserRoleLabel(userRole) }}</span>
+          </div>
+          <i class="bi bi-chevron-down dropdown-arrow" [class.rotated]="isUserMenuOpen"></i>
+        </div>
 
-<div class="dropdown-menu user-dropdown" [class.show]="isUserMenuOpen">
-  <div class="dropdown-header">
-    <div class="dropdown-avatar">
-      <span>{{ userEmail.charAt(0).toUpperCase() }}</span>
-    </div>
-    <div class="dropdown-user-info">
-      <h6>{{ userEmail.split('@')[0] }}</h6>
-      <small>{{ getUserRoleLabel(userRole) }}</small>
-      <span class="user-email-badge">{{ userEmail }}</span>
-    </div>
-  </div>
-
-  <div class="dropdown-divider"></div>
-
-  <div class="dropdown-section">
-    <div class="dropdown-item" (click)="goToProfile(); $event.stopPropagation()">
-      <i class="bi bi-person-circle"></i>
-      <span>Mon profil</span>
-      <i class="bi bi-chevron-right ms-auto"></i>
-    </div>
-
-  </div>
-
-  <div class="dropdown-divider"></div>
-
-  <div class="dropdown-footer">
-    <div class="dropdown-item logout-item" (click)="logout($event)">
-      <i class="bi bi-box-arrow-right"></i>
-      <span>Déconnexion</span>
-    </div>
-  </div>
-</div>
+        <div class="dropdown-menu user-dropdown" [class.show]="isUserMenuOpen">
+          <div class="dropdown-header">
+            <div class="dropdown-avatar">
+              <span>{{ userEmail.charAt(0).toUpperCase() }}</span>
+            </div>
+            <div class="dropdown-user-info">
+              <h6>{{ userEmail.split('@')[0] }}</h6>
+              <small>{{ getUserRoleLabel(userRole) }}</small>
+              <span class="user-email-badge">{{ userEmail }}</span>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-item" (click)="goToProfile(); $event.stopPropagation()">
+            <i class="bi bi-person-circle"></i>
+            <span>Mon profil</span>
+            <i class="bi bi-chevron-right ms-auto"></i>
+          </div>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-item logout-item" (click)="logout($event)">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Déconnexion</span>
+          </div>
+        </div>
       </div>
     </div>
   </nav>
@@ -123,7 +114,6 @@
           <li *ngIf="hasPermission(['claim:read'])"><a routerLink="/claims/list" routerLinkActive="active" class="nav-item-leoni"><i class="bi bi-chat-dots"></i><span>Réclamations</span></a></li>
           <li class="nav-divider" *ngIf="userRole === 'ADMIN'"></li>
           <li *ngIf="userRole === 'ADMIN'"><a routerLink="/statistique" routerLinkActive="active" class="nav-item-leoni"><i class="bi bi-graph-up"></i><span>Statistiques</span></a></li>
-
         </ul>
       </nav>
 
@@ -135,7 +125,7 @@
           </svg>
         </div>
         <span>© 2026 LEONI Group</span>
-        <small>Système de gestion des tests modules </small>
+        <small>Système de gestion des tests modules</small>
       </div>
     </aside>
 
@@ -157,20 +147,72 @@
         </div>
       </div>
 
-      <!-- SÉLECTION DES SITES (ADMIN UNIQUEMENT) -->
-      <div *ngIf="userRole === 'ADMIN' && !selectedSite" class="site-selector-section">
-        <div class="site-selector-header">
-          <h2><i class="bi bi-building"></i> Sites industriels</h2>
-          <p>Sélectionnez un site pour accéder à ses données</p>
-        </div>
-        <div class="sites-grid">
-          <div class="site-card-selector" *ngFor="let site of sites" (click)="selectSite(site)">
-            <div class="site-card-icon"><i class="bi bi-building"></i></div>
-            <div class="site-card-info"><h3>{{ site.name }}</h3><p>{{ site.description }}</p></div>
-            <div class="site-card-arrow"><i class="bi bi-arrow-right-circle"></i></div>
+      <!-- ==================== SÉLECTION DES SITES - VERSION CARTES MODERNES ==================== -->
+      <div *ngIf="userRole === 'ADMIN' && !selectedSite" class="site-selector-modern">
+        <div class="selector-header">
+          <div class="header-title">
+            <div class="title-icon">
+              <i class="bi bi-buildings-fill"></i>
+            </div>
+            <div>
+              <h2>Sites industriels</h2>
+              <p>Sélectionnez un site pour accéder à ses indicateurs de performance</p>
+            </div>
           </div>
-          <div *ngIf="sites.length === 0 && !loadingSites" class="no-sites"><i class="bi bi-info-circle"></i><p>Aucun site disponible</p></div>
-          <div *ngIf="loadingSites" class="loading-sites"><div class="spinner"></div><p>Chargement des sites...</p></div>
+          <div class="header-stats">
+            <span class="stat-badge">
+              <i class="bi bi-diagram-3"></i> {{ sites.length }} sites
+            </span>
+          </div>
+        </div>
+
+        <div class="sites-grid-modern">
+          <div class="site-card-modern" *ngFor="let site of sites; let i = index" (click)="selectSite(site)">
+            <div class="card-accent" [style.background]="getSiteCompletionRate(site.name) >= 70 ? '#28a745' : getSiteCompletionRate(site.name) >= 40 ? '#ffc107' : '#dc3545'"></div>
+            <div class="card-content">
+              <div class="card-header-info">
+                <div class="card-icon">
+                  <i class="bi bi-building"></i>
+                </div>
+                <div class="card-number">{{ (i + 1).toString().padStart(2, '0') }}</div>
+              </div>
+              <div class="card-body-info">
+                <h3>{{ site.name }}</h3>
+                <p>{{ site.description || 'Site de production industrielle' }}</p>
+              </div>
+              <div class="card-stats">
+                <div class="stat-item">
+                  <i class="bi bi-files"></i>
+                  <div>
+                    <span class="stat-value">{{ getSiteSheetCount(site.name) }}</span>
+                    <span class="stat-label">cahiers</span>
+                  </div>
+                </div>
+               
+              </div>
+              <div class="card-progress">
+                <div class="progress-bar-custom">
+                  <div class="progress-fill" [style.width.%]="getSiteCompletionRate(site.name)"
+                       [style.background]="getSiteCompletionRate(site.name) >= 70 ? '#28a745' : getSiteCompletionRate(site.name) >= 40 ? '#ffc107' : '#dc3545'"></div>
+                </div>
+              </div>
+              <div class="card-footer">
+                <span>Accéder au site</span>
+                <i class="bi bi-arrow-right-circle-fill"></i>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="sites.length === 0 && !loadingSites" class="empty-state">
+            <i class="bi bi-building-slash"></i>
+            <h4>Aucun site disponible</h4>
+            <p>Contactez l'administrateur pour créer des sites</p>
+          </div>
+
+          <div *ngIf="loadingSites" class="loading-state">
+            <div class="spinner-grow"></div>
+            <p>Chargement des sites...</p>
+          </div>
         </div>
       </div>
 
@@ -186,73 +228,369 @@
         </div>
       </div>
 
-      <!-- ONGLETS DU DASHBOARD -->
-      <div *ngIf="(userRole !== 'ADMIN') || (userRole === 'ADMIN' && selectedSite)" class="dashboard-tabs">
-        <div class="tabs-container">
-          <button class="tab-btn" [class.active]="activeDashboardTab === 'charge-sheets'" (click)="setActiveTab('charge-sheets')">
-            <i class="bi bi-files"></i><span>Cahiers des charges</span><span class="tab-count">{{ chargeSheetCount }}</span>
-          </button>
-          <button class="tab-btn" [class.active]="activeDashboardTab === 'compliance'" (click)="setActiveTab('compliance')">
-            <i class="bi bi-check2-square"></i><span>Conformité</span><span class="tab-count">{{ complianceCount }}</span>
-          </button>
-          <button class="tab-btn" [class.active]="activeDashboardTab === 'technical-files'" (click)="setActiveTab('technical-files')">
-            <i class="bi bi-folder"></i><span>Dossiers techniques</span><span class="tab-count">{{ technicalFilesCount }}</span>
-          </button>
-          <button *ngIf="hasPermission(['admin:readuser'])" class="tab-btn" [class.active]="activeDashboardTab === 'users'" (click)="setActiveTab('users')">
-            <i class="bi bi-people"></i><span>Utilisateurs</span><span class="tab-count">{{ activeUsers }}</span>
-          </button>
-          <button class="tab-btn" [class.active]="activeDashboardTab === 'claims'" (click)="setActiveTab('claims')">
-            <i class="bi bi-chat-dots"></i><span>Réclamations</span><span class="tab-count">{{ claimsCount }}</span>
-          </button>
+      <!-- CARTES STATISTIQUES PRINCIPALES -->
+      <div class="stats-grid" *ngIf="(userRole !== 'ADMIN') || (userRole === 'ADMIN' && selectedSite)">
+        <div class="stat-card-leoni">
+          <div class="card-icon">
+            <i class="bi bi-files"></i>
+            <div class="icon-bg"></div>
+          </div>
+          <div class="card-info">
+            <h3>{{ chargeSheetCount | number }}</h3>
+            <p>Cahiers des charges</p>
+          </div>
+          <div class="card-trend positive" *ngIf="monthlyVariation?.trend !== 'stable'">
+            <i [class]="getVariationIcon(monthlyVariation?.trend)"></i>
+            <span>{{ getVariationSign(monthlyVariation?.variation) }}{{ monthlyVariation?.variation }}%</span>
+          </div>
+          <div class="card-progress">
+            <div class="progress-bar" [style.width.%]="(chargeSheetCount / 100) * 100"></div>
+          </div>
+        </div>
 
+
+      </div>
+
+      <!-- GRAPHIQUE PAR SITE (pour ADMIN avec site sélectionné) -->
+     <!-- ÉVOLUTION MENSUELLE SIMPLE -->
+<div class="row g-4 mb-4" *ngIf="monthlyEvolution.length > 0">
+  <div class="col-md-12">
+    <div class="chart-card">
+      <div class="section-header">
+        <h3><i class="bi bi-calendar-month"></i> Évolution mensuelle des créations</h3>
+        <span class="section-line"></span>
+      </div>
+      <div class="monthly-evolution-list">
+        <div class="evolution-row" *ngFor="let month of monthlyEvolution">
+          <div class="evolution-month">{{ month.month }}</div>
+          <div class="evolution-bar-container">
+            <div class="evolution-bar" [style.width.%]="(month.count / getMaxMonthlyCount()) * 100"></div>
+          </div>
+          <div class="evolution-count">{{ month.count }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+      </div>
+
+      <!-- CARTE DE VARIATION MENSUELLE -->
+      <div class="variation-card" *ngIf="monthlyVariation">
+        <div class="variation-header">
+          <div class="header-left">
+            <i class="bi bi-graph-up"></i>
+            <h3>Évolutions des créations de cahiers</h3>
+          </div>
+          <button class="info-btn" (click)="showVariationDetails = !showVariationDetails">
+            <i class="bi bi-info-circle"></i>
+          </button>
+        </div>
+        <div class="variation-content">
+          <div class="months-compare">
+            <div class="month-card previous">
+              <span class="month-label">{{ monthlyVariation.previousMonth }}</span>
+              <span class="month-count">{{ monthlyVariation.previousMonthCount || 0 }}</span>
+              <span class="month-sub">cahiers créés</span>
+            </div>
+            <div class="variation-arrow" [class.positive]="monthlyVariation.trend === 'hausse'" [class.negative]="monthlyVariation.trend === 'baisse'">
+              <i class="bi bi-arrow-right-short"></i>
+              <span class="variation-percent">{{ getVariationSign(monthlyVariation.variation) }}{{ monthlyVariation.variation }}%</span>
+            </div>
+            <div class="month-card current">
+              <span class="month-label">{{ monthlyVariation.currentMonth }}</span>
+              <span class="month-count">{{ monthlyVariation.currentMonthCount || 0 }}</span>
+              <span class="month-sub">cahiers créés</span>
+            </div>
+          </div>
+          <div class="variation-details" *ngIf="showVariationDetails">
+            <div class="detail-row">
+              <span class="detail-label">📊 Formule :</span>
+              <code class="detail-value">{{ monthlyVariation.formula }}</code>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">💡 Interprétation :</span>
+              <span class="detail-value">{{ monthlyVariation.interpretation }}</span>
+            </div>
+          </div>
         </div>
       </div>
 
-     <!-- ==================== CARTES DE VARIATION ==================== -->
-<!-- CARTES DE VARIATION -->
-<div class="variation-card" *ngIf="monthlyVariation">
-  <div class="variation-header">
-    <div class="header-left">
-      <i class="bi bi-graph-up"></i>
-      <h3>Évolutions des créations de cahiers</h3>
-    </div>
-    <button class="info-btn" (click)="showVariationDetails = !showVariationDetails">
-      <i class="bi bi-info-circle"></i>
-    </button>
+      <!-- TABLEAU DÉTAILLÉ DES STATUTS -->
+      <div class="status-table-section" *ngIf="statusDistribution.length > 0">
+        <div class="section-header">
+          <h3><i class="bi bi-list-check"></i> Détail des statuts</h3>
+          <span class="section-line"></span>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table status-table">
+            <thead>
+              <tr>
+                <th><i class="bi bi-tag"></i> Statut</th>
+                <th><i class="bi bi-palette"></i> Code</th>
+                <th><i class="bi bi-hash"></i> Nombre</th>
+                <th><i class="bi bi-pie-chart"></i> Pourcentage</th>
+                <th><i class="bi bi-graph-up"></i> Progression</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let status of statusStatistics">
+                <td>
+                  <div class="status-indicator" [style.backgroundColor]="status.color"></div>
+                  <span class="status-label">{{ status.label }}</span>
+                </td>
+                <td>
+                  <code class="status-code">{{ status.status }}</code>
+                </td>
+                <td class="text-center fw-bold">{{ status.count }}</td>
+                <td class="text-center">
+                  <span class="percentage-badge" [style.backgroundColor]="status.color + '20'" [style.color]="status.color">
+                    {{ status.percentage | number:'1.1-1' }}%
+                  </span>
+                </td>
+                <td class="text-center">
+                  <div class="progress-mini">
+                    <div class="progress-fill" [style.width.%]="status.percentage" [style.backgroundColor]="status.color"></div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="total-row">
+                <td colspan="2"><strong>TOTAL</strong></td>
+                <td class="text-center fw-bold">{{ chargeSheetCount }}</td>
+                <td class="text-center"><strong>100%</strong></td>
+                <td></td>
+              </tr>
+            </tfoot>
+           </table>
+        </div>
+      </div>
+
+      <!-- TABLEAU DÉTAILLÉ PAR SITE -->
+      <div class="table-section" *ngIf="userRole === 'ADMIN' && siteStats.length > 0">
+        <div class="section-header">
+          <h3><i class="bi bi-table"></i> Détail par site</h3>
+          <span class="section-line"></span>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table site-detail-table">
+            <thead>
+              <tr>
+                <th rowspan="2"><i class="bi bi-building"></i> Site</th>
+                <th rowspan="2"><i class="bi bi-files"></i> Total</th>
+                <th colspan="7" class="text-center"><i class="bi bi-diagram-3"></i> Détail des statuts</th>
+                <th rowspan="2"><i class="bi bi-check-all"></i> Complétés</th>
+                <th rowspan="2"><i class="bi bi-clock-history"></i> En cours</th>
+                <th rowspan="2"><i class="bi bi-pie-chart"></i> Taux</th>
+                <th rowspan="2"><i class="bi bi-arrow-right"></i> Progression</th>
+              </tr>
+              <tr>
+                <th class="status-th draft">Brouillon</th>
+                <th class="status-th validated-ing">Validé ING</th>
+                <th class="status-th tech-filled">Tech Filled</th>
+                <th class="status-th validated-pt">Validé PT</th>
+                <th class="status-th sent">Envoyé</th>
+                <th class="status-th received">Reçu</th>
+                <th class="status-th completed">Complété</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let site of siteStats">
+                <td class="fw-semibold site-name">{{ site.siteName }}</td>
+                <td class="text-center fw-bold total-count">{{ site.totalSheets }}</td>
+                <td class="text-center"><span class="status-badge draft">{{ site.statusDetails.DRAFT }}</span></td>
+                <td class="text-center"><span class="status-badge validated-ing">{{ site.statusDetails.VALIDATED_ING }}</span></td>
+                <td class="text-center"><span class="status-badge tech-filled">{{ site.statusDetails.TECH_FILLED }}</span></td>
+                <td class="text-center"><span class="status-badge validated-pt">{{ site.statusDetails.VALIDATED_PT }}</span></td>
+                <td class="text-center"><span class="status-badge sent">{{ site.statusDetails.SENT_TO_SUPPLIER }}</span></td>
+                <td class="text-center"><span class="status-badge received">{{ site.statusDetails.RECEIVED_FROM_SUPPLIER }}</span></td>
+                <td class="text-center"><span class="status-badge completed">{{ site.statusDetails.COMPLETED }}</span></td>
+                <td class="text-center completed-total">{{ site.completedSheets }}</td>
+                <td class="text-center pending-total">{{ site.pendingSheets }}</td>
+                <td class="text-center">
+                  <span class="rate-badge" [class.high]="site.completionRate >= 80" [class.medium]="site.completionRate >= 50 && site.completionRate < 80" [class.low]="site.completionRate < 50">
+                    {{ site.completionRate | number:'1.1-1' }}%
+                  </span>
+                </td>
+                <td class="text-center">
+                  <div class="progress-mini">
+                    <div class="progress-fill" [style.width.%]="site.completionRate" [class.high]="site.completionRate >= 80" [class.medium]="site.completionRate >= 50 && site.completionRate < 80" [class.low]="site.completionRate < 50"></div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="total-row">
+                <td class="fw-bold">TOTAL</td>
+                <td class="text-center fw-bold">{{ totalSheetsAllSites }}</td>
+                <td class="text-center">{{ getTotalByStatus('DRAFT') }}</td>
+                <td class="text-center">{{ getTotalByStatus('VALIDATED_ING') }}</td>
+                <td class="text-center">{{ getTotalByStatus('TECH_FILLED') }}</td>
+                <td class="text-center">{{ getTotalByStatus('VALIDATED_PT') }}</td>
+                <td class="text-center">{{ getTotalByStatus('SENT_TO_SUPPLIER') }}</td>
+                <td class="text-center">{{ getTotalByStatus('RECEIVED_FROM_SUPPLIER') }}</td>
+                <td class="text-center">{{ getTotalByStatus('COMPLETED') }}</td>
+                <td class="text-center text-success">{{ totalCompletedAllSites }}</td>
+                <td class="text-center text-warning">{{ totalPendingAllSites }}</td>
+                <td class="text-center"><span class="rate-badge primary">{{ getGlobalCompletionRate() | number:'1.1-1' }}%</span></td>
+                <td class="text-center"><div class="progress-mini"><div class="progress-fill primary" [style.width.%]="getGlobalCompletionRate()"></div></div></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- STATISTIQUES INDUSTRIELLES -->
+      <div class="industrial-stats-section" *ngIf="(userRole !== 'ADMIN') || (userRole === 'ADMIN' && selectedSite)">
+        <div class="section-header">
+          <h3><i class="bi bi-industry"></i> Indicateurs de performance industrielle</h3>
+          <span class="section-line"></span>
+        </div>
+        <div class="industrial-grid">
+          <div class="industrial-card">
+            <div class="industrial-icon" style="background: linear-gradient(135deg, #1e3c72, #2a5298);"><i class="bi bi-graph-up"></i></div>
+            <div class="industrial-info">
+              <span class="industrial-label">Taux de production</span>
+              <span class="industrial-value">{{ productionRate | number:'1.1-1' }}%</span>
+              <div class="industrial-progress"><div class="progress-fill" [style.width.%]="productionRate" style="background: #28a745;"></div></div>
+            </div>
+          </div>
+         <div class="industrial-card" *ngIf="cycleTime > 0">
+  <div class="industrial-icon"><i class="bi bi-clock-history"></i></div>
+  <div class="industrial-info">
+    <span class="industrial-label">Temps de cycle moyen</span>
+    <span class="industrial-value">{{ cycleTime | number:'1.1-1' }} jours</span>
   </div>
-  <div class="variation-content">
-    <div class="months-compare">
-      <div class="month-card previous">
-        <span class="month-label">{{ monthlyVariation.previousMonth }}</span>
-        <span class="month-count">{{ monthlyVariation.previousMonthCount || 0 }}</span>
-        <span class="month-sub">cahiers créés</span>
+</div>
+          <div class="industrial-card">
+            <div class="industrial-icon" style="background: linear-gradient(135deg, #20c997, #198754);"><i class="bi bi-check2-circle"></i></div>
+            <div class="industrial-info">
+              <span class="industrial-label">Taux de qualité</span>
+              <span class="industrial-value">{{ qualityRate | number:'1.1-1' }}%</span>
+              <div class="industrial-progress"><div class="progress-fill" [style.width.%]="qualityRate" style="background: #20c997;"></div></div>
+            </div>
+          </div>
+          <div class="industrial-card">
+            <div class="industrial-icon" style="background: linear-gradient(135deg, #0dcaf0, #0d6efd);"><i class="bi bi-truck"></i></div>
+            <div class="industrial-info">
+              <span class="industrial-label">Livraison à temps</span>
+              <span class="industrial-value">{{ onTimeDelivery | number:'1.1-1' }}%</span>
+              <div class="industrial-progress"><div class="progress-fill" [style.width.%]="onTimeDelivery" style="background: #0dcaf0;"></div></div>
+            </div>
+          </div>
+
+          <div class="industrial-card">
+            <div class="industrial-icon" style="background: linear-gradient(135deg, #e83e8c, #d63384);"><i class="bi bi-trophy"></i></div>
+            <div class="industrial-info">
+              <span class="industrial-label">Efficacité globale</span>
+              <span class="industrial-value">{{ efficiency | number:'1.1-1' }}%</span>
+              <div class="industrial-progress"><div class="progress-fill" [style.width.%]="efficiency" [style.background]="efficiency >= 80 ? '#28a745' : efficiency >= 60 ? '#ffc107' : '#dc3545'"></div></div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="month-card current">
-        <span class="month-label">{{ monthlyVariation.currentMonth }}</span>
-        <span class="month-count">{{ monthlyVariation.currentMonthCount || 0 }}</span>
-        <span class="month-sub">cahiers créés</span>
+
+      <!-- GOULOT D'ÉTRANGLEMENT -->
+      <div class="row g-4 mb-4">
+        <div class="col-md-12">
+          <div class="alert-card bottleneck">
+            <div class="alert-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+            <div class="alert-content">
+              <h4>État du goulot d'étranglement</h4>
+              <div class="bottleneck-status">{{ bottleneckStatus }}</div>
+              <div class="alert-details" *ngIf="urgentTasks > 0">
+                <span class="urgent-badge">{{ urgentTasks }} tâches urgentes</span>
+                <span class="critical-badge" *ngIf="criticalPath > 0">Chemin critique: {{ criticalPath }} jours</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+
+      <!-- PROGRESSION HEBDOMADAIRE -->
+     <!-- ==================== PROGRESSION HEBDOMADAIRE ==================== -->
+<div class="chart-card" *ngIf="weeklyProgress && weeklyProgress.length > 0">
+  <div class="section-header">
+    <h3><i class="bi bi-calendar-week"></i> Activité de la semaine</h3>
+    <span class="section-line"></span>
+  </div>
+
+  <!-- Message si aucune activité -->
+  <div *ngIf="!hasWeeklyActivity()" class="no-data-message">
+    <i class="bi bi-info-circle"></i>
+    <p>Aucune création ou complétion cette semaine</p>
+  </div>
+
+  <!-- Affichage normal -->
+  <!-- Affichage normal -->
+<div *ngIf="hasWeeklyActivity()" class="weekly-stats">
+  <div class="stat-item" *ngFor="let day of weeklyProgress">
+    <div class="stat-day">{{ day.day }}</div>
+    <div class="stat-count">
+      <span class="created">{{ day.created }}</span>
     </div>
-    <div class="variation-details" *ngIf="showVariationDetails">
-      <div class="detail-row">
-        <span class="detail-label">📊 Formule :</span>
-        <code class="detail-value">{{ monthlyVariation.formula }}</code>
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">💡 Interprétation :</span>
-        <span class="detail-value">{{ monthlyVariation.interpretation }}</span>
+    <div class="stat-bar-container">
+      <div class="stat-bar">
+        <div class="bar-created" [style.width.%]="getWeeklyBarWidth(day.created)"></div>
       </div>
     </div>
   </div>
 </div>
+</div>
 
-      <!-- PERMISSIONS -->
-      <div class="permissions-section">
-        <div class="section-header"><h3><i class="bi bi-shield-check"></i> Permissions système</h3><span class="section-line"></span></div>
-        <div class="permissions-grid"><div class="permission-tag" *ngFor="let permission of userPermissions"><i class="bi bi-check-circle-fill"></i><span>{{ formatPermissionName(permission) }}</span></div></div>
+      <!-- PERFORMANCE PAR SITE -->
+      <div class="chart-card" *ngIf="sitePerformance.length > 0 && userRole === 'ADMIN'">
+        <div class="section-header">
+          <h3><i class="bi bi-building"></i> Performance par site</h3>
+          <span class="section-line"></span>
+        </div>
+        <div class="site-performance-list">
+          <div class="site-perf-item" *ngFor="let site of sitePerformance">
+            <div class="site-name">{{ site.site }}</div>
+            <div class="site-metrics">
+              <div class="metric">
+                <span class="metric-label">Efficacité</span>
+                <div class="metric-bar"><div class="metric-fill" [style.width.%]="site.efficiency" [style.background]="getEfficiencyColor(site.efficiency)"></div></div>
+                <span class="metric-value">{{ site.efficiency | number:'1.0-0' }}%</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Qualité</span>
+                <div class="metric-bar"><div class="metric-fill" [style.width.%]="site.quality" [style.background]="getQualityColor(site.quality)"></div></div>
+                <span class="metric-value">{{ site.quality | number:'1.0-0' }}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+
+      <!-- PRÉVISIONS -->
+      <div class="forecast-section" *ngIf="monthlyEvolution.length >= 3">
+        <div class="forecast-header">
+          <i class="bi bi-graph-up"></i>
+          <h3>Prévisions de production</h3>
+        </div>
+        <div class="forecast-grid">
+          <div class="forecast-item">
+            <span class="forecast-label">Mois prochain</span>
+            <span class="forecast-value">{{ getPredictedNextMonth() }}</span>
+            <span class="forecast-unit">cahiers</span>
+            <span class="forecast-trend" [class.up]="trendDirection === 'hausse'" [class.down]="trendDirection === 'baisse'">{{ getTrendDisplay() }}</span>
+          </div>
+          <div class="forecast-item">
+            <span class="forecast-label">Confiance</span>
+            <span class="forecast-value confidence">{{ confidenceLevel }}%</span>
+            <div class="confidence-bar"><div class="confidence-fill" [style.width.%]="confidenceLevel"></div></div>
+          </div>
+          <div class="forecast-item">
+            <span class="forecast-label">Objectif mensuel</span>
+            <span class="forecast-value">{{ monthlyTarget }}</span>
+            <span class="forecast-unit">cahiers</span>
+            <span class="forecast-status" [class.achieved]="isTargetAchieved()">{{ isTargetAchieved() ? '✅ Atteint' : '⏳ En cours' }}</span>
+          </div>
+        </div>
+      </div>
+
 
     </main>
   </div>
 </div>
-

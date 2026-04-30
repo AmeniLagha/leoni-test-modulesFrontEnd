@@ -14,6 +14,7 @@ import { TechnicalFileService } from '../../../../services/technical-file.servic
 export class CompareVersionsComponent implements OnInit {
 
   itemId!: number;
+  itemXCode: string = '';
   loading = true;
   error: string | null = null;
 
@@ -40,22 +41,48 @@ export class CompareVersionsComponent implements OnInit {
 
   loadVersions(): void {
     this.loading = true;
-    this.service.getFirstAndCurrentVersions(this.itemId).subscribe({
-      next: (data) => {
-        console.log('📊 Données reçues:', data);
-        console.log('📊 Differences:', data.differences);
-        console.log('📊 ValidationStatus première:', data.firstVersion?.entity?.validationStatus);
-        console.log('📊 ValidationStatus actuelle:', data.currentVersion?.entity?.validationStatus);
 
-        this.firstVersion = data.firstVersion?.entity;
-        this.currentVersion = data.currentVersion?.entity;
-        this.differences = data.differences || [];
-        this.loading = false;
+    // Récupérer l'item pour avoir le xCode
+    this.service.getItemById(this.itemId).subscribe({
+      next: (item) => {
+        // Utiliser xcode (minuscule) comme dans la réponse API
+        this.itemXCode = item.xcode || `#${this.itemId}`;
+
+        // Ensuite charger les versions
+        this.service.getFirstAndCurrentVersions(this.itemId).subscribe({
+          next: (data) => {
+            console.log('📊 Données reçues:', data);
+            this.firstVersion = data.firstVersion?.entity;
+            this.currentVersion = data.currentVersion?.entity;
+            this.differences = data.differences || [];
+            this.loading = false;
+          },
+          error: (err) => {
+            console.error('Erreur chargement versions:', err);
+            this.error = 'Impossible de charger les versions';
+            this.loading = false;
+          }
+        });
       },
       error: (err) => {
-        console.error('Erreur chargement versions:', err);
-        this.error = 'Impossible de charger les versions';
-        this.loading = false;
+        console.error('Erreur chargement item:', err);
+        this.itemXCode = `#${this.itemId}`;
+
+        // Continuer quand même le chargement des versions
+        this.service.getFirstAndCurrentVersions(this.itemId).subscribe({
+          next: (data) => {
+            console.log('📊 Données reçues:', data);
+            this.firstVersion = data.firstVersion?.entity;
+            this.currentVersion = data.currentVersion?.entity;
+            this.differences = data.differences || [];
+            this.loading = false;
+          },
+          error: (err) => {
+            console.error('Erreur chargement versions:', err);
+            this.error = 'Impossible de charger les versions';
+            this.loading = false;
+          }
+        });
       }
     });
   }
@@ -88,7 +115,6 @@ export class CompareVersionsComponent implements OnInit {
 
   // Vérifier si une valeur a changé
   hasChanged(fieldName: string): boolean {
-    // Cas spécial pour validationStatus
     if (fieldName === 'validationStatus') {
       return this.firstVersion?.validationStatus !== this.currentVersion?.validationStatus;
     }

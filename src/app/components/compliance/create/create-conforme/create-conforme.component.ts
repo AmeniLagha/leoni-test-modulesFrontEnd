@@ -338,4 +338,9 @@ export class CreateConformeComponent implements OnInit {
       this.router.navigate(['/charge-sheets/list']);
     }
   }
+  goBack1(): void {
+  window.history.back();
+  // Ou
+  // this.router.navigate(['/dashboard']);
+}
 }

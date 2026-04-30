@@ -1,1 +1,226 @@
-<p>receptionlistglobal works!</p>
+<div class="reception-container">
+      <!-- HEADER -->
+      <div class="page-header">
+        <h1>
+          <i class="bi bi-truck"></i>
+          Gestion des réceptions
+          <span class="badge" *ngIf="!loading && receptions.length > 0">
+            {{ receptions.length }} réception(s)
+          </span>
+        </h1>
+       <div class="header-actions d-flex gap-2">
+  <!-- Bouton Actualiser avec effet de rotation -->
+  <button class="btn btn-primary"
+          (click)="loadAllReceptions()"
+          [disabled]="loading"
+          style="transition: all 0.3s ease;">
+    <i class="bi bi-arrow-repeat me-1"
+       [class.spinning]="loading"
+       style="transition: transform 0.3s ease;"></i>
+    <span>{{ loading ? 'Chargement...' : 'Actualiser' }}</span>
+  </button>
+
+  <!-- Bouton Statistiques avec icône -->
+  <button class="btn btn-success"
+          (click)="gotostat()"
+          style="transition: all 0.3s ease;">
+    <i class="bi bi-graph-up me-1"></i>
+    Statistiques
+  </button>
+
+  <!-- Bouton Retour -->
+  <a routerLink="/dashboard"
+     class="btn btn-outline-danger"
+     style="transition: all 0.3s ease;">
+    <i class="bi bi-house-door me-1"></i>
+    Retour au tableau de bord
+  </a>
+</div>
+      </div>
+
+      <!-- FILTRES RAPIDES -->
+      <div class="filters-section" *ngIf="!loading && receptions.length > 0">
+        <div class="search-box">
+          <i class="bi bi-search"></i>
+          <input type="text"
+                 class="search-input"
+                 placeholder="Rechercher par N° BL, item, cahier..."
+                 [(ngModel)]="searchTerm"
+                 (ngModelChange)="applyFilters()">
+        </div>
+
+        <div class="filter-group">
+          <select class="filter-select" [(ngModel)]="selectedProject" (ngModelChange)="applyFilters()">
+            <option value="">Tous les projets</option>
+            <option *ngFor="let project of projects" [value]="project">{{ project }}</option>
+          </select>
+
+          <input type="date"
+                 class="filter-date"
+                 [(ngModel)]="dateFilter"
+                 (ngModelChange)="applyFilters()"
+                 placeholder="Filtrer par date">
+
+          <select class="filter-select" [(ngModel)]="selectedSupplier" (ngModelChange)="applyFilters()">
+            <option value="">Tous les fournisseurs</option>
+            <option *ngFor="let supplier of suppliers" [value]="supplier">{{ supplier }}</option>
+          </select>
+        </div>
+
+        <button *ngIf="searchTerm || selectedProject || dateFilter || selectedSupplier"
+                class="btn-clear" (click)="resetFilters()">
+          <i class="bi bi-x-circle"></i> Effacer les filtres
+        </button>
+      </div>
+
+      <!-- LOADING -->
+      <div *ngIf="loading" class="loading-container">
+        <div class="spinner"></div>
+        <p>Chargement des réceptions...</p>
+      </div>
+
+      <!-- ERROR -->
+      <div *ngIf="error" class="error-container">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span>{{ error }}</span>
+        <button class="btn-retry" (click)="loadAllReceptions()">Réessayer</button>
+      </div>
+
+      <!-- STATISTIQUES -->
+      <div *ngIf="!loading && !error && receptions.length > 0" class="stats-cards">
+        <div class="stat-card">
+          <div class="stat-icon total">
+            <i class="bi bi-box-seam"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ totalQuantity }}</span>
+            <span class="stat-label">Unités reçues</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon unique">
+            <i class="bi bi-truck"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ uniqueReceptions }}</span>
+            <span class="stat-label">Réceptions</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon sheets">
+            <i class="bi bi-file-earmark-text"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ uniqueChargeSheets }}</span>
+            <span class="stat-label">Cahiers concernés</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon items">
+            <i class="bi bi-grid-3x3-gap-fill"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ uniqueItems }}</span>
+            <span class="stat-label">Items différents</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABLEAU DES RÉCEPTIONS -->
+      <div *ngIf="!loading && !error && filteredReceptions.length > 0" class="table-container">
+        <table class="reception-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Cahier </th>
+              <th>Item</th>
+              <th>Quantité</th>
+              <th>N° BL</th>
+              <th>Projet</th>
+              <th>Reçu par</th>
+              <th>Commentaires</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let reception of paginatedReceptions">
+              <td>
+                <span class="date-badge">
+                  <i class="bi bi-calendar"></i>
+                  {{ reception.receptionDate | date:'dd/MM/yyyy' }}
+                </span>
+              </td>
+              <td>
+                <a [routerLink]="['/charge-sheets', reception.chargeSheetId]" class="sheet-link">
+                  {{ reception.chargeSheetOrderNumber }}
+                </a>
+              </td>
+              <td>
+                <span class="item-badge"> {{ reception.item.housingReferenceSupplierCustomer }}</span>
+              </td>
+              <td>
+                <span class="quantity-badge">{{ reception.quantityReceived }}</span>
+              </td>
+              <td>
+                <span class="bl-badge">{{ reception.deliveryNoteNumber || '-' }}</span>
+              </td>
+              <td>
+                <span class="project-tag">{{ getProjectForSheet(reception.chargeSheetId) || '-' }}</span>
+              </td>
+              <td>
+                <span class="user-badge" [title]="reception.receivedBy">
+                  {{ reception.receivedBy | slice:0:10 }}...
+                </span>
+              </td>
+              <td>
+                <span class="comments" [title]="reception.comments">
+                  {{ reception.comments || '-' | slice:0:20 }}
+                </span>
+              </td>
+              <td class="actions">
+                <button class="btn-icon btn-view"
+                        [routerLink]="['/charge-sheets', reception.chargeSheetId, 'receptions']"
+                        title="Voir détails">
+                  <i class="bi bi-eye"></i>
+                </button>
+                <button class="btn-icon btn-files"
+                        [routerLink]="['/compliance/reception', reception.chargeSheetId, reception.id]"
+                        title="Voir fiches de conformité">
+                  <i class="bi bi-file-earmark-check"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- PAGINATION -->
+        <div class="pagination" *ngIf="totalPages > 1">
+          <button class="page-btn" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">
+            <i class="bi bi-chevron-left"></i>
+          </button>
+
+          <span class="page-info">
+            Page {{ currentPage }} sur {{ totalPages }}
+          </span>
+
+          <button class="page-btn" [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- AUCUN RÉSULTAT -->
+      <div *ngIf="!loading && !error && filteredReceptions.length === 0" class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <h3>Aucune réception trouvée</h3>
+        <p *ngIf="searchTerm || selectedProject || dateFilter || selectedSupplier">
+          Aucune réception ne correspond à vos filtres.
+        </p>
+        <p *ngIf="!searchTerm && !selectedProject && !dateFilter && !selectedSupplier">
+          Aucune réception n'a encore été enregistrée dans le système.
+        </p>
+      </div>
+    </div>

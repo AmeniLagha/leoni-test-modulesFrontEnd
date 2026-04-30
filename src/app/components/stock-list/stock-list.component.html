@@ -192,7 +192,7 @@
                 </span>
               </td>
               <td class="px-2 py-2">
-                <span class="badge bg-dark bg-opacity-10">Caisse #{{ module.caisse || '-' }}</span>
+                <span class="badge bg-dark bg-opacity-10">Caisse {{ module.caisse || '-' }}</span>
               </td>
               <td class="px-2 py-2">
                 <span class="value-badge">{{ module.specifications || '-' }}</span>
@@ -317,7 +317,7 @@
       <div class="modal-header" style="background: linear-gradient(135deg, #1e3c72 0%, #0f2b4a 100%);">
         <h5 class="modal-title text-white">
           <i class="bi bi-info-circle me-2"></i>
-          Détails du module #{{ selectedModule?.id }}
+          Détails du module "{{ selectedModule?.leoniNumr }}"
         </h5>
         <button type="button" class="btn-close btn-close-white" (click)="closeDetailsModal()"></button>
       </div>

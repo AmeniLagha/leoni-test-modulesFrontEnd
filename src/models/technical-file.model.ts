@@ -94,7 +94,7 @@ export interface TechnicalFileItemDetail {
   itemNumber: string;
   maintenanceDate?: string;
   technicianName?: string;
-  xCode?: string;
+  xcode?: string;
     indexValue?: number;
 
   leoniReferenceNumber?: string;
@@ -130,6 +130,7 @@ export interface TechnicalFileItemDetail {
 // ============================================
 export interface TechnicalFileResponse {
   id: number;
+   xCode?: string;
   reference?: string;
   createdBy?: string;
   createdAt?: string;
@@ -234,6 +235,7 @@ export interface TechnicalFileItemDisplay {
 
 export interface TechnicalFileDetail {
   id: number;
+  xcode?: string;
   reference?: string;
   createdBy?: string;
   createdAt?: string;

@@ -279,13 +279,10 @@ loadEmails(): void {
     }
   }
 
-  goBack(): void {
-    if (this.chargeSheetId) {
-      this.router.navigate(['/claims/list']);
-    } else {
-      this.router.navigate(['/claims/list']);
-    }
-  }
+   goBack(): void {
+  window.history.back();
+
+}
 
   formatFileSize(bytes: number | undefined): string {
     if (!bytes) return '';

@@ -352,7 +352,9 @@ export interface ReceptionHistoryDto {
   createdAt: string;
   chargeSheetPlant?: string;                  // ✅ À AJOUTER (optionnel)
   chargeSheetProject?: string;
-  chargeSheetOrderNumber?: string;  // ✅ AJOUTER orderNumber
+  chargeSheetOrderNumber?: string;
+  housingReferenceSupplierCustomer?: string;
+   chargeSheetId?: number;        // ✅ À AJOUTER // ✅ AJOUTER orderNumber
 }
 export interface ReceptionSummary {
   receptionId: number;

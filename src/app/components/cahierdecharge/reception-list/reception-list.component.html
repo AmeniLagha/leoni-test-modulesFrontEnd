@@ -8,15 +8,13 @@
             <i class="bi bi-truck-fill me-2"></i>
             Historique des réceptions
           </h1>
-           <a routerLink="/reception" class="btn btn-light">
-          <i class="bi bi-arrow-left me-2"></i>Retour
-        </a>
+
           <div class="d-flex gap-2">
             <span *ngIf="chargeSheetId" class="badge bg-light text-dark">
-              <i class="bi bi-folder me-1"></i> Cahier #{{ chargeSheetOrderNumber  }}
+              <i class="bi bi-folder me-1"></i> Cahier {{ chargeSheetOrderNumber  }}
             </span>
             <span *ngIf="selectedItemId" class="badge bg-success">
-              <i class="bi bi-box-seam me-1"></i> Item #{{ selectedItemDetails.housingReferenceSupplierCustomer}}
+              <i class="bi bi-box-seam me-1"></i> Item {{ selectedItemDetails.housingReferenceSupplierCustomer}}
             </span>
           </div>
         </div>
@@ -24,7 +22,9 @@
           <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a routerLink="/charge-sheets/list" class="text-white text-decoration-none">Cahiers</a></li>
             <li class="breadcrumb-item"><a *ngIf="chargeSheetId" [routerLink]="['/charge-sheets', chargeSheetId, 'items', 'view']" class="text-white text-decoration-none">Items</a></li>
+            <li class="breadcrumb-item"><a (click)="goBack()"  class="text-white text-decoration-none">Retour </a></li>
             <li class="breadcrumb-item active text-white-50">Historique</li>
+
           </ol>
         </nav>
       </div>
@@ -49,7 +49,7 @@
         <div class="col-md-5">
           <div class="d-flex gap-2 justify-content-md-end">
             <button *ngIf="selectedItemId" class="btn btn-outline-success" (click)="clearItemFilter()">
-              <i class="bi bi-x-circle me-1"></i> Filtrer item #{{ selectedItemId }}
+              <i class="bi bi-x-circle me-1"></i> Filtrer item {{ selectedItemId }}
             </button>
             <button *ngIf="searchTerm || dateFilter" class="btn btn-outline-secondary" (click)="resetFilters()">
               <i class="bi bi-arrow-repeat me-1"></i> Réinitialiser
@@ -131,7 +131,7 @@
               <tbody>
                 <tr>
                   <td class="fw-semibold">
-                    <span class="badge bg-secondary bg-gradient">Item {{ reception.item.housingReferenceSupplierCustomer }}</span>
+                    <span class="badge bg-secondary bg-gradient">Item {{ reception.item.itemNumber }}</span>
                   </td>
                   <td class="text-center">
                     <span class="badge bg-success bg-gradient fs-6 px-3 py-2">{{ reception.quantityReceived }}</span>

@@ -12,13 +12,13 @@
             </a>
           </li>
           <li class="breadcrumb-item active" *ngIf="item">
-            Item #{{parentFile.xCode }}
+            Item "{{item?.xcode  }}"
           </li>
         </ol>
       </nav>
       <h2 class="h4 mb-0 fw-semibold text-dark" *ngIf="item">
         <i class="bi bi-cpu me-2 text-primary"></i>
-        Détail de l'item #{{ parentFile.xCode}}
+        Détail de l'item "{{ item?.xcode }}"
       </h2>
     </div>
     <button class="btn btn-outline-secondary" (click)="goBack()">
@@ -49,9 +49,9 @@
             </thead>
             <tbody>
               <tr>
-                <td>{{ parentFile.maintenanceDate | date:'dd/MM/yyyy' }}</td>
-                <td>{{ parentFile.technicianName }}</td>
-                <td><code>{{ parentFile.xCode || '-' }}</code></td>
+                <td>{{ item.maintenanceDate | date:'dd/MM/yyyy' }}</td>
+                <td>{{ item.technicianName }}</td>
+                <td><code>{{ item.xcode || '-' }}</code></td>
                 <td>
                   <span class="badge rounded-pill px-3 py-2"
                         [ngClass]="{
@@ -97,7 +97,7 @@
               <tr>
                 <td class="fw-semibold"><i class="bi bi-calendar-check me-2 text-success"></i>Programmed sealing</td>
                 <td><span class="fw-bold text-success">{{ getFinalProgrammedSealing() || '-' }}</span></td>
-                <td>N</td>
+                <td>Nn</td>
               </tr>
               <tr>
                 <td class="fw-semibold"><i class="bi bi-eye me-2 text-info"></i>Détection finale</td>

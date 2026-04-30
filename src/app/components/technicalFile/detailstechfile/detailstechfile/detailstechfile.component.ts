@@ -61,39 +61,41 @@ export class DetailstechfileComponent implements OnInit {
     }
   }
 
-  loadItemDetails(itemId: number) {
-    this.loading = true;
+loadItemDetails(itemId: number) {
+  this.loading = true;
 
-    this.service.getItemById(itemId).subscribe({
-      next: (data: any) => {
-        console.log('✅ Item reçu:', data);
-        this.item = data;
+  this.service.getItemById(itemId).subscribe({
+    next: (data: any) => {
+      console.log('✅ Item reçu:', data);
+      this.item = data;
 
-        if (data.technicalFileId) {
-          this.service.getById(data.technicalFileId).subscribe({
-            next: (fileData: any) => {
-              this.parentFile = fileData;
-                // ✅ AFFICHER LA RÉFÉRENCE DU DOSSIER PARENT
-            console.log('Dossier parent - Référence:', this.parentFile.reference); // Devrait afficher "REF-001", etc.
-            console.log('Dossier parent - ID:', this.parentFile.id);
-              this.loading = false;
-            },
-            error: (err: HttpErrorResponse) => {
-              console.error('Erreur chargement dossier parent:', err);
-              this.loading = false;
-            }
-          });
-        } else {
-          this.loading = false;
-        }
-      },
-      error: (err: HttpErrorResponse) => {
-        console.error('❌ Erreur:', err);
-        this.error = `Erreur ${err.status}: ${err.statusText || 'Impossible de charger l\'item'}`;
+      if (data.technicalFileId) {
+        this.service.getById(data.technicalFileId).subscribe({
+          next: (fileData: any) => {
+            this.parentFile = fileData;
+
+            // ✅ DEBUG : Afficher TOUTES les propriétés
+            console.log('📦 Dossier parent COMPLET:', JSON.stringify(this.parentFile, null, 2));
+            console.log('🔑 Toutes les clés:', Object.keys(this.parentFile));
+
+            this.loading = false;
+          },
+          error: (err: HttpErrorResponse) => {
+            console.error('Erreur chargement dossier parent:', err);
+            this.loading = false;
+          }
+        });
+      } else {
         this.loading = false;
       }
-    });
-  }
+    },
+    error: (err: HttpErrorResponse) => {
+      console.error('❌ Erreur:', err);
+      this.error = `Erreur ${err.status}: ${err.statusText || 'Impossible de charger l\'item'}`;
+      this.loading = false;
+    }
+  });
+}
 
   // Ouvrir le formulaire de stock
   openStockForm() {

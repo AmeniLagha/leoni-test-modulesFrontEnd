@@ -107,7 +107,7 @@ export class EdittechniquefileComponent implements OnInit {
         this.form.patchValue({
           technicianName: item.technicianName || this.technicianName,
           maintenanceDate: item.maintenanceDate,
-          xCode: item.xCode,
+          xCode: item.xcode,
           leoniReferenceNumber: item.leoniReferenceNumber,
           indexValue:item.indexValue,
           producer: item.producer,

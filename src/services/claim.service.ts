@@ -59,6 +59,10 @@ export class ClaimService {
       headers: this.getAuthHeaders()
     });
   }
+  // claim.service.ts - Ajoutez cette méthode
+deleteClaim(claimId: number): Observable<void> {
+  return this.http.delete<void>(`${this.api}/${claimId}`, { headers: this.getAuthHeaders() });
+}
 // claim.service.ts - Ajoutez ces méthodes
 
 /** Récupérer la variation entre les deux derniers mois pour les réclamations */

@@ -59,7 +59,6 @@
               <th>ID</th>
               <th>Nom</th>
               <th>Description</th>
-              <th>Statut</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -68,11 +67,6 @@
               <td><span class="badge-id">#{{ projet.id }}</span></td>
               <td><strong>{{ projet.name }}</strong></td>
               <td>{{ projet.description || '—' }}</td>
-              <td>
-                <span class="status-badge" [class.status-active]="projet.active" [class.status-inactive]="!projet.active">
-                  {{ projet.active ? 'Actif' : 'Inactif' }}
-                </span>
-              </td>
               <td>
                 <div class="action-buttons">
                   <button class="action-btn edit" (click)="openEditProjet(projet)" title="Modifier">
@@ -116,7 +110,6 @@
               <th>Nom</th>
               <th>Description</th>
               <th>Projets associés</th>
-              <th>Statut</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -134,11 +127,6 @@
                     Aucun projet
                   </span>
                 </div>
-              </td>
-              <td>
-                <span class="status-badge" [class.status-active]="site.active" [class.status-inactive]="!site.active">
-                  {{ site.active ? 'Actif' : 'Inactif' }}
-                </span>
               </td>
               <td>
                 <div class="action-buttons">
@@ -192,13 +180,7 @@
           <label>Description</label>
           <textarea formControlName="description" rows="3" placeholder="Description optionnelle"></textarea>
         </div>
-        <div class="form-group checkbox-group">
-          <label class="checkbox-label">
-            <input type="checkbox" formControlName="active">
-            <span class="checkmark"></span>
-            Actif
-          </label>
-        </div>
+
       </form>
     </div>
     <div class="modal-footer-custom">
@@ -235,13 +217,6 @@
         <div class="form-group">
           <label>Description</label>
           <textarea formControlName="description" rows="3" placeholder="Description optionnelle"></textarea>
-        </div>
-        <div class="form-group checkbox-group">
-          <label class="checkbox-label">
-            <input type="checkbox" formControlName="active">
-            <span class="checkmark"></span>
-            Actif
-          </label>
         </div>
       </form>
     </div>

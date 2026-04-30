@@ -79,7 +79,11 @@ export class ClaimslisteComponent implements OnInit, OnDestroy {
     this.claimService.getAllClaims().subscribe({
       next: (res: Claim[]) => {
         this.allClaims = res;
-
+   const claimsWithImages = res.filter(c => c.imagePath);
+      console.log('📸 Réclamations avec image:', claimsWithImages.length);
+      claimsWithImages.forEach(c => {
+        console.log(`  - Claim ${c.id}: ${c.imagePath}`);
+      });
         // ✅ Séparer les réclamations par type
         this.complianceClaims = res.filter(claim => claim.relatedTo === 'COMPLIANCE');
         this.chargeSheetClaims = res.filter(claim => claim.relatedTo === 'CHARGE_SHEET');
@@ -239,35 +243,49 @@ getRelatedToIcon(relatedTo: string | undefined): string {
     this.totalPages = Math.ceil(this.filteredClaims.length / this.pageSize);
   }
 
-  // ========== IMAGES ==========
-  loadImagesForClaims(): void {
-    this.claims.forEach(claim => {
-      if (claim.id && claim.imagePath) {
-        this.imageLoading.set(claim.id, true);
-        this.loadClaimImage(claim.id);
-      }
-    });
-  }
 
-  loadClaimImage(claimId: number): void {
-    this.claimService.getClaimImageUrl(claimId).subscribe({
-      next: (blob) => {
-        const url = URL.createObjectURL(blob);
-        const oldUrl = this.imageUrls.get(claimId);
-        if (oldUrl) URL.revokeObjectURL(oldUrl.toString());
-        this.imageUrls.set(claimId, this.sanitizer.bypassSecurityTrustUrl(url));
-        this.imageLoading.set(claimId, false);
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        this.imageLoading.set(claimId, false);
-      }
-    });
-  }
+// ========== IMAGES ==========
+loadImagesForClaims(): void {
+  // Utiliser allClaims au lieu de claims
+  console.log('🖼️ Chargement des images pour', this.allClaims.length, 'réclamations');
 
-  getImageUrl(claimId: number): SafeUrl | null {
-    return this.imageUrls.get(claimId) || null;
-  }
+  this.allClaims.forEach(claim => {
+    if (claim.id && claim.imagePath) {
+      console.log(`📸 Image trouvée pour claim ${claim.id}: ${claim.imagePath}`);
+      this.imageLoading.set(claim.id, true);
+      this.loadClaimImage(claim.id);
+    }
+  });
+}
+
+loadClaimImage(claimId: number): void {
+  console.log('📸 Chargement image pour claim:', claimId);
+
+  // Vérifier si le claim a un imagePath
+  const claim = this.allClaims.find(c => c.id === claimId);
+  console.log('Claim info:', claim);
+  console.log('Image path:', claim?.imagePath);
+
+  this.claimService.getClaimImageUrl(claimId).subscribe({
+    next: (blob) => {
+      console.log('✅ Image reçue, taille:', blob.size);
+      const url = URL.createObjectURL(blob);
+      this.imageUrls.set(claimId, this.sanitizer.bypassSecurityTrustUrl(url));
+      this.imageLoading.set(claimId, false);
+      this.cdr.detectChanges();
+    },
+    error: (err) => {
+      console.error('❌ Erreur chargement image pour claim', claimId, err);
+      this.imageLoading.set(claimId, false);
+    }
+  });
+}
+
+getImageUrl(claimId: number): SafeUrl | null {
+  const url = this.imageUrls.get(claimId) || null;
+  console.log(`🔍 getImageUrl pour claim ${claimId}:`, url ? 'URL trouvée' : 'pas d\'URL');
+  return url;
+}
 
   openImageModal(claimId: number): void {
     this.modalImageUrl = this.getImageUrl(claimId);
@@ -278,7 +296,36 @@ getRelatedToIcon(relatedTo: string | undefined): string {
     this.showImageModal = false;
     this.modalImageUrl = null;
   }
+// ========== SUPPRESSION ==========
+deleteClaim(claim: Claim): void {
+  if (!claim.id) return;
 
+  // Confirmation avant suppression
+  const confirmDelete = confirm(`Êtes-vous sûr de vouloir supprimer la réclamation "${claim.title}" ?\n\nCette action est irréversible.`);
+
+  if (!confirmDelete) return;
+
+  // Supprimer l'image associée si elle existe
+  if (claim.imagePath) {
+    this.claimService.deleteClaimImage(claim.id).subscribe({
+      next: () => console.log('✅ Image supprimée'),
+      error: (err) => console.error('❌ Erreur suppression image:', err)
+    });
+  }
+
+  // Supprimer la réclamation
+  this.claimService.deleteClaim(claim.id).subscribe({
+    next: () => {
+      console.log(`✅ Réclamation ${claim.id} supprimée`);
+      // Recharger la liste
+      this.loadClaims();
+    },
+    error: (err) => {
+      console.error('❌ Erreur suppression:', err);
+      alert('Erreur lors de la suppression de la réclamation');
+    }
+  });
+}
   // ========== ACTIONS ==========
   startClaim(claim: Claim) {
     if (!claim.id) return;

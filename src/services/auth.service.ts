@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map, Observable, tap, throwError } from 'rxjs';
+import { catchError, map, Observable, tap, throwError } from 'rxjs';
 import { LoginRequest, AuthResponse, RegisterRequest, User } from '../models/auth.model';
 import { environment } from '../environments/environment';
 
@@ -27,7 +27,7 @@ refreshToken(token: string) {
   );
 }
 
-  login(credentials: LoginRequest): Observable<AuthResponse> {
+ login(credentials: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/authenticate`, credentials)
       .pipe(
         tap(response => {
@@ -189,14 +189,32 @@ getUserPlant(): string {
   // auth.service.ts
 
 checkEmailExists(email: string): Observable<boolean> {
-  
-  return this.http.get<{ exists: boolean }>(`${this.apiUrl}/users/check-email?email=${email}`)
-    .pipe(map(response => response.exists));
+  const token = this.getAccessToken();
+
+  // ✅ Créer des headers proprement
+  let headers = {};
+  if (token) {
+    headers = { Authorization: `Bearer ${token}` };
+  }
+
+  return this.http.get<{ exists: boolean }>(
+    `${this.apiUrl}/users/check-email?email=${email}`,
+    { headers }
+  ).pipe(map(response => response.exists));
 }
 
 checkMatriculeExists(matricule: number): Observable<boolean> {
+  const token = this.getAccessToken();
 
-  return this.http.get<{ exists: boolean }>(`${this.apiUrl}/users/check-matricule?matricule=${matricule}`)
-    .pipe(map(response => response.exists));
+  // ✅ Créer des headers proprement
+  let headers = {};
+  if (token) {
+    headers = { Authorization: `Bearer ${token}` };
+  }
+
+  return this.http.get<{ exists: boolean }>(
+    `${this.apiUrl}/users/check-matricule?matricule=${matricule}`,
+    { headers }
+  ).pipe(map(response => response.exists));
 }
 }

@@ -8,13 +8,11 @@
             <i class="bi bi-file-earmark-check me-2"></i>
             Créer des fiches de conformité
           </h1>
-            <a routerLink="/charge-sheets/list" class="btn btn-light">
-          <i class="bi bi-arrow-left me-2"></i>Retour
-        </a>
+
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
               <li class="breadcrumb-item"><a routerLink="/charge-sheets/list" class="text-white text-decoration-none">Cahiers</a></li>
-              <li class="breadcrumb-item"><a [routerLink]="['/charge-sheets', chargeSheetId]" class="text-white text-decoration-none">#{{ chargeSheetId }}</a></li>
+              <li class="breadcrumb-item"><a [routerLink]="['/charge-sheets', chargeSheetId]" class="text-white text-decoration-none">{{ chargeSheetId }}</a></li>
               <li class="breadcrumb-item"><a [routerLink]="['/charge-sheets', chargeSheetId, 'items', 'view']" class="text-white text-decoration-none">Items</a></li>
               <li class="breadcrumb-item active text-white-50">Conformité ({{ totalModules }} modules)</li>
             </ol>
@@ -23,6 +21,9 @@
         <div class="info-badge bg-white text-primary px-4 py-2 rounded-pill shadow-sm">
           <i class="bi bi-info-circle me-2"></i>
           <strong>{{ totalModules }}</strong> module(s) à créer
+           <button class="btn btn-light" (click)="goBack()">
+            <i class="bi bi-arrow-left me-2"></i>Retour
+          </button>
         </div>
       </div>
     </div>

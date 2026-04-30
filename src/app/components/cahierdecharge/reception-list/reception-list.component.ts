@@ -209,4 +209,9 @@ export class ReceptionListComponent implements OnInit {
     this.loadReceptions();
     this.router.navigate(['/charge-sheets', this.chargeSheetId, 'receptions']);
   }
+    goBack(): void {
+  window.history.back();
+  // Ou
+  // this.router.navigate(['/dashboard']);
+}
 }

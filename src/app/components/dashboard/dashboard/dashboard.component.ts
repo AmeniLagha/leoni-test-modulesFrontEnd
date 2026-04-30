@@ -1,26 +1,19 @@
-// dashboard.component.ts - Version complète corrigée
-
-import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterModule, RouterOutlet } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+
 import { AuthService } from '../../../../services/auth.service';
 import { UserService } from '../../../../services/UserService';
 import { ChargeSheetService } from '../../../../services/charge-sheet.service';
 import { ComplianceService } from '../../../../services/compliance.service';
 import { ClaimService } from '../../../../services/claim.service';
 import { SiteService } from '../../../../services/Site';
-import { HttpClient } from '@angular/common/http';
-import { TechnicalFileNotificationService, TechnicalNotification } from '../../../../services/TechnicalNotification';
-import { NotificationsComponent } from '../../notifications/notifications.component';
 import { TechnicalFileService } from '../../../../services/technical-file.service';
-
-interface Message {
-  text: string;
-  isUser: boolean;
-  timestamp: Date;
-}
+import { TechnicalFileNotificationService } from '../../../../services/TechnicalNotification';
+import { NotificationsComponent } from '../../notifications/notifications.component';
 
 interface Site {
   id: number;
@@ -29,88 +22,90 @@ interface Site {
   active: boolean;
 }
 
+interface SiteStat {
+  siteId: number;
+  siteName: string;
+  totalSheets: number;
+  completedSheets: number;
+  pendingSheets: number;
+  inProgressSheets: number;
+  completionRate: number;
+  statusDetails: {
+    DRAFT: number;
+    VALIDATED_ING: number;
+    TECH_FILLED: number;
+    VALIDATED_PT: number;
+    SENT_TO_SUPPLIER: number;
+    RECEIVED_FROM_SUPPLIER: number;
+    COMPLETED: number;
+  };
+}
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterOutlet, RouterModule, FormsModule, NgbDropdownModule, NotificationsComponent],
+  imports: [CommonModule, RouterLink, RouterOutlet, RouterModule, FormsModule, NotificationsComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   userEmail: string = '';
   userRole: string = '';
   userFirstName: string = '';
   userPermissions: string[] = [];
   today: Date = new Date();
 
-  // ==================== SITES (pour ADMIN) ====================
   sites: Site[] = [];
   selectedSite: Site | null = null;
   loadingSites: boolean = false;
-  showSiteSelector: boolean = false;
 
-  // Onglet actif
-  activeDashboardTab: string = 'charge-sheets';
-
-  // Statistiques
   chargeSheetCount: number = 0;
   complianceCount: number = 0;
   claimsCount: number = 0;
   technicalFilesCount: number = 0;
   activeUsers: number = 0;
-  stockCount: number = 0;
-  receptionCount: number = 0;
 
-  // Variations
+  siteStats: SiteStat[] = [];
+  totalSheetsAllSites: number = 0;
+  totalCompletedAllSites: number = 0;
+  totalPendingAllSites: number = 0;
+
   monthlyVariation: any = null;
   complianceVariation: any = null;
   claimVariation: any = null;
-  isLoadingVariation: boolean = false;
-  isLoadingComplianceVariation: boolean = false;
-  isLoadingClaimVariation: boolean = false;
   showVariationDetails = false;
 
-  // Sélecteurs
-  selectedMonth1: string = '';
-  selectedMonth2: string = '';
-  customVariationResult: any = null;
+  monthlyEvolution: { month: string; count: number }[] = [];
+  statusDistribution: { status: string; count: number; color: string; label: string }[] = [];
+  statusStatistics: any[] = [];
 
-  selectedProject: string = 'ALL';
-  selectedComplianceProject: string = 'ALL';
-  selectedClaimProject: string = 'ALL';
-  availableProjects: string[] = ['ALL', 'BMW', 'Mercedes', 'Audi', 'Porsche', 'Volkswagen'];
-
-  // Chatbot
-  isOpen = false;
-  isLoading = false;
-  userInput = '';
-  messages: Message[] = [];
-  currentToken: string = '';
-  suggestions = ['Combien de cahiers des charges ?', 'Comment créer un cahier ?', 'Comment valider un cahier ?', 'Quels sont les statuts ?'];
-
-  // UI States
   isNavbarOpen = false;
   isUserMenuOpen = false;
   isSidebarCollapsed = false;
   openSubmenu: string | null = null;
-  technicalNotifications: TechnicalNotification[] = [];
-  isLoadingNotifications: boolean = false;
   notificationCount: number = 0;
   private notificationRefreshInterval: any;
-  Math = Math;
 
-  selectedSiteData: {
-    chargeSheets: any[];
-    compliances: any[];
-    claims: any[];
-    technicalFiles: any[];
-  } | null = null;
-  loadingSiteData: boolean = false;
+  productionRate: number = 0;
+  cycleTime: number = 0;
+  qualityRate: number = 0;
+  onTimeDelivery: number = 0;
+  workloadPerUser: number = 0;
+  efficiency: number = 0;
+  bottleneckStatus: string = 'Normal';
+  urgentTasks: number = 0;
+  criticalPath: number = 0;
 
-  @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
+  weeklyProgress: { day: string; created: number }[] = [];
+  sitePerformance: { site: string; efficiency: number; quality: number }[] = [];
+
+  predictedNextMonth: number = 0;
+  trendDirection: string = 'stable';
+  confidenceLevel: number = 85;
+  monthlyTarget: number = 50;
+  prevMonthGrowth: number = 0;
 
   constructor(
-    private http: HttpClient,
     private authService: AuthService,
     private userService: UserService,
     private chargeSheetService: ChargeSheetService,
@@ -120,460 +115,31 @@ export class DashboardComponent implements OnInit {
     private technicalFileService: TechnicalFileService,
     private router: Router,
     private technicalFileNotificationService: TechnicalFileNotificationService,
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone
   ) {}
 
   ngOnInit(): void {
     this.loadUserInfo();
     this.loadActiveUsers();
-    this.loadToken();
-
-     this.loadMonthlyVariation();
-  this.loadComplianceVariation();
-  this.loadClaimVariation();
+    this.loadStats();
 
     if (this.userRole === 'ADMIN') {
       this.loadSites();
-      this.loadStats();
-      this.loadTechnicalNotifications();
-    } else {
-      this.loadStats();
-    this.loadTechnicalNotifications();
     }
-
-    this.messages.push({
-      text: 'Bonjour ! Je suis l\'assistant IA LEONI. Comment puis-je vous aider ?',
-      isUser: false,
-      timestamp: new Date()
-    });
 
     this.loadNotificationCount();
     this.notificationRefreshInterval = setInterval(() => {
       this.loadNotificationCount();
     }, 60000);
-     // ✅ AJOUTER DES LOGS POUR DEBUG
-  setTimeout(() => {
-    console.log('📊 monthlyVariation:', this.monthlyVariation);
-    console.log('📊 complianceVariation:', this.complianceVariation);
-    console.log('📊 claimVariation:', this.claimVariation);
-  }, 3000);
   }
-goToProfile(): void {
-  this.router.navigate(['/profile']);
-  this.isUserMenuOpen = false;
-}
 
-goToSettings(): void {
-  this.router.navigate(['/settings']);
-  this.isUserMenuOpen = false;
-}
-isAdmin(): boolean {
-  return this.authService.getUserRole() === 'ADMIN';
-}
-isMC(): boolean{
-  return this.authService.getUserRole() ==='MC'
-}
-isMP(): boolean{
-  return this.authService.getUserRole() ==='MP'
-}
-goToHelp(): void {
-  this.router.navigate(['/help']);
-  this.isUserMenuOpen = false;
-}
   ngOnDestroy(): void {
     if (this.notificationRefreshInterval) {
       clearInterval(this.notificationRefreshInterval);
     }
   }
-// dashboard.component.ts - Ajouter cette méthode
 
-// Formater un mois (ex: "2026-03" -> "Mars 2026")
-formatMonth(monthStr: string): string {
-  if (!monthStr) return 'Mois inconnu';
-
-  // Si c'est déjà une date au format "YYYY-MM"
-  if (monthStr.match(/^\d{4}-\d{2}$/)) {
-    const [year, month] = monthStr.split('-');
-    const date = new Date(parseInt(year), parseInt(month) - 1);
-    return date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-  }
-
-  // Si c'est déjà une date complète
-  const date = new Date(monthStr);
-  if (!isNaN(date.getTime())) {
-    return date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-  }
-
-  return monthStr;
-}
-  // ==================== GESTION DES SITES ====================
-  loadSites(): void {
-    this.loadingSites = true;
-    console.log('🔄 Chargement des sites pour ADMIN...');
-
-    this.siteService.getAll().subscribe({
-      next: (sites) => {
-        console.log('✅ Sites reçus:', sites);
-        this.sites = sites;
-        this.loadingSites = false;
-        this.showSiteSelector = true;
-      },
-      error: (err) => {
-        console.error('❌ Erreur chargement sites:', err);
-        this.loadingSites = false;
-        this.sites = [];
-      }
-    });
-  }
-
-  selectSite(site: Site): void {
-    this.selectedSite = site;
-    this.showSiteSelector = false;
-    this.activeDashboardTab = 'charge-sheets';
-
-    this.loadSiteData(site);
-  }
-
-  backToSiteSelection(): void {
-    this.selectedSite = null;
-    this.selectedSiteData = null;
-    this.showSiteSelector = true;
-  }
-
-  // ✅ Charger les données du site sélectionné
- // dashboard.component.ts - Modifier loadSiteData()
-// Ajoute ces méthodes
-loadMonthlyVariationForSite(siteId: number): void {
-  this.isLoadingVariation = true;
-  // Passe le nom du site comme projet pour filtrer
-  let projectParam = this.selectedSite?.name;
-  this.chargeSheetService.getLastTwoMonthsVariation(projectParam).subscribe({
-    next: (data) => {
-      this.monthlyVariation = data;
-      this.isLoadingVariation = false;
-      console.log('✅ Variation cahiers pour le site:', data);
-    },
-    error: (err) => {
-      console.error('Erreur chargement variation:', err);
-      this.isLoadingVariation = false;
-    }
-  });
-}
-loadComplianceVariationForSite(siteId: number): void {
-  this.isLoadingComplianceVariation = true;
-  let projectParam = this.selectedSite?.name;
-  this.complianceService.getLastTwoMonthsVariation(projectParam).subscribe({
-    next: (data) => {
-      this.complianceVariation = data;
-      this.isLoadingComplianceVariation = false;
-      console.log('✅ Variation conformités pour le site:', data);
-    },
-    error: (err) => {
-      console.error('Erreur chargement variation conformités:', err);
-      this.isLoadingComplianceVariation = false;
-    }
-  });
-}
-loadClaimVariationForSite(siteId: number): void {
-  this.isLoadingClaimVariation = true;
-  let projectParam = this.selectedSite?.name;
-  this.claimService.getLastTwoMonthsVariation(projectParam).subscribe({
-    next: (data) => {
-      this.claimVariation = data;
-      this.isLoadingClaimVariation = false;
-      console.log('✅ Variation réclamations pour le site:', data);
-    },
-    error: (err) => {
-      console.error('Erreur chargement variation réclamations:', err);
-      this.isLoadingClaimVariation = false;
-    }
-  });
-}
-loadSiteData(site: Site): void {
-  this.loadingSiteData = true;
-  console.log('🔄 Chargement des données pour le site:', site.name, 'ID:', site.id);
-
-  // 1. Charger les cahiers du site
-  this.chargeSheetService.getAll().subscribe({
-    next: (allChargeSheets) => {
-      const siteSheets = allChargeSheets.filter(s => s.plant === site.name);
-      this.chargeSheetCount = siteSheets.length;
-      const sheetIds = siteSheets.map(s => s.id);
-
-      // ✅ CALCULER LA VARIATION À PARTIR DES CAHIERS DU SITE
-      this.calculateMonthlyVariationForSite(siteSheets);
-
-      console.log(`📋 Cahiers trouvés pour ${site.name}: ${this.chargeSheetCount}`);
-      console.log('📊 Détail des cahiers:', siteSheets.map(s => ({ id: s.id, plant: s.plant, createdAt: s.createdAt })));
-
-      // 2. Charger les conformités
-      this.complianceService.getAll2().subscribe({
-        next: (allCompliances) => {
-          const siteCompliances = allCompliances.filter(c => sheetIds.includes(c.chargeSheetId));
-          this.complianceCount = siteCompliances.length;
-          console.log(`✅ Conformités pour ${site.name}: ${this.complianceCount}`);
-        },
-        error: (err) => console.error('Erreur chargement conformités:', err)
-      });
-
-      // 3. Charger les réclamations
-      this.claimService.getAllClaims().subscribe({
-        next: (allClaims) => {
-          const siteClaims = allClaims.filter(c => sheetIds.includes(c.chargeSheetId));
-          this.claimsCount = siteClaims.length;
-          console.log(`✅ Réclamations pour ${site.name}: ${this.claimsCount}`);
-        },
-        error: (err) => console.error('Erreur chargement réclamations:', err)
-      });
-
-      // 4. Charger les dossiers techniques
-      this.technicalFileService.getAllDetailed().subscribe({
-        next: (allTechFiles) => {
-          let totalTechFiles = 0;
-          if (allTechFiles && allTechFiles.length) {
-            allTechFiles.forEach(tf => {
-              if (tf.items && tf.items.length) {
-                tf.items.forEach(item => {
-                  if (sheetIds.includes(item.chargeSheetItemId)) {
-                    totalTechFiles++;
-                  }
-                });
-              }
-            });
-          }
-          this.technicalFilesCount = totalTechFiles;
-          console.log(`✅ Dossiers techniques pour ${site.name}: ${this.technicalFilesCount}`);
-        },
-        error: (err) => console.error('Erreur chargement dossiers techniques:', err)
-      });
-
-      // 5. Charger les utilisateurs
-      this.userService.getUsers().subscribe({
-        next: (allUsers) => {
-          let siteUsers = allUsers.filter(u => u.site === site.name);
-          this.activeUsers = siteUsers.length;
-          console.log(`✅ Utilisateurs pour ${site.name}: ${this.activeUsers}`);
-        },
-        error: (err) => console.error('Erreur chargement utilisateurs:', err)
-      });
-
-      this.loadingSiteData = false;
-    },
-    error: (err) => {
-      console.error('Erreur chargement cahiers:', err);
-      this.loadingSiteData = false;
-    }
-  });
-}
-calculateMonthlyVariationForSite(siteSheets: any[]): void {
-  console.log('📊 Calcul de variation pour', siteSheets.length, 'cahiers');
-
-  if (!siteSheets || siteSheets.length === 0) {
-    this.monthlyVariation = {
-      currentMonth: 'Aucune donnée',
-      currentMonthKey: '',
-      currentMonthCount: 0,
-      previousMonth: 'Aucune donnée',
-      previousMonthKey: '',
-      previousMonthCount: 0,
-      variation: 0,
-      trend: 'stable',
-      formula: 'Aucun cahier trouvé pour ce site',
-      interpretation: '📊 Aucun cahier des charges trouvé pour ce site'
-    };
-    return;
-  }
-
-  // Grouper les cahiers par mois (YYYY-MM)
-  const monthlyCounts: { [key: string]: number } = {};
-
-  siteSheets.forEach(sheet => {
-    // ✅ Utiliser 'date' en priorité
-    let dateStr = sheet.date || sheet.createdAt;
-
-    if (dateStr) {
-      const date = new Date(dateStr);
-      if (!isNaN(date.getTime())) {
-        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-        monthlyCounts[monthKey] = (monthlyCounts[monthKey] || 0) + 1;
-        console.log(`📅 Cahier ${sheet.id} - Date: ${dateStr} -> Mois: ${monthKey}`);
-      }
-    }
-  });
-
-  console.log('📊 Comptes mensuels:', monthlyCounts);
-
-  // ✅ TRI CHRONOLOGIQUE (du plus récent au plus ancien) - sur les clés YYYY-MM
-  const sortedMonths = Object.keys(monthlyCounts).sort((a, b) => {
-    // Comparer les dates (format YYYY-MM)
-    if (a > b) return -1;  // Plus récent d'abord
-    if (a < b) return 1;
-    return 0;
-  });
-
-  console.log('📊 Mois triés (clés):', sortedMonths);
-
-  if (sortedMonths.length >= 2) {
-    const currentMonthKey = sortedMonths[0];
-    const previousMonthKey = sortedMonths[1];
-    const currentCount = monthlyCounts[currentMonthKey];
-    const previousCount = monthlyCounts[previousMonthKey];
-
-    let variation = 0;
-    let trend = 'stable';
-
-    if (previousCount > 0) {
-      variation = ((currentCount - previousCount) / previousCount) * 100;
-      variation = Math.round(variation * 10) / 10;
-      trend = variation > 0 ? 'hausse' : variation < 0 ? 'baisse' : 'stable';
-    } else if (currentCount > 0) {
-      variation = 100;
-      trend = 'hausse';
-    }
-
-    this.monthlyVariation = {
-      currentMonth: this.formatMonthDisplay(currentMonthKey),
-      currentMonthKey: currentMonthKey,
-      currentMonthCount: currentCount,
-      previousMonth: this.formatMonthDisplay(previousMonthKey),
-      previousMonthKey: previousMonthKey,
-      previousMonthCount: previousCount,
-      variation: variation,
-      trend: trend,
-      formula: `((${currentCount} - ${previousCount}) / ${previousCount}) × 100 = ${variation}%`,
-      interpretation: this.getVariationInterpretation(trend, variation, currentCount, previousCount, 'cahier(s)')
-    };
-
-    console.log('✅ Variation calculée:', this.monthlyVariation);
-
-  } else if (sortedMonths.length === 1) {
-    const currentMonthKey = sortedMonths[0];
-    const currentCount = monthlyCounts[currentMonthKey];
-
-    this.monthlyVariation = {
-      currentMonth: this.formatMonthDisplay(currentMonthKey),
-      currentMonthKey: currentMonthKey,
-      currentMonthCount: currentCount,
-      previousMonth: 'Aucun mois précédent',
-      previousMonthKey: '',
-      previousMonthCount: 0,
-      variation: 0,
-      trend: 'stable',
-      formula: 'Premier mois avec des données',
-      interpretation: `📊 Premier mois d'activité: ${currentCount} cahier(s) créé(s) en ${this.formatMonthDisplay(currentMonthKey)}`
-    };
-
-  } else {
-    this.monthlyVariation = {
-      currentMonth: 'Aucune donnée',
-      currentMonthKey: '',
-      currentMonthCount: 0,
-      previousMonth: 'Aucune donnée',
-      previousMonthKey: '',
-      previousMonthCount: 0,
-      variation: 0,
-      trend: 'stable',
-      formula: 'Aucune donnée disponible',
-      interpretation: '📊 Aucun cahier des charges trouvé pour ce site'
-    };
-  }
-}
-
-// ✅ Méthode pour l'affichage uniquement (ne pas utiliser pour le tri)
-formatMonthDisplay(monthKey: string): string {
-  if (!monthKey) return 'Mois inconnu';
-
-  const [year, month] = monthKey.split('-');
-  const date = new Date(parseInt(year), parseInt(month) - 1);
-  return date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-}
-
-// Formater une clé de mois (2026-03 -> Mars 2026)
-formatMonthKey(monthKey: string): string {
-  if (!monthKey) return 'Mois inconnu';
-
-  // Format: "2026-04"
-  if (monthKey.match(/^\d{4}-\d{2}$/)) {
-    const [year, month] = monthKey.split('-');
-    const date = new Date(parseInt(year), parseInt(month) - 1);
-    const monthNames = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin',
-                        'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-    return `${monthNames[parseInt(month) - 1]} ${year}`;
-  }
-
-  return monthKey;
-}
-// Obtenir l'interprétation de la variation
-getVariationInterpretation(trend: string, variation: number, currentCount: number, previousCount: number, unit: string): string {
-  if (trend === 'hausse') {
-    if (variation > 50) {
-      return `📈 Forte augmentation de ${variation}% (${currentCount} vs ${previousCount} ${unit})`;
-    } else {
-      return `📈 Augmentation de ${variation}% (${currentCount} vs ${previousCount} ${unit})`;
-    }
-  } else if (trend === 'baisse') {
-    if (variation < -50) {
-      return `📉 Forte baisse de ${Math.abs(variation)}% (${currentCount} vs ${previousCount} ${unit})`;
-    } else {
-      return `📉 Baisse de ${Math.abs(variation)}% (${currentCount} vs ${previousCount} ${unit})`;
-    }
-  } else {
-    return `➡️ Stable (${currentCount} ${unit} pour les deux mois)`;
-  }
-}
-  // ==================== NAVIGATION ====================
-  goToChargeSheetsList(): void {
-    if (this.selectedSite) {
-      this.router.navigate(['/charge-sheets/list'], { queryParams: { site: this.selectedSite.name } });
-    } else {
-      this.router.navigate(['/charge-sheets/list']);
-    }
-  }
-
-  goToComplianceList(): void {
-    if (this.selectedSite) {
-      this.router.navigate(['/compliance/list'], { queryParams: { site: this.selectedSite.name } });
-    } else {
-      this.router.navigate(['/compliance/list']);
-    }
-  }
-
-  goToTechnicalFilesList(): void {
-    if (this.selectedSite) {
-      this.router.navigate(['/technical-files/list'], { queryParams: { site: this.selectedSite.name } });
-    } else {
-      this.router.navigate(['/technical-files/list']);
-    }
-  }
-
-  goToClaimsList(): void {
-    if (this.selectedSite) {
-      this.router.navigate(['/claims/list'], { queryParams: { site: this.selectedSite.name } });
-    } else {
-      this.router.navigate(['/claims/list']);
-    }
-  }
-
-  goToUsersList(): void {
-    this.router.navigate(['/listeuser']);
-  }
-
-  goToRegister(): void {
-    this.router.navigate(['/register']);
-  }
-
-  goToClaimsCreate(): void {
-    this.router.navigate(['/claims/create']);
-  }
-
-  goToStock(): void {
-    this.router.navigate(['/stock']);
-  }
-
-  goToReception(): void {
-    this.router.navigate(['/reception']);
-  }
-
-  // ==================== MÉTHODES EXISTANTES ====================
   loadUserInfo(): void {
     this.userEmail = this.authService.getUserEmail();
     this.userRole = this.authService.getUserRole();
@@ -587,65 +153,490 @@ getVariationInterpretation(trend: string, variation: number, currentCount: numbe
 
   loadStats(): void {
     this.chargeSheetService.getAll().subscribe({
-      next: (data) => { this.chargeSheetCount = data.length; },
-      error: (err) => console.error('Erreur chargement cahiers:', err)
+      next: (data) => {
+        this.ngZone.run(() => {
+          this.chargeSheetCount = data.length;
+          this.calculateMonthlyVariation(data);
+          this.calculateStatusDistribution(data);
+          this.calculateMonthlyEvolution(data);
+          this.calculateSiteStats(data);
+          this.calculateIndustrialStats(data);
+          this.calculateWeeklyProgress(data);
+          this.calculateSitePerformance();
+          this.calculatePredictions();
+          this.updateStatusStatistics();
+        });
+      },
+      error: (err) => console.error('Erreur:', err)
     });
+
     this.complianceService.getAll2().subscribe({
-      next: (data) => { this.complianceCount = data.length; },
-      error: (err) => console.error('Erreur chargement conformités:', err)
+      next: (data) => { this.complianceCount = data.length; this.calculateComplianceVariation(data); },
+      error: (err) => console.error('Erreur:', err)
     });
+
     this.claimService.getAllClaims().subscribe({
-      next: (data) => { this.claimsCount = data.length; },
-      error: (err) => console.error('Erreur chargement réclamations:', err)
+      next: (data) => { this.claimsCount = data.length; this.calculateClaimVariation(data); },
+      error: (err) => console.error('Erreur:', err)
     });
-    this.technicalFilesCount = 0;
+
+    this.technicalFileService.getAllDetailed().subscribe({
+      next: (data) => {
+        let count = 0;
+        if (data?.length) {
+          data.forEach((tf: any) => { if (tf.items?.length) count += tf.items.length; });
+        }
+        this.technicalFilesCount = count;
+      },
+      error: (err) => console.error('Erreur:', err)
+    });
+  }
+
+  updateStatusStatistics(): void {
+    const total = this.chargeSheetCount;
+    this.statusStatistics = this.statusDistribution.map(item => ({
+      ...item,
+      percentage: total > 0 ? (item.count / total) * 100 : 0
+    }));
   }
 
   loadActiveUsers(): void {
     this.userService.getUsers().subscribe({
       next: (users) => { this.activeUsers = users.length; },
-      error: (err) => { console.error('Erreur chargement utilisateurs:', err); this.activeUsers = 0; }
+      error: () => { this.activeUsers = 0; }
     });
   }
 
-  loadMonthlyVariation(): void {
-    this.isLoadingVariation = true;
-    let projectParam = this.selectedProject === 'ALL' ? undefined : this.selectedProject;
-    this.chargeSheetService.getLastTwoMonthsVariation(projectParam).subscribe({
-      next: (data) => { this.monthlyVariation = data; this.isLoadingVariation = false; },
-      error: (err) => { console.error('Erreur chargement variation:', err); this.isLoadingVariation = false; }
+  loadSites(): void {
+    this.loadingSites = true;
+    this.siteService.getAll().subscribe({
+      next: (sites) => {
+        this.sites = sites;
+        this.loadingSites = false;
+      },
+      error: () => {
+        this.loadingSites = false;
+        this.sites = [];
+      }
     });
   }
 
-  loadComplianceVariation(): void {
-    this.isLoadingComplianceVariation = true;
-    let projectParam = this.selectedComplianceProject === 'ALL' ? undefined : this.selectedComplianceProject;
-    this.complianceService.getLastTwoMonthsVariation(projectParam).subscribe({
-      next: (data) => { this.complianceVariation = data; this.isLoadingComplianceVariation = false; },
-      error: (err) => { console.error('Erreur chargement variation conformités:', err); this.isLoadingComplianceVariation = false; }
+  async selectSite(site: Site): Promise<void> {
+    this.ngZone.run(() => {
+      this.selectedSite = site;
+      this.loadingSites = true;
     });
+
+    try {
+      // Récupérer TOUTES les données en parallèle avec firstValueFrom
+      const [allSheets, allCompliances, allTechFiles, allClaims] = await Promise.all([
+        firstValueFrom(this.chargeSheetService.getAll()),
+        firstValueFrom(this.complianceService.getAll2()),
+        firstValueFrom(this.technicalFileService.getAllDetailed()),
+        firstValueFrom(this.claimService.getAllClaims())
+      ]);
+
+      this.ngZone.run(() => {
+        // Filtrer par site (avec vérification que les données existent)
+        const siteSheets = (allSheets || []).filter((s: any) => s.plant === site.name);
+        const siteCompliances = (allCompliances || []).filter((c: any) => c.plant === site.name);
+        const siteClaims = (allClaims || []).filter((c: any) => c.plant === site.name);
+
+        // Compter les dossiers techniques liés au site
+        let techFilesCount = 0;
+        if (allTechFiles?.length) {
+          allTechFiles.forEach((tf: any) => {
+            if (tf.site === site.name && tf.items?.length) {
+              techFilesCount += tf.items.length;
+            }
+          });
+        }
+
+        // Mettre à jour les compteurs
+        this.chargeSheetCount = siteSheets.length;
+        this.complianceCount = siteCompliances.length;
+        this.claimsCount = siteClaims.length;
+        this.technicalFilesCount = techFilesCount;
+
+        // Recalculer les variations avec les données filtrées
+        this.calculateMonthlyVariation(siteSheets);
+        this.calculateComplianceVariation(siteCompliances);
+        this.calculateClaimVariation(siteClaims);
+
+        // Recalculer les autres statistiques
+        this.calculateStatusDistribution(siteSheets);
+        this.calculateMonthlyEvolution(siteSheets);
+        this.calculateSiteStats(allSheets || []);
+        this.calculateIndustrialStats(siteSheets);
+        this.calculateWeeklyProgress(siteSheets);
+        this.calculateSitePerformance();
+        this.calculatePredictions();
+        this.updateStatusStatistics();
+
+        this.loadingSites = false;
+      });
+    } catch (err) {
+      console.error('Erreur chargement données:', err);
+      this.ngZone.run(() => {
+        this.loadingSites = false;
+      });
+    }
   }
 
-  loadClaimVariation(): void {
-    this.isLoadingClaimVariation = true;
-    let projectParam = this.selectedClaimProject === 'ALL' ? undefined : this.selectedClaimProject;
-    this.claimService.getLastTwoMonthsVariation(projectParam).subscribe({
-      next: (data) => { this.claimVariation = data; this.isLoadingClaimVariation = false; },
-      error: (err) => { console.error('Erreur chargement variation réclamations:', err); this.isLoadingClaimVariation = false; }
-    });
+  backToSiteSelection(): void {
+    this.selectedSite = null;
+    this.loadStats();
   }
 
-  loadTechnicalNotifications(): void {
-    this.isLoadingNotifications = true;
-    this.technicalFileNotificationService.getPendingNotifications().subscribe({
-      next: (data) => { this.technicalNotifications = data; this.isLoadingNotifications = false; },
-      error: (err) => { console.error('Erreur chargement notifications:', err); this.isLoadingNotifications = false; this.technicalNotifications = []; }
+  // ==================== CALCULS STATISTIQUES ====================
+
+  calculateMonthlyVariation(sheets: any[]): void {
+    const monthlyCounts: { [key: string]: number } = {};
+    (sheets || []).forEach(sheet => {
+      const dateStr = sheet.date || sheet.createdAt;
+      if (dateStr) {
+        const date = new Date(dateStr);
+        if (!isNaN(date.getTime())) {
+          const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+          monthlyCounts[monthKey] = (monthlyCounts[monthKey] || 0) + 1;
+        }
+      }
     });
+
+    const sortedMonths = Object.keys(monthlyCounts).sort((a, b) => b.localeCompare(a));
+    if (sortedMonths.length >= 2) {
+      const currentCount = monthlyCounts[sortedMonths[0]];
+      const previousCount = monthlyCounts[sortedMonths[1]];
+      let variation = previousCount > 0 ? ((currentCount - previousCount) / previousCount) * 100 : 0;
+      variation = Math.round(variation * 10) / 10;
+      const trend = variation > 0 ? 'hausse' : variation < 0 ? 'baisse' : 'stable';
+      this.monthlyVariation = {
+        currentMonth: this.formatMonthDisplay(sortedMonths[0]),
+        currentMonthCount: currentCount,
+        previousMonth: this.formatMonthDisplay(sortedMonths[1]),
+        previousMonthCount: previousCount,
+        variation,
+        trend,
+        formula: `((${currentCount} - ${previousCount}) / ${previousCount}) × 100 = ${variation}%`,
+        interpretation: this.getVariationInterpretation(trend, variation, currentCount, previousCount, 'cahier(s)')
+      };
+    } else {
+      this.monthlyVariation = null;
+    }
   }
 
-  loadToken(): void {
-    const token = this.authService.getAccessToken();
-    if (token) { this.currentToken = token; }
+  calculateComplianceVariation(data: any[]): void {
+    const monthlyCounts: { [key: string]: number } = {};
+    (data || []).forEach(item => {
+      const date = new Date(item.createdAt);
+      if (!isNaN(date.getTime())) {
+        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        monthlyCounts[monthKey] = (monthlyCounts[monthKey] || 0) + 1;
+      }
+    });
+    const sortedMonths = Object.keys(monthlyCounts).sort((a, b) => b.localeCompare(a));
+    if (sortedMonths.length >= 2) {
+      const currentCount = monthlyCounts[sortedMonths[0]];
+      const previousCount = monthlyCounts[sortedMonths[1]];
+      let variation = previousCount > 0 ? ((currentCount - previousCount) / previousCount) * 100 : 0;
+      variation = Math.round(variation * 10) / 10;
+      this.complianceVariation = {
+        currentMonth: this.formatMonthDisplay(sortedMonths[0]),
+        currentMonthCount: currentCount,
+        previousMonth: this.formatMonthDisplay(sortedMonths[1]),
+        previousMonthCount: previousCount,
+        variation,
+        trend: variation > 0 ? 'hausse' : variation < 0 ? 'baisse' : 'stable'
+      };
+    } else { this.complianceVariation = null; }
+  }
+
+  calculateClaimVariation(data: any[]): void {
+    const monthlyCounts: { [key: string]: number } = {};
+    (data || []).forEach(item => {
+      const date = new Date(item.createdAt);
+      if (!isNaN(date.getTime())) {
+        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        monthlyCounts[monthKey] = (monthlyCounts[monthKey] || 0) + 1;
+      }
+    });
+    const sortedMonths = Object.keys(monthlyCounts).sort((a, b) => b.localeCompare(a));
+    if (sortedMonths.length >= 2) {
+      const currentCount = monthlyCounts[sortedMonths[0]];
+      const previousCount = monthlyCounts[sortedMonths[1]];
+      let variation = previousCount > 0 ? ((currentCount - previousCount) / previousCount) * 100 : 0;
+      variation = Math.round(variation * 10) / 10;
+      this.claimVariation = {
+        currentMonth: this.formatMonthDisplay(sortedMonths[0]),
+        currentMonthCount: currentCount,
+        previousMonth: this.formatMonthDisplay(sortedMonths[1]),
+        previousMonthCount: previousCount,
+        variation,
+        trend: variation > 0 ? 'hausse' : variation < 0 ? 'baisse' : 'stable'
+      };
+    } else { this.claimVariation = null; }
+  }
+
+  calculateStatusDistribution(sheets: any[]): void {
+    const statusMap = new Map<string, number>();
+    const allStatuses = ['DRAFT', 'VALIDATED_ING', 'TECH_FILLED', 'VALIDATED_PT', 'SENT_TO_SUPPLIER', 'RECEIVED_FROM_SUPPLIER', 'COMPLETED'];
+    allStatuses.forEach(s => statusMap.set(s, 0));
+    (sheets || []).forEach(sheet => {
+      if (statusMap.has(sheet.status)) statusMap.set(sheet.status, (statusMap.get(sheet.status) || 0) + 1);
+    });
+
+    const statusColors: any = {
+      DRAFT: '#6c757d', VALIDATED_ING: '#0d6efd', TECH_FILLED: '#0dcaf0',
+      VALIDATED_PT: '#fd7e14', SENT_TO_SUPPLIER: '#ffc107', RECEIVED_FROM_SUPPLIER: '#198754', COMPLETED: '#20c997'
+    };
+    const statusLabels: any = {
+      DRAFT: 'Brouillon', VALIDATED_ING: 'Validé ING', TECH_FILLED: 'Tech Filled',
+      VALIDATED_PT: 'Validé PT', SENT_TO_SUPPLIER: 'Envoyé', RECEIVED_FROM_SUPPLIER: 'Reçu', COMPLETED: 'Complété'
+    };
+
+    this.statusDistribution = allStatuses
+      .map(status => ({ status, count: statusMap.get(status) || 0, color: statusColors[status], label: statusLabels[status] }))
+      .filter(item => item.count > 0);
+  }
+
+  calculateMonthlyEvolution(sheets: any[]): void {
+    const monthlyMap = new Map<string, number>();
+    (sheets || []).forEach(sheet => {
+      const dateStr = sheet.date || sheet.createdAt;
+      if (dateStr) {
+        const date = new Date(dateStr);
+        if (!isNaN(date.getTime())) {
+          const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+          monthlyMap.set(monthKey, (monthlyMap.get(monthKey) || 0) + 1);
+        }
+      }
+    });
+    this.monthlyEvolution = Array.from(monthlyMap.entries())
+      .map(([monthKey, count]) => ({ month: this.formatMonthDisplay(monthKey), count }))
+      .sort((a, b) => {
+        const [yearA, monthA] = a.month.split(' ');
+        const [yearB, monthB] = b.month.split(' ');
+        const monthOrder = { Jan:1, Fév:2, Mar:3, Avr:4, Mai:5, Juin:6, Juil:7, Aoû:8, Sep:9, Oct:10, Nov:11, Déc:12 };
+        if (yearA !== yearB) return parseInt(yearA) - parseInt(yearB);
+        return (monthOrder[monthA as keyof typeof monthOrder] || 0) - (monthOrder[monthB as keyof typeof monthOrder] || 0);
+      });
+  }
+
+  calculateSiteStats(allSheets: any[]): void {
+    const siteMap = new Map<string, SiteStat>();
+    const sheetsToProcess = this.selectedSite
+      ? (allSheets || []).filter((s: any) => s.plant === this.selectedSite?.name)
+      : (allSheets || []);
+
+    sheetsToProcess.forEach((sheet: any) => {
+      const siteName = sheet.plant || 'Non assigné';
+      if (!siteMap.has(siteName)) {
+        siteMap.set(siteName, {
+          siteId: 0, siteName, totalSheets: 0, completedSheets: 0,
+          pendingSheets: 0, inProgressSheets: 0, completionRate: 0,
+          statusDetails: { DRAFT: 0, VALIDATED_ING: 0, TECH_FILLED: 0, VALIDATED_PT: 0, SENT_TO_SUPPLIER: 0, RECEIVED_FROM_SUPPLIER: 0, COMPLETED: 0 }
+        });
+      }
+      const stat = siteMap.get(siteName)!;
+      stat.totalSheets++;
+      const key = sheet.status as keyof typeof stat.statusDetails;
+      if (key in stat.statusDetails) stat.statusDetails[key]++;
+      if (sheet.status === 'COMPLETED') stat.completedSheets++;
+      else stat.pendingSheets++;
+    });
+
+    this.siteStats = Array.from(siteMap.values())
+      .map(stat => ({ ...stat, completionRate: stat.totalSheets > 0 ? (stat.completedSheets / stat.totalSheets) * 100 : 0 }))
+      .sort((a, b) => b.totalSheets - a.totalSheets);
+
+    this.totalSheetsAllSites = this.siteStats.reduce((s, x) => s + x.totalSheets, 0);
+    this.totalCompletedAllSites = this.siteStats.reduce((s, x) => s + x.completedSheets, 0);
+    this.totalPendingAllSites = this.totalSheetsAllSites - this.totalCompletedAllSites;
+  }
+
+  calculateIndustrialStats(sheets: any[]): void {
+    const sheetsData = sheets || [];
+    const completedCount = sheetsData.filter(s => s.status === 'COMPLETED').length;
+    this.productionRate = sheetsData.length > 0 ? (completedCount / sheetsData.length) * 100 : 0;
+    const now = new Date();
+    let totalAgeDays = 0, nonCompletedCount = 0;
+    sheetsData.forEach(sheet => {
+      if (sheet.status !== 'COMPLETED') {
+        const created = new Date(sheet.createdAt);
+        totalAgeDays += (now.getTime() - created.getTime()) / (1000 * 3600 * 24);
+        nonCompletedCount++;
+      }
+    });
+    this.cycleTime = nonCompletedCount > 0 ? totalAgeDays / nonCompletedCount : 0;
+    const qualityStatuses = ['TECH_FILLED', 'VALIDATED_PT', 'SENT_TO_SUPPLIER', 'RECEIVED_FROM_SUPPLIER', 'COMPLETED'];
+    const qualityCount = sheetsData.filter(s => qualityStatuses.includes(s.status)).length;
+    this.qualityRate = sheetsData.length > 0 ? (qualityCount / sheetsData.length) * 100 : 0;
+    this.onTimeDelivery = this.productionRate;
+    this.workloadPerUser = this.activeUsers > 0 ? sheetsData.length / this.activeUsers : 0;
+    this.efficiency = this.productionRate * 0.4 + this.qualityRate * 0.35 + this.onTimeDelivery * 0.25;
+    this.urgentTasks = sheetsData.filter(s => {
+      if (!['DRAFT', 'VALIDATED_ING'].includes(s.status)) return false;
+      return (now.getTime() - new Date(s.createdAt).getTime()) / (1000 * 3600 * 24) > 14;
+    }).length;
+    let maxAge = 0;
+    sheetsData.forEach(sheet => {
+      if (sheet.status !== 'COMPLETED') {
+        const age = (now.getTime() - new Date(sheet.createdAt).getTime()) / (1000 * 3600 * 24);
+        maxAge = Math.max(maxAge, age);
+      }
+    });
+    this.criticalPath = Math.round(maxAge);
+    this.determineBottleneck();
+  }
+
+  calculateWeeklyProgress(sheets: any[]): void {
+    const days = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+    const weeklyData = days.map(day => ({ day, created: 0 }));
+    const today = new Date();
+    const currentDay = today.getDay();
+    const daysToMonday = currentDay === 0 ? 6 : currentDay - 1;
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - daysToMonday);
+    weekStart.setHours(0, 0, 0, 0);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+    weekEnd.setHours(23, 59, 59, 999);
+    const dayMap: any = { 1: 'Lun', 2: 'Mar', 3: 'Mer', 4: 'Jeu', 5: 'Ven', 6: 'Sam', 0: 'Dim' };
+    (sheets || []).forEach(sheet => {
+      const createdDate = new Date(sheet.createdAt);
+      if (createdDate >= weekStart && createdDate <= weekEnd) {
+        const dayName = dayMap[createdDate.getDay()];
+        const found = weeklyData.find(d => d.day === dayName);
+        if (found) found.created++;
+      }
+    });
+    this.weeklyProgress = weeklyData;
+  }
+
+  calculateSitePerformance(): void {
+    this.sitePerformance = this.siteStats.map(site => ({
+      site: site.siteName,
+      efficiency: site.completionRate,
+      quality: site.completionRate * 0.9
+    }));
+  }
+
+  calculatePredictions(): void {
+    if (this.monthlyEvolution.length >= 3) {
+      const values = this.monthlyEvolution.slice(-3).map(x => x.count);
+      const [val1, val2, val3] = values;
+      const avgGrowth = ((val2 - val1) + (val3 - val2)) / 2;
+      this.predictedNextMonth = Math.max(0, Math.round(val3 + avgGrowth));
+      this.trendDirection = avgGrowth > 0 ? 'hausse' : avgGrowth < 0 ? 'baisse' : 'stable';
+      this.prevMonthGrowth = val2 > 0 ? ((val3 - val2) / val2) * 100 : 0;
+      this.confidenceLevel = 85;
+      this.monthlyTarget = Math.max(10, Math.round((val1 + val2 + val3) / 3 * 1.1));
+    } else if (this.monthlyEvolution.length === 2) {
+      const [val1, val2] = this.monthlyEvolution.map(x => x.count);
+      this.predictedNextMonth = Math.max(0, val2 + (val2 - val1));
+      this.trendDirection = val2 > val1 ? 'hausse' : val2 < val1 ? 'baisse' : 'stable';
+      this.prevMonthGrowth = val1 > 0 ? ((val2 - val1) / val1) * 100 : 0;
+      this.confidenceLevel = 65;
+      this.monthlyTarget = Math.max(10, Math.round((val1 + val2) / 2 * 1.1));
+    } else if (this.monthlyEvolution.length === 1) {
+      this.predictedNextMonth = this.monthlyEvolution[0].count;
+      this.trendDirection = 'stable';
+      this.prevMonthGrowth = 0;
+      this.confidenceLevel = 50;
+      this.monthlyTarget = Math.max(10, Math.round(this.monthlyEvolution[0].count * 1.1));
+    }
+  }
+
+  determineBottleneck(): void {
+    if (this.productionRate < 20) this.bottleneckStatus = '🚨 Très faible taux de production';
+    else if (this.qualityRate < 40) this.bottleneckStatus = '🔧 Problèmes majeurs de qualité';
+    else if (this.cycleTime > 30) this.bottleneckStatus = '⏰ Cycle de production très long (+30 jours)';
+    else if (this.cycleTime > 21) this.bottleneckStatus = '⏰ Cycle de production long (21-30 jours)';
+    else if (this.workloadPerUser > 15) this.bottleneckStatus = '⚠️ Surcharge utilisateurs';
+    else if (this.productionRate < 50) this.bottleneckStatus = '📉 Production inférieure à la cible';
+    else if (this.qualityRate < 70) this.bottleneckStatus = '🔧 Amélioration qualité nécessaire';
+    else if (this.cycleTime > 14) this.bottleneckStatus = '⏰ Cycle de production à optimiser';
+    else if (this.urgentTasks > 3) this.bottleneckStatus = `🚨 ${this.urgentTasks} tâches urgentes accumulées`;
+    else this.bottleneckStatus = '✅ Production fluide - Bonne performance';
+  }
+
+  // ==================== UTILITAIRES ====================
+
+  formatMonthDisplay(monthKey: string): string {
+    if (!monthKey) return 'Mois inconnu';
+    const [year, month] = monthKey.split('-');
+    const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+    return `${monthNames[parseInt(month) - 1]} ${year}`;
+  }
+
+  getVariationIcon(trend: string): string {
+    return trend === 'hausse' ? 'bi bi-arrow-up' : trend === 'baisse' ? 'bi bi-arrow-down' : 'bi bi-dash';
+  }
+
+  getVariationSign(variation: number): string { return variation > 0 ? '+' : ''; }
+
+  getVariationInterpretation(trend: string, variation: number, currentCount: number, previousCount: number, unit: string): string {
+    if (trend === 'hausse') return `📈 Augmentation de ${variation}% (${currentCount} vs ${previousCount} ${unit})`;
+    if (trend === 'baisse') return `📉 Baisse de ${Math.abs(variation)}% (${currentCount} vs ${previousCount} ${unit})`;
+    return `➡️ Stable (${currentCount} ${unit} pour les deux mois)`;
+  }
+
+  getGlobalCompletionRate(): number {
+    return this.totalSheetsAllSites > 0 ? (this.totalCompletedAllSites / this.totalSheetsAllSites) * 100 : 0;
+  }
+
+  getTotalByStatus(status: string): number {
+    return this.siteStats.reduce((total, site) => total + (site.statusDetails[status as keyof typeof site.statusDetails] || 0), 0);
+  }
+
+  getSiteSheetCount(siteName: string): number {
+    return this.siteStats.find(s => s.siteName === siteName)?.totalSheets || 0;
+  }
+
+  getSiteCompletionRate(siteName: string): number {
+    return Math.round(this.siteStats.find(s => s.siteName === siteName)?.completionRate || 0);
+  }
+
+  getMaxWeeklyValue(): number {
+    if (!this.weeklyProgress.length) return 1;
+    return Math.max(...this.weeklyProgress.map(d => d.created), 1);
+  }
+
+  getWeeklyBarWidth(value: number): number {
+    const max = this.getMaxWeeklyValue();
+    return (value / max) * 100;
+  }
+
+  hasWeeklyActivity(): boolean {
+    return this.weeklyProgress?.some(day => day.created > 0) || false;
+  }
+
+  getEfficiencyColor(efficiency: number): string {
+    return efficiency >= 80 ? '#28a745' : efficiency >= 60 ? '#ffc107' : '#dc3545';
+  }
+
+  getQualityColor(quality: number): string {
+    return quality >= 85 ? '#20c997' : quality >= 70 ? '#ffc107' : '#dc3545';
+  }
+
+  getPredictedNextMonth(): number {
+    return this.predictedNextMonth || (this.monthlyEvolution.length > 0 ? this.monthlyEvolution[this.monthlyEvolution.length - 1]?.count || 0 : 0);
+  }
+
+  getTrendDisplay(): string {
+    if (this.trendDirection === 'hausse') return `📈 +${Math.abs(this.prevMonthGrowth || 0).toFixed(1)}%`;
+    if (this.trendDirection === 'baisse') return `📉 -${Math.abs(this.prevMonthGrowth || 0).toFixed(1)}%`;
+    return '➡️ 0%';
+  }
+
+  isTargetAchieved(): boolean {
+    const lastMonthCount = this.monthlyEvolution.length > 0 ? this.monthlyEvolution[this.monthlyEvolution.length - 1]?.count || 0 : 0;
+    return lastMonthCount >= this.monthlyTarget;
+  }
+
+  getMaxMonthlyCount(): number {
+    if (this.monthlyEvolution.length === 0) return 1;
+    return Math.max(...this.monthlyEvolution.map(m => m.count), 1);
   }
 
   loadNotificationCount(): void {
@@ -654,151 +645,26 @@ getVariationInterpretation(trend: string, variation: number, currentCount: numbe
         const lastView = localStorage.getItem('lastNotifView');
         if (lastView) {
           const lastViewDate = new Date(lastView);
-          this.notificationCount = notifications.filter(n => new Date(n.createdAt) > lastViewDate).length;
+          this.notificationCount = notifications.filter((n: any) => new Date(n.createdAt) > lastViewDate).length;
         } else {
           this.notificationCount = notifications.length;
         }
       },
-      error: (err) => { console.error('Erreur chargement compteur notifications:', err); this.notificationCount = 0; }
+      error: () => { this.notificationCount = 0; }
     });
   }
 
-  setActiveTab(tab: string): void {
-    this.activeDashboardTab = tab;
-  }
-
-  goToNotifications(): void {
-    this.router.navigate(['/notifications']);
-  }
-
-  onProjectChange(): void {
-    this.loadMonthlyVariation();
-  }
-
-  onComplianceProjectChange(): void {
-    this.loadComplianceVariation();
-  }
-
-  onClaimProjectChange(): void {
-    this.loadClaimVariation();
-  }
-
-  getVariationIcon(trend: string): string {
-    switch(trend) {
-      case 'hausse': return 'bi bi-arrow-up';
-      case 'baisse': return 'bi bi-arrow-down';
-      default: return 'bi bi-dash';
-    }
-  }
-
-  getVariationSign(variation: number): string {
-    return variation > 0 ? '+' : '';
-  }
-
-  hasPermission(permissions: string[]): boolean {
-    return permissions.some(p => this.userPermissions.includes(p));
-  }
+  // Navigation
+  goToNotifications(): void { this.router.navigate(['/notifications']); }
+  goToProfile(): void { this.router.navigate(['/profile']); this.isUserMenuOpen = false; }
+  isAdmin(): boolean { return this.authService.getUserRole() === 'ADMIN'; }
+  isMC(): boolean { return this.authService.getUserRole() === 'MC'; }
+  isMP(): boolean { return this.authService.getUserRole() === 'MP'; }
+  hasPermission(permissions: string[]): boolean { return permissions.some(p => this.userPermissions.includes(p)); }
 
   getUserRoleLabel(role: string): string {
-    const labels: { [key: string]: string } = {
-      'ADMIN': 'Administrateur',
-      'ING': 'Ingénieur',
-      'PT': 'Technologie Production',
-      'PP': 'Préparation Production',
-      'MC': 'Maintenance Corrective',
-      'MP': 'Maintenance Préventive'
-    };
+    const labels: any = { ADMIN: 'Administrateur', ING: 'Ingénieur', PT: 'Technologie Production', PP: 'Préparation Production', MC: 'Maintenance Corrective', MP: 'Maintenance Préventive' };
     return labels[role] || role;
-  }
-
-  formatPermissionName(permission: string): string {
-    const parts = permission.split(':');
-    const action = parts[parts.length - 1];
-    const resource = parts[0].replace(/_/g, ' ');
-    const actionLabels: { [key: string]: string } = {
-      'create': 'Création',
-      'read': 'Lecture',
-      'write': 'Modification',
-      'delete': 'Suppression'
-    };
-    const resourceLabels: { [key: string]: string } = {
-      'charge sheet': 'Cahier',
-      'compliance': 'Conformité',
-      'technical file': 'DT',
-      'claim': 'Réclamation',
-      'stock': 'Stock'
-    };
-    return `${actionLabels[action] || action} ${resourceLabels[resource] || resource}`.trim();
-  }
-
-  isDashboardRoute(): boolean {
-    return this.router.url === '/dashboard';
-  }
-
-  toggleChat(): void {
-    this.isOpen = !this.isOpen;
-    if (this.isOpen) {
-      setTimeout(() => this.scrollToBottom(), 100);
-    }
-  }
-
-  closeChat(): void {
-    this.isOpen = false;
-  }
-
-  sendMessage(): void {
-    if (!this.userInput.trim()) return;
-    if (!this.currentToken) {
-      this.messages.push({ text: '❌ Session expirée. Veuillez vous reconnecter.', isUser: false, timestamp: new Date() });
-      return;
-    }
-    this.messages.push({ text: this.userInput, isUser: true, timestamp: new Date() });
-    const question = this.userInput;
-    this.userInput = '';
-    this.isLoading = true;
-    this.scrollToBottom();
-    this.http.post<{ response: string }>('http://localhost:5000/ask', { question, token: this.currentToken }).subscribe({
-      next: (res) => {
-        this.messages.push({ text: res.response, isUser: false, timestamp: new Date() });
-        this.isLoading = false;
-        this.scrollToBottom();
-      },
-      error: (err) => {
-        console.error('Erreur chatbot:', err);
-        if (err.status === 401) {
-          this.messages.push({ text: '❌ Session expirée. Veuillez vous reconnecter.', isUser: false, timestamp: new Date() });
-          this.currentToken = '';
-        } else {
-          this.messages.push({ text: '❌ Désolé, une erreur est survenue. Veuillez réessayer plus tard.', isUser: false, timestamp: new Date() });
-        }
-        this.isLoading = false;
-        this.scrollToBottom();
-      }
-    });
-  }
-
-  askSuggestion(suggestion: string): void {
-    this.userInput = suggestion;
-    this.sendMessage();
-  }
-
-  scrollToBottom(): void {
-    setTimeout(() => {
-      if (this.messagesContainer) {
-        this.messagesContainer.nativeElement.scrollTop = this.messagesContainer.nativeElement.scrollHeight;
-      }
-    }, 100);
-  }
-
-  formatMessage(text: string): string {
-    if (!text) return '';
-    let formatted = text.replace(/\n/g, '<br>');
-    formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-    return formatted;
-  }
-
-  toggleNavbar(): void {
-    this.isNavbarOpen = !this.isNavbarOpen;
   }
 
   toggleUserMenuDropdown(event: Event): void {
@@ -815,33 +681,12 @@ getVariationInterpretation(trend: string, variation: number, currentCount: numbe
   closeUserMenuOnOutsideClick(event: Event): void {
     const target = event.target as HTMLElement;
     const dropdown = document.querySelector('.user-menu');
-    if (dropdown && !dropdown.contains(target)) {
-      this.isUserMenuOpen = false;
-    }
+    if (dropdown && !dropdown.contains(target)) this.isUserMenuOpen = false;
   }
 
   logout(event?: Event): void {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
+    if (event) { event.preventDefault(); event.stopPropagation(); }
     this.authService.logout();
     this.router.navigate(['/login']);
-  }
-
-  clearNotifications(): void {
-    localStorage.setItem('lastNotifView', new Date().toISOString());
-    this.technicalNotifications = [];
-  }
-
-  viewTechnicalItem(itemId: number): void {
-    this.router.navigate(['/technical-files/items', itemId, 'detail']);
-  }
-
-  dismissNotification(notificationId: number): void {
-    const index = this.technicalNotifications.findIndex(n => n.id === notificationId);
-    if (index !== -1) {
-      this.technicalNotifications.splice(index, 1);
-    }
   }
 }

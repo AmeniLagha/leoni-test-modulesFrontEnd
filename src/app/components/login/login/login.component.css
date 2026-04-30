@@ -249,6 +249,15 @@
     font-size: 0.6rem;
   }
 }
+.alert-warning {
+  background: rgba(255, 193, 7, 0.2);
+  border: 1px solid #ffc107;
+  color: #ffc107;
+}
+
+.alert-warning i {
+  color: #ffc107;
+}
 .bg-overlay {
   position: absolute;
   top: 0;

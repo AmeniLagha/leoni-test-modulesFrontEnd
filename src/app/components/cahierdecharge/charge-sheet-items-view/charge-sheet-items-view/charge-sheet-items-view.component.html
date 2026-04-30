@@ -6,12 +6,12 @@
         <div>
           <h1 class="text-white mb-2">
             <i class="bi bi-list-check me-2"></i>
-            Tous les items - Cahier #{{ chargeSheet?.orderNumber}}
+            Tous les items - Cahier "{{ chargeSheet?.orderNumber}}"
           </h1>
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
               <li class="breadcrumb-item"><a routerLink="/charge-sheets/list" class="text-white text-decoration-none">Cahiers des charges</a></li>
-              <li class="breadcrumb-item"><a [routerLink]="['/charge-sheets', chargeSheetId]" class="text-white text-decoration-none">#{{ chargeSheetId }}</a></li>
+              <li class="breadcrumb-item"><a [routerLink]="['/charge-sheets', chargeSheetId]" class="text-white text-decoration-none">{{ chargeSheetId }}</a></li>
               <li class="breadcrumb-item active text-white-50">Tous les items</li>
             </ol>
           </nav>
@@ -148,7 +148,6 @@
           <!-- Sous-en-tête avec les noms des champs -->
           <tr>
             <!-- Général -->
-            <th>ID</th>
             <th>Item</th>
             <th>Samples exist</th>
             <th>Ways</th>
@@ -279,8 +278,7 @@
         <tbody>
           <tr *ngFor="let item of chargeSheet.items; let i = index">
             <!-- Général -->
-            <td class="fw-semibold text-primary">{{ item.id }}</td>
-            <td><span class="badge bg-secondary"></span>#{{ item.itemNumber }}</td>
+            <td  class="fw-semibold text-primary">{{ item.itemNumber }}</td>
             <td>{{ item.samplesExist === 'Yes' ? 'Oui' : 'Non' }}</td>
             <td>{{ item.ways || '-' }}</td>
             <td>{{ item.housingColour || '-' }}</td>
@@ -494,7 +492,7 @@
       <div class="modal-header" style="padding: 1rem 1.5rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
         <h5 class="modal-title" style="margin: 0; font-size: 1.2rem; color: #1e293b;">
           <i class="bi bi-folder-plus" style="margin-right: 0.5rem; color: #3498db;"></i>
-          Ajouter l'item #{{ currentItem?.itemNumber }} à un dossier existant
+          Ajouter l'item {{ currentItem?.housingReferenceLeoni }} à un dossier existant
         </h5>
         <button type="button" class="btn-close" (click)="closeModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">×</button>
       </div>
@@ -531,7 +529,7 @@
               </div>
               <div style="flex: 1;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                  <span style="font-weight: 600; color: #3498db;">#{{ file.id }}</span>
+                  <span style="font-weight: 600; color: #3498db;">{{ file.id }}</span>
                 </div>
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; font-size: 0.9rem;">
                   <span><strong>Réf:</strong> {{ file.reference || '-' }}</span>
@@ -546,7 +544,7 @@
         <div *ngIf="selectedTechnicalFileId" style="border-top: 1px solid #e2e8f0; padding-top: 1.5rem;">
           <h6 style="margin-bottom: 1rem; color: #2c3e50; font-weight: 600;">
             <span style="background: #3498db; color: white; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; margin-right: 0.5rem; font-size: 0.9rem;">2</span>
-            Saisir les valeurs pour l'item #{{ currentItem?.itemNumber }}
+            Saisir les valeurs pour l'item {{ currentItem?.housingReferenceLeoni  }}
           </h6>
 
      <form [formGroup]="itemForm">
@@ -554,8 +552,7 @@
         <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; table-layout: fixed; min-width: 1600px;">
           <thead>
             <tr style="background: #f1f5f9;">
-              <th rowspan="2" style="width: 70px; padding: 0.9rem; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle;">ID Item</th>
-              <th rowspan="2" style="width: 80px; padding: 0.9rem; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle;">Position</th>
+              <th rowspan="2" style="width: 100px; padding: 0.9rem; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle;">Position</th>
               <th rowspan="2" style="width: 150px; padding: 0.9rem; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle;">Date d'entretien</th>
               <th rowspan="2" style="width: 200px; padding: 0.9rem; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle;">Nom du Technicien</th>
               <th rowspan="2" style="width: 80px; padding: 0.9rem; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle;">X_Code</th>
@@ -591,9 +588,6 @@
           </thead>
           <tbody>
             <tr>
-              <td style="padding: 0.8rem; border: 1px solid #e2e8f0; font-weight: 600; color: #3498db; text-align: center;">
-                {{ currentItem?.id }}
-              </td>
               <td style="padding: 0.8rem; border: 1px solid #e2e8f0;">
                 <input type="text" formControlName="position" placeholder="Position" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box;">
               </td>

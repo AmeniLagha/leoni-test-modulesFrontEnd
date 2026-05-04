@@ -13,7 +13,78 @@
 .card {
   animation: fadeInUp 0.5s ease-out;
 }
+/* charge-sheet-tech.component.css */
 
+/* Style pour l'indicateur dans la barre d'actions */
+.local-backup-indicator {
+  display: inline-flex;
+  align-items: center;
+  background-color: rgba(255, 193, 7, 0.15);
+  padding: 0.35rem 0.85rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  font-size: 0.85rem;
+}
+
+.local-backup-indicator i {
+  font-size: 0.9rem;
+  margin-right: 0.25rem;
+}
+
+/* Style pour l'indicateur dans le header */
+.local-backup-indicator-header {
+  display: inline-flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(5px);
+  padding: 0.5rem 1rem;
+  border-radius: 30px;
+  gap: 0.5rem;
+  color: #ffc107;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.local-backup-indicator-header i {
+  font-size: 1rem;
+}
+
+.local-backup-indicator-header .date-badge {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.75rem;
+}
+
+/* Animation pour l'indicateur */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.local-backup-indicator, .local-backup-indicator-header {
+  animation: pulse 2s ease-in-out infinite;
+}
+/* charge-sheet-tech.component.css */
+
+/* Indicateur dans la barre d'actions */
+.local-backup-indicator {
+  display: inline-flex;
+  align-items: center;
+  background-color: rgba(255, 193, 7, 0.1);
+  padding: 0.35rem 0.85rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  font-size: 0.8rem;
+}
+
+/* Animation douce pour l'indicateur */
+@keyframes gentlePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.local-backup-indicator {
+  animation: gentlePulse 3s ease-in-out infinite;
+}
 /* Table styles */
 .table {
   font-size: 0.8rem;

@@ -50,7 +50,11 @@ export class TechnicalFileListComponent implements OnInit {
   // ==================== ÉDITION INLINE DE LA RÉFÉRENCE ====================
   editingRefId: number | null = null;
   editRefValue: string = '';
-
+  currentPage: number = 1;
+  itemsPerPage: number = 5; // Nombre d'éléments par page
+  totalPages: number = 1;
+  paginatedFiles: TechnicalFileDetail[] = [];
+ Math = Math
   constructor(
     private service: TechnicalFileService,
     private router: Router
@@ -60,6 +64,81 @@ export class TechnicalFileListComponent implements OnInit {
      this.currentUserRole = localStorage.getItem('userRole') || '';
   console.log('Rôle utilisateur:', this.currentUserRole); // ✅ AJOUTER
     this.loadAllTechnicalFiles();
+  }
+updatePagination(): void {
+    // Calculer le nombre total de pages
+    this.totalPages = Math.ceil(this.filteredFiles.length / this.itemsPerPage);
+    
+    // S'assurer que la page courante est valide
+    if (this.currentPage > this.totalPages && this.totalPages > 0) {
+      this.currentPage = this.totalPages;
+    }
+    if (this.currentPage < 1) {
+      this.currentPage = 1;
+    }
+    
+    // Calculer les indices de début et fin
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    
+    // Extraire les éléments de la page courante
+    this.paginatedFiles = this.filteredFiles.slice(startIndex, endIndex);
+  }
+
+  changePage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updatePagination();
+      // Optionnel : scroller en haut de la page
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.changePage(this.currentPage - 1);
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.changePage(this.currentPage + 1);
+    }
+  }
+
+  changeItemsPerPage(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    this.itemsPerPage = parseInt(target.value, 10);
+    this.currentPage = 1; // Retour à la première page
+    this.updatePagination();
+  }
+
+  // Générateur de pages à afficher (pour l'affichage des numéros)
+  getPagesToShow(): number[] {
+    const pages: number[] = [];
+    const maxPagesToShow = 5; // Nombre maximum de pages à afficher
+    
+    if (this.totalPages <= maxPagesToShow) {
+      // Afficher toutes les pages
+      for (let i = 1; i <= this.totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Afficher un sous-ensemble avec ellipses
+      const half = Math.floor(maxPagesToShow / 2);
+      let start = Math.max(1, this.currentPage - half);
+      let end = Math.min(this.totalPages, start + maxPagesToShow - 1);
+      
+      if (end - start + 1 < maxPagesToShow) {
+        start = Math.max(1, end - maxPagesToShow + 1);
+      }
+      
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+    }
+    
+    return pages;
   }
 
   // technical-file-list.component.ts - Version corrigée
@@ -125,43 +204,49 @@ loadAllTechnicalFiles() {
   // technical-file-list.component.ts
 
 applyFilters(): void {
-  // Si aucun fichier n'est chargé, ne rien faire
-  if (!this.technicalFiles || this.technicalFiles.length === 0) {
-    this.filteredFiles = [];
-    return;
+    if (!this.technicalFiles || this.technicalFiles.length === 0) {
+      this.filteredFiles = [];
+      this.paginatedFiles = [];
+      this.totalPages = 1;
+      this.currentPage = 1;
+      return;
+    }
+
+    this.filteredFiles = this.technicalFiles.filter(file => {
+      // Filtre par recherche textuelle
+      if (this.searchTerm && this.searchTerm.trim()) {
+        const term = this.searchTerm.toLowerCase().trim();
+        const matchRef = file.reference?.toLowerCase().includes(term) || false;
+        const matchCreatedBy = file.createdBy?.toLowerCase().includes(term) || false;
+        if (!matchRef && !matchCreatedBy) {
+          return false;
+        }
+      }
+
+      // Filtre par année
+      if (this.yearFilter && file.createdAt) {
+        const fileYear = new Date(file.createdAt).getFullYear();
+        if (fileYear.toString() !== this.yearFilter) {
+          return false;
+        }
+      }
+
+      // Filtre par mois
+      if (this.monthFilter && file.createdAt) {
+        const fileMonth = new Date(file.createdAt).getMonth() + 1;
+        const monthStr = fileMonth.toString().padStart(2, '0');
+        if (monthStr !== this.monthFilter) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
+    // Réinitialiser la pagination après les filtres
+    this.currentPage = 1;
+    this.updatePagination();
   }
-
-  this.filteredFiles = this.technicalFiles.filter(file => {
-    // Filtre par recherche textuelle (seulement si searchTerm a du contenu)
-    if (this.searchTerm && this.searchTerm.trim()) {
-      const term = this.searchTerm.toLowerCase().trim();
-      const matchRef = file.reference?.toLowerCase().includes(term) || false;
-      const matchCreatedBy = file.createdBy?.toLowerCase().includes(term) || false;
-      if (!matchRef && !matchCreatedBy) {
-        return false;
-      }
-    }
-
-    // Filtre par année
-    if (this.yearFilter && file.createdAt) {
-      const fileYear = new Date(file.createdAt).getFullYear();
-      if (fileYear.toString() !== this.yearFilter) {
-        return false;
-      }
-    }
-
-    // Filtre par mois
-    if (this.monthFilter && file.createdAt) {
-      const fileMonth = new Date(file.createdAt).getMonth() + 1;
-      const monthStr = fileMonth.toString().padStart(2, '0');
-      if (monthStr !== this.monthFilter) {
-        return false;
-      }
-    }
-
-    return true;
-  });
-}
 
 
   clearSearch() {
@@ -169,10 +254,11 @@ applyFilters(): void {
     this.filteredFiles = this.technicalFiles;
   }
    // ✅ Réinitialiser tous les filtres
-  resetFilters(): void {
+ resetFilters(): void {
     this.searchTerm = '';
     this.monthFilter = '';
     this.yearFilter = '';
+    this.currentPage = 1;
     this.applyFilters();
   }
 

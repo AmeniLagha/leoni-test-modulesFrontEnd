@@ -1,8 +1,10 @@
 <div class="container-fluid px-4 py-4">
   <!-- HEADER GRADIENT -->
-  <div class="card border-0 shadow-lg mb-4" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+  <div class="card border-0 shadow-lg mb-4"
+    style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
     <div class="card-body p-4">
-      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <div
+        class="d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div>
           <h2 class="text-white mb-2">
             <i class="bi bi-files me-2"></i>
@@ -11,138 +13,165 @@
               {{ chargeSheets.length }}
             </span>
           </h2>
-          <p class="text-white-50 mb-0">Gestion et suivi des cahiers des charges techniques</p>
+          <p class="text-white-50 mb-0">Gestion et suivi des cahiers des charges
+            techniques</p>
         </div>
         <div class="d-flex gap-2">
-          <button *ngIf="canCreate" class="btn btn-light" routerLink="/charge-sheets/create">
+          <button *ngIf="canCreate" class="btn btn-light"
+            routerLink="/charge-sheets/create">
             <i class="bi bi-plus-circle me-2"></i>Nouveau cahier
           </button>
-          <button  class="btn btn-outline-light" (click)="exportAllToExcel()"
-                  [disabled]="!chargeSheets.length">
+          <button class="btn btn-outline-light" (click)="exportAllToExcel()"
+            [disabled]="!chargeSheets.length">
             <i class="bi bi-file-earmark-excel me-2"></i>Exporter tout
           </button>
-           <a routerLink="/dashboard" class="btn btn-light">
-          <i class="bi bi-arrow-left me-2"></i>Retour
-        </a>
+          <a routerLink="/dashboard" class="btn btn-light">
+            <i class="bi bi-arrow-left me-2"></i>Retour
+          </a>
         </div>
       </div>
     </div>
   </div>
 
- <!-- FILTRES AVANCÉS -->
-<div class="card border-0 shadow-sm mb-4" *ngIf="chargeSheets.length">
-  <div class="card-body">
-    <div class="row g-3 align-items-end">
-      <div class="col-md-3">
-        <label class="form-label fw-semibold small text-muted text-uppercase">
-          <i class="bi bi-search me-1"></i>Recherche
-        </label>
-        <div class="input-group">
-          <span class="input-group-text bg-white border-end-0">
-            <i class="bi bi-search text-muted"></i>
-          </span>
-          <input type="text" class="form-control border-start-0 ps-0"
-                 placeholder="Projet, plant, ID, référence..."
-                 (keyup)="applyFilter($event)" [value]="searchTerm">
+  <!-- FILTRES AVANCÉS -->
+  <div class="card border-0 shadow-sm mb-4" *ngIf="chargeSheets.length">
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label fw-semibold small text-muted text-uppercase">
+            <i class="bi bi-search me-1"></i>Recherche
+          </label>
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0">
+              <i class="bi bi-search text-muted"></i>
+            </span>
+            <input type="text" class="form-control border-start-0 ps-0"
+              placeholder="Projet, plant, ID, référence..."
+              (keyup)="applyFilter($event)" [value]="searchTerm">
+          </div>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label fw-semibold small text-muted text-uppercase">
+            <i class="bi bi-funnel me-1"></i>Statut
+          </label>
+          <select class="form-select" (change)="filterByStatus($event)"
+            [value]="statusFilter">
+            <option value>📊 Tous les statuts</option>
+            <option value="DRAFT">📝 Brouillon</option>
+            <option value="VALIDATED_ING">✅ Validé ING</option>
+            <option value="TECH_FILLED">⚙️ Technique en cours</option>
+            <option value="VALIDATED_PT">🔧 Validé PT</option>
+            <option value="SENT_TO_SUPPLIER">🚚 Envoyé fournisseur</option>
+            <option value="RECEIVED_FROM_SUPPLIER">📦 Réception
+              partielle</option>
+            <option value="COMPLETED">🎯 Terminé</option>
+          </select>
+        </div>
+
+        <!-- ✅ NOUVEAU : Filtre par année -->
+        <div class="col-md-2">
+          <label class="form-label fw-semibold small text-muted text-uppercase">
+            <i class="bi bi-calendar-year me-1"></i>Année
+          </label>
+          <select class="form-select" (change)="filterByYear($event)"
+            [value]="yearFilter">
+            <option value>📅 Toutes les années</option>
+            <option *ngFor="let year of availableYears" [value]="year">{{ year
+              }}</option>
+          </select>
+        </div>
+
+        <!-- ✅ NOUVEAU : Filtre par mois -->
+        <div class="col-md-2">
+          <label class="form-label fw-semibold small text-muted text-uppercase">
+            <i class="bi bi-calendar-month me-1"></i>Mois
+          </label>
+          <select class="form-select" (change)="filterByMonth($event)"
+            [value]="monthFilter">
+            <option value>📅 Tous les mois</option>
+            <option *ngFor="let month of availableMonths"
+              [value]="month.value">{{ month.label }}</option>
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label fw-semibold small text-muted text-uppercase">
+            <i class="bi bi-calendar me-1"></i>Date exacte
+          </label>
+          <input type="date" class="form-control" [(ngModel)]="dateFilter"
+            (change)="applyDateFilter()" placeholder="Filtrer par date">
+        </div>
+
+        <div class="col-md-1">
+          <button
+            *ngIf="searchTerm || statusFilter || dateFilter || monthFilter || yearFilter"
+            class="btn btn-outline-secondary w-100" (click)="resetFilters()">
+            <i class="bi bi-eraser me-2"></i>Effacer
+          </button>
         </div>
       </div>
-      <div class="col-md-2">
-        <label class="form-label fw-semibold small text-muted text-uppercase">
-          <i class="bi bi-funnel me-1"></i>Statut
-        </label>
-        <select class="form-select" (change)="filterByStatus($event)" [value]="statusFilter">
-          <option value="">📊 Tous les statuts</option>
-          <option value="DRAFT">📝 Brouillon</option>
-          <option value="VALIDATED_ING">✅ Validé ING</option>
-          <option value="TECH_FILLED">⚙️ Technique en cours</option>
-          <option value="VALIDATED_PT">🔧 Validé PT</option>
-          <option value="SENT_TO_SUPPLIER">🚚 Envoyé fournisseur</option>
-          <option value="RECEIVED_FROM_SUPPLIER">📦 Réception partielle</option>
-          <option value="COMPLETED">🎯 Terminé</option>
-        </select>
-      </div>
 
-      <!-- ✅ NOUVEAU : Filtre par année -->
-      <div class="col-md-2">
-        <label class="form-label fw-semibold small text-muted text-uppercase">
-          <i class="bi bi-calendar-year me-1"></i>Année
-        </label>
-        <select class="form-select" (change)="filterByYear($event)" [value]="yearFilter">
-          <option value="">📅 Toutes les années</option>
-          <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
-        </select>
+      <!-- ✅ Afficher les filtres actifs -->
+      <div class="mt-3 d-flex flex-wrap gap-2"
+        *ngIf="searchTerm || statusFilter || dateFilter || monthFilter || yearFilter">
+        <span class="badge bg-light text-dark p-2" *ngIf="searchTerm">
+          <i class="bi bi-search me-1"></i>Recherche: "{{ searchTerm }}"
+          <i class="bi bi-x-circle-fill ms-2 text-danger"
+            style="cursor: pointer;"
+            (click)="searchTerm=''; applyFilters()"></i>
+        </span>
+        <span class="badge bg-light text-dark p-2" *ngIf="statusFilter">
+          <i class="bi bi-funnel me-1"></i>Statut: {{
+          getStatusLabelFromString(statusFilter) }}
+          <i class="bi bi-x-circle-fill ms-2 text-danger"
+            style="cursor: pointer;"
+            (click)="statusFilter=''; applyFilters()"></i>
+        </span>
+        <span class="badge bg-light text-dark p-2" *ngIf="yearFilter">
+          <i class="bi bi-calendar-year me-1"></i>Année: {{ yearFilter }}
+          <i class="bi bi-x-circle-fill ms-2 text-danger"
+            style="cursor: pointer;"
+            (click)="yearFilter=''; applyFilters()"></i>
+        </span>
+        <span class="badge bg-light text-dark p-2" *ngIf="monthFilter">
+          <i class="bi bi-calendar-month me-1"></i>Mois: {{
+          getMonthLabel(monthFilter) }}
+          <i class="bi bi-x-circle-fill ms-2 text-danger"
+            style="cursor: pointer;"
+            (click)="monthFilter=''; applyFilters()"></i>
+        </span>
+        <span class="badge bg-light text-dark p-2" *ngIf="dateFilter">
+          <i class="bi bi-calendar me-1"></i>Date: {{ dateFilter |
+          date:'dd/MM/yyyy' }}
+          <i class="bi bi-x-circle-fill ms-2 text-danger"
+            style="cursor: pointer;"
+            (click)="dateFilter=''; applyFilters()"></i>
+        </span>
       </div>
-
-      <!-- ✅ NOUVEAU : Filtre par mois -->
-      <div class="col-md-2">
-        <label class="form-label fw-semibold small text-muted text-uppercase">
-          <i class="bi bi-calendar-month me-1"></i>Mois
-        </label>
-        <select class="form-select" (change)="filterByMonth($event)" [value]="monthFilter">
-          <option value="">📅 Tous les mois</option>
-          <option *ngFor="let month of availableMonths" [value]="month.value">{{ month.label }}</option>
-        </select>
-      </div>
-
-      <div class="col-md-2">
-        <label class="form-label fw-semibold small text-muted text-uppercase">
-          <i class="bi bi-calendar me-1"></i>Date exacte
-        </label>
-        <input type="date" class="form-control" [(ngModel)]="dateFilter"
-               (change)="applyDateFilter()" placeholder="Filtrer par date">
-      </div>
-
-      <div class="col-md-1">
-        <button *ngIf="searchTerm || statusFilter || dateFilter || monthFilter || yearFilter"
-                class="btn btn-outline-secondary w-100" (click)="resetFilters()">
-          <i class="bi bi-eraser me-2"></i>Effacer
-        </button>
-      </div>
-    </div>
-
-    <!-- ✅ Afficher les filtres actifs -->
-    <div class="mt-3 d-flex flex-wrap gap-2" *ngIf="searchTerm || statusFilter || dateFilter || monthFilter || yearFilter">
-      <span class="badge bg-light text-dark p-2" *ngIf="searchTerm">
-        <i class="bi bi-search me-1"></i>Recherche: "{{ searchTerm }}"
-        <i class="bi bi-x-circle-fill ms-2 text-danger" style="cursor: pointer;" (click)="searchTerm=''; applyFilters()"></i>
-      </span>
-     <span class="badge bg-light text-dark p-2" *ngIf="statusFilter">
-  <i class="bi bi-funnel me-1"></i>Statut: {{ getStatusLabelFromString(statusFilter) }}
-  <i class="bi bi-x-circle-fill ms-2 text-danger" style="cursor: pointer;" (click)="statusFilter=''; applyFilters()"></i>
-</span>
-      <span class="badge bg-light text-dark p-2" *ngIf="yearFilter">
-        <i class="bi bi-calendar-year me-1"></i>Année: {{ yearFilter }}
-        <i class="bi bi-x-circle-fill ms-2 text-danger" style="cursor: pointer;" (click)="yearFilter=''; applyFilters()"></i>
-      </span>
-      <span class="badge bg-light text-dark p-2" *ngIf="monthFilter">
-        <i class="bi bi-calendar-month me-1"></i>Mois: {{ getMonthLabel(monthFilter) }}
-        <i class="bi bi-x-circle-fill ms-2 text-danger" style="cursor: pointer;" (click)="monthFilter=''; applyFilters()"></i>
-      </span>
-      <span class="badge bg-light text-dark p-2" *ngIf="dateFilter">
-        <i class="bi bi-calendar me-1"></i>Date: {{ dateFilter | date:'dd/MM/yyyy' }}
-        <i class="bi bi-x-circle-fill ms-2 text-danger" style="cursor: pointer;" (click)="dateFilter=''; applyFilters()"></i>
-      </span>
     </div>
   </div>
-</div>
 
   <!-- LOADING -->
   <div *ngIf="loading" class="text-center py-5">
-    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"
+      role="status">
       <span class="visually-hidden">Chargement...</span>
     </div>
     <p class="text-muted mt-3">Chargement des cahiers...</p>
   </div>
 
   <!-- ERROR -->
-  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+  <div *ngIf="error"
+    class="alert alert-danger alert-dismissible fade show shadow-sm"
+    role="alert">
     <i class="bi bi-exclamation-triangle-fill me-2"></i>
     {{ error }}
     <button type="button" class="btn-close" (click)="error = ''"></button>
   </div>
 
   <!-- TABLEAU DES RÉSULTATS -->
-  <div *ngIf="!loading && paginatedSheets.length > 0" class="card border-0 shadow-sm">
+  <div *ngIf="!loading && paginatedSheets.length > 0"
+    class="card border-0 shadow-sm">
     <div class="card-body p-0">
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
@@ -158,259 +187,296 @@
               <th class="px-3 py-3">Progression réception</th>
               <th class="px-3 py-3 text-center">Date</th>
               <th class="px-3 py-3 text-center">Actions</th>
-             </thead>
-          <tbody>
-            <tr *ngFor="let sheet of paginatedSheets">
-              <!-- ID -->
-              <td class="px-3 py-3">
-                <span class="badge bg-primary bg-opacity-10 text-primary fw-semibold">#{{ sheet.id }}</span>
-              </td>
+            </thead>
+            <tbody>
+              <tr *ngFor="let sheet of paginatedSheets">
+                <!-- ID -->
+                <td class="px-3 py-3">
+                  <span
+                    class="badge bg-primary bg-opacity-10 text-primary fw-semibold">#{{
+                    sheet.id }}</span>
+                </td>
 
-              <!-- Statut -->
-              <td class="px-3 py-3">
-                <span class="badge" [ngClass]="getStatusBadgeClass(sheet.status)">
-                  <i class="bi" [ngClass]="getStatusIcon(sheet.status)"></i>
-                  {{ chargeSheetService.getStatusLabel(sheet.status) }}
-                </span>
-              </td>
-
-              <!-- Projet -->
-              <td class="px-3 py-3">
-                <span class="fw-semibold">{{ sheet.project }}</span>
-              </td>
-
-              <!-- Plant -->
-              <td class="px-3 py-3">
-                <i class="bi bi-building me-1 text-muted"></i>{{ sheet.plant }}
-              </td>
-
-              <!-- Harness Ref -->
-              <td class="px-3 py-3">
-                <code class="bg-light px-2 py-1 rounded">{{ sheet.harnessRef }}</code>
-              </td>
-
-              <!-- Émis par -->
-              <td class="px-3 py-3">
-                <i class="bi bi-person me-1 text-muted"></i>{{ sheet.issuedBy }}
-              </td>
-
-              <!-- Items -->
-              <td class="px-3 py-3 text-center">
-                <div class="position-relative d-inline-block">
-                  <span class="badge bg-secondary bg-opacity-10 text-dark px-3 py-2"
-                        (mouseenter)="showTooltip = sheet.id"
-                        (mouseleave)="showTooltip = null"
-                        style="cursor: help;">
-                    <i class="bi bi-box-seam me-1"></i>{{ sheet.items?.length || 0 }}
+                <!-- Statut -->
+                <td class="px-3 py-3">
+                  <span class="badge"
+                    [ngClass]="getStatusBadgeClass(sheet.status)">
+                    <i class="bi" [ngClass]="getStatusIcon(sheet.status)"></i>
+                    {{ chargeSheetService.getStatusLabel(sheet.status) }}
                   </span>
-                  <div class="custom-tooltip" *ngIf="showTooltip === sheet.id && sheet.items">
-                    <div class="tooltip-content">
-                      <strong>Détail des items</strong>
-                      <div *ngFor="let item of sheet.items" class="tooltip-item">
-                        <span>Item {{ item?.itemNumber || '?' }}</span>
-                        <span [class.text-success]="item?.itemStatus === 'TECH_FILLED'"
-                              [class.text-warning]="item?.itemStatus !== 'TECH_FILLED'">
-                          {{ item?.itemStatus === 'TECH_FILLED' ? '✓ Rempli' : '○ En attente' }}
-                        </span>
-                      </div>
-                      <div *ngIf="!sheet.items?.length" class="tooltip-empty">
-                        Aucun item
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </td>
+                </td>
 
-              <!-- Progression réception -->
-              <td class="px-3 py-3" style="min-width: 180px;">
-                <div *ngFor="let item of sheet.items" class="mb-2">
-                  <div class="d-flex align-items-center gap-2">
-                    <span class="small fw-semibold" style="width: 50px;">Item {{ item.itemNumber }}</span>
-                    <div class="progress flex-grow-1" style="height: 6px;">
-                      <div class="progress-bar"
-                           [style.width.%]="getReceptionProgress(sheet.id, item.id)"
-                           [class.bg-success]="getReceptionProgress(sheet.id, item.id) === 100"
-                           [class.bg-info]="getReceptionProgress(sheet.id, item.id) > 0 && getReceptionProgress(sheet.id, item.id) < 100">
-                      </div>
-                    </div>
-                    <span class="small text-muted" style="min-width: 45px;">
-                      {{ getReceivedQuantityForItem(sheet.id, item.id) }}/{{ item.quantityOfTestModules || 0 }}
+                <!-- Projet -->
+                <td class="px-3 py-3">
+                  <span class="fw-semibold">{{ sheet.project }}</span>
+                </td>
+
+                <!-- Plant -->
+                <td class="px-3 py-3">
+                  <i class="bi bi-building me-1 text-muted"></i>{{ sheet.plant
+                  }}
+                </td>
+
+                <!-- Harness Ref -->
+                <td class="px-3 py-3">
+                  <code class="bg-light px-2 py-1 rounded">{{ sheet.harnessRef
+                    }}</code>
+                </td>
+
+                <!-- Émis par -->
+                <td class="px-3 py-3">
+                  <i class="bi bi-person me-1 text-muted"></i>{{ sheet.issuedBy
+                  }}
+                </td>
+
+                <!-- Items -->
+                <td class="px-3 py-3 text-center">
+                  <div class="position-relative d-inline-block">
+                    <span
+                      class="badge bg-secondary bg-opacity-10 text-dark px-3 py-2"
+                      (mouseenter)="showTooltip = sheet.id"
+                      (mouseleave)="showTooltip = null"
+                      style="cursor: help;">
+                      <i class="bi bi-box-seam me-1"></i>{{ sheet.items?.length
+                      || 0 }}
                     </span>
+                    <div class="custom-tooltip"
+                      *ngIf="showTooltip === sheet.id && sheet.items">
+                      <div class="tooltip-content">
+                        <strong>Détail des items</strong>
+                        <div *ngFor="let item of sheet.items"
+                          class="tooltip-item">
+                          <span>Item {{ item?.itemNumber || '?' }}</span>
+                          <span
+                            [class.text-success]="item?.itemStatus === 'TECH_FILLED'"
+                            [class.text-warning]="item?.itemStatus !== 'TECH_FILLED'">
+                            {{ item?.itemStatus === 'TECH_FILLED' ? '✓ Rempli' :
+                            '○ En attente' }}
+                          </span>
+                        </div>
+                        <div *ngIf="!sheet.items?.length" class="tooltip-empty">
+                          Aucun item
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </td>
+                </td>
 
-              <!-- Date -->
-              <td class="px-3 py-3 text-center">
-                <i class="bi bi-calendar3 me-1 text-muted"></i>
-                <span class="small">{{ sheet.createdAt | date:'dd/MM/yyyy' }}</span>
-              </td>
-
-              <!-- Actions -->
-              <td class="px-3 py-3">
-                <div class="btn-group-vertical btn-group-sm gap-1" style="min-width: 160px;">
-                  <div class="d-flex flex-wrap gap-1 justify-content-center">
-                    <!-- Voir détails -->
-                    <a [routerLink]="['/charge-sheets', sheet.id, 'items', 'view']"
-                       class="btn btn-sm btn-outline-primary" title="Détails">
-                      <i class="bi bi-eye"></i>
-                    </a>
-
-                    <!-- Validation ING -->
-                    <button *ngIf="canEditBasic && sheet.status === 'DRAFT'"
-                            class="btn btn-sm btn-outline-warning"
-                            (click)="validateSheetByIng(sheet.id)"
-                            title="Valider ING">
-                      <i class="bi bi-check-circle"></i>
-                    </button>
-
-                    <!-- Validation PT -->
-                    <button *ngIf="canEditTech && sheet.status !== 'COMPLETED' && sheet.status !== 'VALIDATED_PT' && areAllItemsFilled(sheet)"
-                            class="btn btn-sm btn-outline-info"
-                            (click)="validateSheetByPt(sheet.id)"
-                            title="Valider PT">
-                      <i class="bi bi-check2-circle"></i>
-                    </button>
-
-                    <!-- Envoyer fournisseur -->
-                    <button *ngIf="sheet.status === 'VALIDATED_PT'"
-                            class="btn btn-sm btn-outline-success"
-                            (click)="sendToSupplier(sheet.id)"
-                            title="Envoyer fournisseur">
-                      <i class="bi bi-truck"></i>
-                    </button>
-
-                    <!-- Réception -->
-                    <button *ngIf="sheet.status === 'SENT_TO_SUPPLIER'&&  (isPT() || isAdmin())"
-                            class="btn btn-sm btn-outline-primary"
-                            [routerLink]="['/charge-sheets', sheet.id, 'reception']"
-                            title="Réception">
-                      <i class="bi bi-box-arrow-in-down"></i>
-                    </button>
-
-                    <!-- Historique réceptions -->
-                    <button *ngIf="sheet.status === 'RECEIVED_FROM_SUPPLIER' || sheet.status === 'COMPLETED'"
-                            class="btn btn-sm btn-outline-secondary"
-                            [routerLink]="['/charge-sheets', sheet.id, 'receptions']"
-                            title="Historique">
-                      <i class="bi bi-clock-history"></i>
-                    </button>
-
-                    <!-- Compléter -->
-                    <button *ngIf="sheet.status === 'RECEIVED_FROM_SUPPLIER'"
-                            class="btn btn-sm btn-outline-success"
-                            (click)="completeSheet(sheet.id)"
-                            title="Compléter">
-                      <i class="bi bi-check-all"></i>
-                    </button>
-                    <!-- Dans la section Actions, ajouter ce bouton pour PT -->
-                    <!-- Retour à ING (pour PT) -->
-                    <button *ngIf="canEditTech && (sheet.status === 'VALIDATED_ING' || sheet.status === 'TECH_FILLED')"
-                            class="btn btn-sm btn-outline-danger"
-                            (click)="revertToIng(sheet.id)"
-                            title="Retourner à ING pour corrections">
-                      <i class="bi bi-arrow-return-left"></i>
-                    </button>
-
-                    <!-- Modifier -->
-                    <a *ngIf="canEditBasic && sheet.status === 'DRAFT'"
-                       [routerLink]="['/charge-sheets', sheet.id, 'edit']"
-                       class="btn btn-sm btn-outline-secondary"
-                       title="Modifier">
-                      <i class="bi bi-pencil"></i>
-                    </a>
-
-                    <!-- Partie technique -->
-                    <a *ngIf="canEditTech && sheet.status !== 'VALIDATED_PT' && sheet.status !== 'COMPLETED'"
-                       [routerLink]="['/charge-sheets', sheet.id, 'tech']"
-                       [queryParams]="{ firstItemId: getFirstUnfilledItem(sheet)?.id }"
-                       class="btn btn-sm btn-outline-info"
-                       title="Partie technique">
-                      <i class="bi bi-gear"></i>
-                    </a>
-
-                    <!-- Excel -->
-                    <button  class="btn btn-sm btn-outline-success"
-                            (click)="exportOneToExcel(sheet)" title="Export Excel">
-                      <i class="bi bi-file-earmark-excel"></i>
-                    </button>
-
-                    <!-- Supprimer -->
-                    <button *ngIf="isAdmin()" class="btn btn-sm btn-outline-danger"
-                            (click)="deleteSheet(sheet.id)" title="Supprimer">
-                      <i class="bi bi-trash"></i>
-                    </button>
+                <!-- Progression réception -->
+                <td class="px-3 py-3" style="min-width: 180px;">
+                  <div *ngFor="let item of sheet.items" class="mb-2">
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="small fw-semibold" style="width: 50px;">Item
+                        {{ item.itemNumber }}</span>
+                      <div class="progress flex-grow-1" style="height: 6px;">
+                        <div class="progress-bar"
+                          [style.width.%]="getReceptionProgress(sheet.id, item.id)"
+                          [class.bg-success]="getReceptionProgress(sheet.id, item.id) === 100"
+                          [class.bg-info]="getReceptionProgress(sheet.id, item.id) > 0 && getReceptionProgress(sheet.id, item.id) < 100">
+                        </div>
+                      </div>
+                      <span class="small text-muted" style="min-width: 45px;">
+                        {{ getReceivedQuantityForItem(sheet.id, item.id) }}/{{
+                        item.quantityOfTestModules || 0 }}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </td>
-             </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+                </td>
 
-    <!-- PAGINATION -->
-    <div class="card-footer bg-white border-0 py-3 px-4">
-      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-        <div class="text-muted small">
-          Affichage de <strong>{{ (currentPage - 1) * pageSize + 1 }}</strong> à
-          <strong>{{ Math.min(currentPage * pageSize, filteredSheets.length) }}</strong>
-          sur <strong>{{ filteredSheets.length }}</strong> cahiers
+                <!-- Date -->
+                <td class="px-3 py-3 text-center">
+                  <i class="bi bi-calendar3 me-1 text-muted"></i>
+                  <span class="small">{{ sheet.createdAt | date:'dd/MM/yyyy'
+                    }}</span>
+                </td>
+
+                <!-- Actions -->
+                <td class="px-3 py-3">
+                  <div class="btn-group-vertical btn-group-sm gap-1"
+                    style="min-width: 160px;">
+                    <div class="d-flex flex-wrap gap-1 justify-content-center">
+                      <!-- Voir détails -->
+                      <a
+                        [routerLink]="['/charge-sheets', sheet.id, 'items', 'view']"
+                        class="btn btn-sm btn-outline-primary" title="Détails">
+                        <i class="bi bi-eye"></i> Détail
+                      </a>
+
+                      <!-- Validation ING -->
+                      <button *ngIf="canEditBasic && sheet.status === 'DRAFT'"
+                        class="btn btn-sm btn-outline-warning"
+                        (click)="validateSheetByIng(sheet.id)"
+                        title="Valider ING">
+                        <i class="bi bi-check-circle"></i>Valider ING
+                      </button>
+
+                      <!-- Validation PT -->
+                      <button
+                        *ngIf="canEditTech && (sheet.status === 'VALIDATED_ING' || sheet.status === 'TECH_FILLED') && areAllItemsFilled(sheet)"
+                        class="btn btn-sm btn-outline-info"
+                        (click)="validateSheetByPt(sheet.id)"
+                        title="Valider PT">
+                        <i class="bi bi-check2-circle"></i> Valider PT
+                      </button>
+
+                      <!-- Envoyer fournisseur -->
+                      <button *ngIf="sheet.status === 'VALIDATED_PT'"
+                        class="btn btn-sm btn-outline-success"
+                        (click)="sendToSupplier(sheet.id)"
+                        title="Envoyer fournisseur">
+                        <i class="bi bi-truck"></i>Envoyer fournisseur
+                      </button>
+
+                      <!-- Réception -->
+                      <button
+                        *ngIf="sheet.status === 'SENT_TO_SUPPLIER'&&  (isPT() || isAdmin())"
+                        class="btn btn-sm btn-outline-primary"
+                        [routerLink]="['/charge-sheets', sheet.id, 'reception']"
+                        title="Réception">
+                        <i class="bi bi-box-arrow-in-down"></i>Réception
+                      </button>
+
+                      <!-- Historique réceptions -->
+                      <button
+                        *ngIf="sheet.status === 'RECEIVED_FROM_SUPPLIER' || sheet.status === 'COMPLETED'"
+                        class="btn btn-sm btn-outline-secondary"
+                        [routerLink]="['/charge-sheets', sheet.id, 'receptions']"
+                        title="Historique">
+                        <i class="bi bi-clock-history"></i>
+                      </button>
+
+                      <!-- Compléter -->
+                      <button *ngIf="sheet.status === 'RECEIVED_FROM_SUPPLIER'"
+                        class="btn btn-sm btn-outline-success"
+                        (click)="completeSheet(sheet.id)"
+                        title="Compléter">
+                        <i class="bi bi-check-all"></i>Compléter le cahier
+                      </button>
+                      <!-- Dans la section Actions, ajouter ce bouton pour PT -->
+                      <!-- Retour à ING (pour PT) -->
+                      <button
+                        *ngIf="canEditTech && (sheet.status === 'VALIDATED_ING' || sheet.status === 'TECH_FILLED')"
+                        class="btn btn-sm btn-outline-danger"
+                        (click)="revertToIng(sheet.id)"
+                        title="Retourner à ING pour corrections">
+                        <i class="bi bi-arrow-return-left"></i>Retour à ING
+                      </button>
+
+                      <!-- Modifier -->
+                      <a *ngIf="canEditBasic && sheet.status === 'DRAFT'"
+                        [routerLink]="['/charge-sheets', sheet.id, 'edit']"
+                        class="btn btn-sm btn-outline-secondary"
+                        title="Modifier">
+                        <i class="bi bi-pencil"></i>Modifier
+                      </a>
+
+                      <!-- Partie technique -->
+                      <a
+                        *ngIf="canEditTech && sheet.status !== 'VALIDATED_PT' && sheet.status !== 'COMPLETED'"
+                        [routerLink]="['/charge-sheets', sheet.id, 'tech']"
+                        [queryParams]="{ firstItemId: getFirstUnfilledItem(sheet)?.id }"
+                        class="btn btn-sm btn-outline-info"
+                        title="Partie technique">
+                        <i class="bi bi-gear"></i>Partie technique
+                      </a>
+
+                      <!-- Excel -->
+                      <button class="btn btn-sm btn-outline-success"
+                        (click)="exportOneToExcel(sheet)" title="Export Excel">
+                        <i class="bi bi-file-earmark-excel"></i>
+                      </button>
+
+                      <!-- Supprimer -->
+                      <button *ngIf="isAdmin()"
+                        class="btn btn-sm btn-outline-danger"
+                        (click)="deleteSheet(sheet.id)" title="Supprimer">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <nav aria-label="Page navigation">
-          <ul class="pagination mb-0">
-            <li class="page-item" [class.disabled]="currentPage === 1">
-              <a class="page-link" (click)="changePage(currentPage - 1)" href="javascript:void(0)">
-                <i class="bi bi-chevron-left"></i>
-              </a>
-            </li>
-            <li *ngFor="let page of getPageNumbers()" class="page-item" [class.active]="page === currentPage">
-              <a class="page-link" (click)="changePage(page)" href="javascript:void(0)">{{ page }}</a>
-            </li>
-            <li class="page-item" [class.disabled]="currentPage === totalPages">
-              <a class="page-link" (click)="changePage(currentPage + 1)" href="javascript:void(0)">
-                <i class="bi bi-chevron-right"></i>
-              </a>
-            </li>
-          </ul>
-        </nav>
-        <div class="d-flex align-items-center gap-2">
-          <span class="text-muted small">Lignes par page:</span>
-          <select class="form-select form-select-sm" style="width: 70px;" [(ngModel)]="pageSize" (change)="onPageSizeChange()">
-            <option [value]="10">10</option>
-            <option [value]="20">20</option>
-            <option [value]="50">50</option>
-            <option [value]="100">100</option>
-          </select>
+      </div>
+
+      <!-- PAGINATION -->
+      <div class="card-footer bg-white border-0 py-3 px-4">
+        <div
+          class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+          <div class="text-muted small">
+            Affichage de <strong>{{ (currentPage - 1) * pageSize + 1 }}</strong>
+            à
+            <strong>{{ Math.min(currentPage * pageSize, filteredSheets.length)
+              }}</strong>
+            sur <strong>{{ filteredSheets.length }}</strong> cahiers
+          </div>
+          <nav aria-label="Page navigation">
+            <ul class="pagination mb-0">
+              <li class="page-item" [class.disabled]="currentPage === 1">
+                <a class="page-link" (click)="changePage(currentPage - 1)"
+                  href="javascript:void(0)">
+                  <i class="bi bi-chevron-left"></i>
+                </a>
+              </li>
+              <li *ngFor="let page of getPageNumbers()" class="page-item"
+                [class.active]="page === currentPage">
+                <a class="page-link" (click)="changePage(page)"
+                  href="javascript:void(0)">{{ page }}</a>
+              </li>
+              <li class="page-item"
+                [class.disabled]="currentPage === totalPages">
+                <a class="page-link" (click)="changePage(currentPage + 1)"
+                  href="javascript:void(0)">
+                  <i class="bi bi-chevron-right"></i>
+                </a>
+              </li>
+            </ul>
+          </nav>
+          <div class="d-flex align-items-center gap-2">
+            <span class="text-muted small">Lignes par page:</span>
+            <select class="form-select form-select-sm" style="width: 70px;"
+              [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+              <option [value]="10">10</option>
+              <option [value]="20">20</option>
+              <option [value]="50">50</option>
+              <option [value]="100">100</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AUCUN RÉSULTAT -->
+    <div *ngIf="!loading && chargeSheets.length === 0" class="text-center py-5">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body py-5">
+          <i class="bi bi-inbox display-1 text-muted"></i>
+          <h3 class="mt-3 text-muted">Aucun cahier des charges</h3>
+          <p class="text-muted" *ngIf="canCreate">Commencez par créer votre
+            premier cahier.</p>
+          <button *ngIf="canCreate" class="btn btn-primary mt-3"
+            routerLink="/charge-sheets/create">
+            <i class="bi bi-plus-circle me-2"></i>Créer un cahier
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      *ngIf="!loading && chargeSheets.length > 0 && filteredSheets.length === 0"
+      class="text-center py-5">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body py-5">
+          <i class="bi bi-filter display-1 text-muted"></i>
+          <h3 class="mt-3 text-muted">Aucun résultat</h3>
+          <p class="text-muted">Aucun cahier ne correspond à vos filtres.</p>
+          <button class="btn btn-outline-secondary mt-3"
+            (click)="resetFilters()">
+            <i class="bi bi-arrow-counterclockwise me-2"></i>Réinitialiser
+          </button>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- AUCUN RÉSULTAT -->
-  <div *ngIf="!loading && chargeSheets.length === 0" class="text-center py-5">
-    <div class="card border-0 shadow-sm">
-      <div class="card-body py-5">
-        <i class="bi bi-inbox display-1 text-muted"></i>
-        <h3 class="mt-3 text-muted">Aucun cahier des charges</h3>
-        <p class="text-muted" *ngIf="canCreate">Commencez par créer votre premier cahier.</p>
-        <button *ngIf="canCreate" class="btn btn-primary mt-3" routerLink="/charge-sheets/create">
-          <i class="bi bi-plus-circle me-2"></i>Créer un cahier
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <div *ngIf="!loading && chargeSheets.length > 0 && filteredSheets.length === 0" class="text-center py-5">
-    <div class="card border-0 shadow-sm">
-      <div class="card-body py-5">
-        <i class="bi bi-filter display-1 text-muted"></i>
-        <h3 class="mt-3 text-muted">Aucun résultat</h3>
-        <p class="text-muted">Aucun cahier ne correspond à vos filtres.</p>
-        <button class="btn btn-outline-secondary mt-3" (click)="resetFilters()">
-          <i class="bi bi-arrow-counterclockwise me-2"></i>Réinitialiser
-        </button>
-      </div>
-    </div>
-  </div>
-</div>

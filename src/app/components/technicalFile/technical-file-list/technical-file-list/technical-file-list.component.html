@@ -96,7 +96,7 @@
   <div *ngIf="!loading && !error && filteredFiles.length > 0" class="folders-list">
 
     <!-- Carte pour chaque dossier -->
-    <div *ngFor="let file of filteredFiles" class="folder-card">
+<div *ngFor="let file of paginatedFiles" class="folder-card">
 
       <!-- En-tête du dossier (cliquable) -->
       <div class="folder-header" [class.expanded]="expandedFolders[file.id]" (click)="toggleFolder(file.id)">
@@ -438,7 +438,58 @@
       </div>
     </div>
   </div>
+<!-- ===== PAGINATION ===== -->
+<div *ngIf="!loading && !error && filteredFiles.length > 0" class="pagination-container">
+  <div class="pagination-info">
+    <span>
+      Affichage de 
+      <strong>{{ (currentPage - 1) * itemsPerPage + 1 }}</strong> 
+      à 
+      <strong>{{ Math.min(currentPage * itemsPerPage, filteredFiles.length) }}</strong> 
+      sur 
+      <strong>{{ filteredFiles.length }}</strong> 
+      dossiers
+    </span>
+  </div>
 
+  <div class="pagination-controls">
+    <button 
+      class="pagination-btn" 
+      [disabled]="currentPage === 1"
+      (click)="previousPage()">
+      <i class="bi bi-chevron-left"></i>
+      Précédent
+    </button>
+
+    <div class="pagination-pages">
+      <button 
+        *ngFor="let page of getPagesToShow()"
+        class="pagination-page-btn"
+        [class.active]="page === currentPage"
+        (click)="changePage(page)">
+        {{ page }}
+      </button>
+    </div>
+
+    <button 
+      class="pagination-btn" 
+      [disabled]="currentPage === totalPages"
+      (click)="nextPage()">
+      Suivant
+      <i class="bi bi-chevron-right"></i>
+    </button>
+  </div>
+
+  <div class="pagination-per-page">
+    <label>Afficher :</label>
+    <select (change)="changeItemsPerPage($event)" [value]="itemsPerPage">
+      <option value="5">5 par page</option>
+      <option value="10">10 par page</option>
+      <option value="20">20 par page</option>
+      <option value="50">50 par page</option>
+    </select>
+  </div>
+</div>
   <!-- ===== AUCUN RÉSULTAT ===== -->
   <div *ngIf="!loading && !error && technicalFiles.length > 0 && filteredFiles.length === 0" class="empty-state">
     <i class="bi bi-search"></i>

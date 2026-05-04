@@ -51,35 +51,41 @@ export class UtilisateurComponent implements OnInit {
     this.initForm();
   }
 
-   loadProjets(): void {
-    this.loadingProjets = true;
-    this.projetService.getActive().subscribe({
-      next: (projets) => {
-        this.projets = projets;
-        this.loadingProjets = false;
-        console.log('✅ Projets chargés:', this.projets);
-      },
-      error: (err) => {
-        console.error('❌ Erreur chargement projets:', err);
-        this.loadingProjets = false;
-      }
-    });
-  }
+   // utilisateur.component.ts - Modifier loadProjets()
+
+loadProjets(): void {
+  this.loadingProjets = true;
+  this.projetService.getActive().subscribe({
+    next: (response: any) => {  // ← Changer le type pour accepter ApiResponse
+      // ✅ Extraire le tableau de response.data
+      const projetsData = response.data || response;
+      this.projets = Array.isArray(projetsData) ? projetsData : [];
+      this.loadingProjets = false;
+      console.log('✅ Projets chargés:', this.projets);
+    },
+    error: (err) => {
+      console.error('❌ Erreur chargement projets:', err);
+      this.loadingProjets = false;
+    }
+  });
+}
 // ✅ Charger la liste des sites
-  loadSites(): void {
-    this.loadingSites = true;
-    this.siteService.getAll().subscribe({
-      next: (sites) => {
-        this.sites = sites;
-        this.loadingSites = false;
-        console.log('✅ Sites chargés:', this.sites);
-      },
-      error: (err) => {
-        console.error('❌ Erreur chargement sites:', err);
-        this.loadingSites = false;
-      }
-    });
-  }
+ loadSites(): void {
+  this.loadingSites = true;
+  this.siteService.getAll().subscribe({
+    next: (response: any) => {  // ← Changer le type
+      // ✅ Extraire le tableau de response.data
+      const sitesData = response.data || response;
+      this.sites = Array.isArray(sitesData) ? sitesData : [];
+      this.loadingSites = false;
+      console.log('✅ Sites chargés:', this.sites);
+    },
+    error: (err) => {
+      console.error('❌ Erreur chargement sites:', err);
+      this.loadingSites = false;
+    }
+  });
+}
   initForm() {
     this.editForm = this.fb.group({
       firstname: ['', Validators.required],
@@ -92,20 +98,35 @@ export class UtilisateurComponent implements OnInit {
     });
   }
 
-  loadUsers() {
-    this.loading = true;
-    this.userService.getUsers().subscribe({
-      next: (res) => {
-        this.users = res;
-        this.filteredUsers = [...this.users];
-        this.loading = false;
-      },
-      error: () => {
-        this.error = 'Impossible de récupérer les utilisateurs';
-        this.loading = false;
+// utilisateur.component.ts - Modifier uniquement cette méthode
+
+loadUsers() {
+  this.loading = true;
+  this.userService.getUsers().subscribe({
+    next: (res: any) => {
+      // ✅ Vérifier si res a une propriété data (ApiResponse)
+      if (res && res.data && Array.isArray(res.data)) {
+        this.users = res.data;
       }
-    });
-  }
+      // ✅ Si c'est déjà un tableau
+      else if (Array.isArray(res)) {
+        this.users = res;
+      }
+      // ✅ Sinon, log pour debug
+      else {
+        console.error('Format inattendu:', res);
+        this.users = [];
+      }
+
+      this.filteredUsers = [...this.users];
+      this.loading = false;
+    },
+    error: () => {
+      this.error = 'Impossible de récupérer les utilisateurs';
+      this.loading = false;
+    }
+  });
+}
 
   clearSearch(): void {
     this.searchTerm = '';

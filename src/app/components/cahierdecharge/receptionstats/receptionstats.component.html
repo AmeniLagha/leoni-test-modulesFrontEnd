@@ -44,32 +44,42 @@
     <!-- SÉLECTION DU MOIS -->
     <div class="card border-0 shadow-sm mb-4">
       <div class="card-body">
-        <div class="row align-items-end g-3">
-          <div class="col-md-4">
-            <label class="form-label fw-semibold">
-              <i class="bi bi-calendar-month me-1 text-primary"></i>
-              Sélectionner le mois
-            </label>
-            <select class="form-select form-select-lg" [(ngModel)]="selectedMonthKey" (change)="onMonthChange()">
-              <option value="">-- Sélectionnez un mois --</option>
-              <option *ngFor="let month of availableMonthsList" [value]="month.value">
-                {{ month.label }}
-              </option>
-            </select>
-          </div>
-          <div class="col-md-3" *ngIf="selectedMonthKey">
-            <button class="btn btn-outline-secondary w-100" (click)="resetMonthSelection()">
-              <i class="bi bi-eraser me-1"></i>Effacer
-            </button>
-          </div>
-          <div class="col-md-5 text-end" *ngIf="selectedMonthKey">
-            <span class="badge bg-primary fs-6 p-2">
-              <i class="bi bi-calendar-check me-1"></i>
-              {{ selectedMonthLabel }}
-            </span>
-          </div>
-        </div>
+        <!-- SÉLECTION DE L'ANNÉE ET DU MOIS -->
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body">
+    <div class="row align-items-end g-3">
+      <!-- ✅ Filtre Année -->
+      <div class="col-md-3">
+        <label class="form-label fw-semibold">
+          <i class="bi bi-calendar-year me-1 text-primary"></i>
+          Année
+        </label>
+        <select class="form-select" [(ngModel)]="selectedYear" (change)="onYearChange()">
+          <option value="">-- Toutes les années --</option>
+          <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
+        </select>
       </div>
+
+      <!-- ✅ Filtre Mois -->
+      <div class="col-md-3">
+        <label class="form-label fw-semibold">
+          <i class="bi bi-calendar-month me-1 text-primary"></i>
+          Mois
+        </label>
+        <select class="form-select" [(ngModel)]="selectedMonth" (change)="onMonthChange()">
+          <option value="">-- Tous les mois --</option>
+          <option *ngFor="let month of availableMonths" [value]="month.value">{{ month.label }}</option>
+        </select>
+      </div>
+
+      <div class="col-md-3" *ngIf="selectedYear || selectedMonth">
+        <button class="btn btn-outline-secondary w-100" (click)="resetFilters()">
+          <i class="bi bi-eraser me-1"></i>Effacer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
     </div>
 
     <!-- STATISTIQUES DU MOIS SÉLECTIONNÉ -->

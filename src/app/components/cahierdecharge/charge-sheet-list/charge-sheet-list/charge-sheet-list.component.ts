@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -71,7 +71,7 @@ export class ChargeSheetListComponent implements OnInit {
     private excelExportService: ExcelExportService,
     private uploadService: UploadService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute, private cdr: ChangeDetectorRef
 
   ) {}
 
@@ -400,94 +400,102 @@ getStatusLabelFromString(status: string): string {
   }
 
   // ============ VALIDATION ============
-  validateSheetByIng(id: number): void {
-    const sheet = this.chargeSheets.find(s => s.id === id);
-    if (!sheet) return;
+// ✅ Utiliser l'énumération pour la mise à jour
+validateSheetByIng(id: number): void {
+  const sheet = this.chargeSheets.find(s => s.id === id);
+  if (!sheet) return;
 
-    const message = `Voulez-vous vraiment valider ce cahier des charges (ID: ${id}) ?\n\n` +
-                    `Cette action marque la fin de la saisie ING et empêchera toute modification future des informations générales.`;
+  const message = `Voulez-vous vraiment valider ce cahier des charges (ID: ${id}) ?`;
+  if (!confirm(message)) return;
 
-    if (!confirm(message)) return;
-
-    this.chargeSheetService.validateByIng(id).subscribe({
-      next: () => {
-        this.fetchChargeSheets();
-        alert('✅ Cahier validé avec succès par ING');
-      },
-      error: (err: any) => {
-        console.error('Erreur validation ING:', err);
-        alert(`❌ Erreur lors de la validation: ${err.error?.message || err.message || 'Erreur inconnue'}`);
+  this.chargeSheetService.validateByIng(id).subscribe({
+    next: () => {
+      const index = this.chargeSheets.findIndex(s => s.id === id);
+      if (index !== -1) {
+        // ✅ Utiliser l'énumération
+        this.chargeSheets[index].status = ChargeSheetStatus.VALIDATED_ING;
+        this.applyFilters();
       }
-    });
+      alert('✅ Cahier validé avec succès par ING');
+    },
+    error: (err: any) => {
+      console.error('Erreur validation ING:', err);
+      alert(`❌ Erreur lors de la validation: ${err.error?.message || err.message}`);
+    }
+  });
+
+}
+// ✅ Version optimisée - met à jour localement sans rechargement
+validateSheetByPt(id: number): void {
+  const sheet = this.chargeSheets.find(s => s.id === id);
+  if (!sheet) return;
+
+  if (!this.areAllItemsFilled(sheet)) {
+    alert('❌ Impossible de valider : tous les items doivent être remplis');
+    return;
   }
 
-  validateSheetByPt(id: number): void {
-    const sheet = this.chargeSheets.find(s => s.id === id);
-    if (!sheet) return;
+  if (!confirm(`Valider la partie technique du cahier #${id} ?`)) return;
 
-    if (!this.areAllItemsFilled(sheet)) {
-      alert('❌ Impossible de valider : tous les items doivent être remplis avant validation PT');
-      return;
-    }
-
-    let message = `Voulez-vous vraiment valider la partie technique de ce cahier (ID: ${id}) ?\n\n`;
-
-    if (sheet.status === 'VALIDATED_ING') {
-      message += '✅ Après validation, le cahier passera au statut "VALIDATED_PT" (Validé PT).\n';
-      message += '📤 Vous pourrez ensuite l\'envoyer au fournisseur.';
-    } else if (sheet.status === 'TECH_FILLED') {
-      message += '✅ Après validation, le cahier passera au statut "VALIDATED_PT" (Validé PT).\n';
-      message += '📤 Vous pourrez ensuite l\'envoyer au fournisseur.';
-    } else {
-      message += '✅ La partie technique sera marquée comme validée (VALIDATED_PT).';
-    }
-
-    if (!confirm(message)) return;
-
-    console.log('🔄 Validation PT pour le cahier:', id);
-
-    this.chargeSheetService.validateByPt(id).subscribe({
-      next: (response) => {
-        console.log('✅ Réponse validation PT:', response);
-        this.fetchChargeSheets();
-        alert('✅ Partie technique validée avec succès. Le cahier est maintenant en statut VALIDATED_PT');
-      },
-      error: (err: any) => {
-        console.error('❌ Erreur validation PT:', err);
-        let errorMsg = 'Erreur lors de la validation';
-        if (err.error?.message) {
-          errorMsg = err.error.message;
-        } else if (err.message) {
-          errorMsg = err.message;
-        }
-        alert(`❌ ${errorMsg}`);
-      }
-    });
+  // ✅ 1. METTRE À JOUR L'AFFICHAGE IMMÉDIATEMENT (avant réponse du backend)
+  const index = this.chargeSheets.findIndex(s => s.id === id);
+  if (index !== -1) {
+    this.chargeSheets[index] = {
+      ...this.chargeSheets[index],
+      status: ChargeSheetStatus.VALIDATED_PT
+    };
+    this.chargeSheets = [...this.chargeSheets]; // Force le refresh
+    this.applyFilters();
   }
 
-  sendToSupplier(id: number): void {
-    const sheet = this.chargeSheets.find(s => s.id === id);
-    if (!sheet) return;
-
-    if (sheet.status !== 'VALIDATED_PT') {
-      alert(`❌ Impossible d'envoyer : le statut actuel est "${sheet.status}". Le cahier doit être en statut VALIDATED_PT.`);
-      return;
-    }
-
-    if (!confirm("Envoyer ce cahier au fournisseur ?")) return;
-
-    this.chargeSheetService.sendToSupplier(id).subscribe({
-      next: (response) => {
-        console.log('✅ Cahier envoyé au fournisseur:', response);
-        this.fetchChargeSheets();
-        alert("📦 Cahier envoyé au fournisseur avec succès");
-      },
-      error: err => {
-        console.error('❌ Erreur envoi fournisseur:', err);
-        alert("Erreur lors de l'envoi: " + (err.error?.message || err.message));
+  // ✅ 2. Appel API en arrière-plan (l'utilisateur voit déjà le changement)
+  this.chargeSheetService.validateByPt(id).subscribe({
+    next: () => {
+      console.log('✅ Validation PT confirmée par le backend');
+      // Pas besoin de mettre à jour l'affichage, déjà fait !
+    },
+    error: (err: any) => {
+      console.error('❌ Erreur backend:', err);
+      // En cas d'erreur, on remet l'ancien statut
+      if (index !== -1) {
+        this.chargeSheets[index] = {
+          ...this.chargeSheets[index],
+          status: sheet.status // Restaure l'ancien statut
+        };
+        this.chargeSheets = [...this.chargeSheets];
+        this.applyFilters();
       }
-    });
+      alert(`❌ Erreur: ${err.error?.message || err.message}`);
+    }
+  });
+}
+ sendToSupplier(id: number): void {
+  const sheet = this.chargeSheets.find(s => s.id === id);
+  if (!sheet) return;
+
+  if (sheet.status !== ChargeSheetStatus.VALIDATED_PT) {
+    alert(`❌ Le cahier doit être en statut VALIDATED_PT`);
+    return;
   }
+
+  if (!confirm("Envoyer ce cahier au fournisseur ?")) return;
+
+  this.chargeSheetService.sendToSupplier(id).subscribe({
+    next: () => {
+      // ✅ Mise à jour locale
+      const index = this.chargeSheets.findIndex(s => s.id === id);
+      if (index !== -1) {
+        this.chargeSheets[index].status = ChargeSheetStatus.SENT_TO_SUPPLIER;
+        this.applyFilters();
+      }
+      alert("📦 Cahier envoyé au fournisseur avec succès");
+    },
+    error: err => {
+      console.error('❌ Erreur:', err);
+      alert("Erreur lors de l'envoi: " + (err.error?.message || err.message));
+    }
+  });
+}
 
   confirmReception(id: number): void {
     if (!confirm("Confirmer la réception du fournisseur ?")) return;

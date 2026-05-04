@@ -1,11 +1,34 @@
 // claims.component.ts
 import { Component, HostListener, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ClaimService } from '../../../../services/claim.service';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../../../services/UserService';
 import { AuthService } from '../../../../services/auth.service';
+import { ChargeSheetService } from '../../../../services/charge-sheet.service';
+
+// claims.component.ts - Version corrigée
+
+// ✅ Transformer en ValidatorFn directement (pas de fonction wrapper)
+export const phoneValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+  const value = control.value;
+  if (!value) return null;
+
+  const cleanValue = value.replace(/[\s-]/g, '');
+
+  const patterns = [
+    /^[0-9]{8}$/,                           // 8 chiffres (Tunisie)
+    /^\+216[0-9]{8}$/,                      // +216 + 8 chiffres
+    /^0[67][0-9]{8}$/,                      // 06 ou 07 + 8 chiffres (France mobile)
+    /^\+33[0-9]{9}$/,                       // +33 + 9 chiffres (France)
+    /^\+[0-9]{1,3}[0-9]{7,10}$/             // Format international générique
+  ];
+
+  const isValid = patterns.some(pattern => pattern.test(cleanValue));
+
+  return isValid ? null : { invalidPhone: true };
+};
 
 @Component({
   selector: 'app-claims',
@@ -42,7 +65,7 @@ export class ClaimsComponent implements OnInit {
     private router: Router,
     private claimService: ClaimService,
     private userService: UserService,
-    private authService: AuthService
+    private authService: AuthService, private chargeSheetService: ChargeSheetService
   ) {}
 
   ngOnInit(): void {
@@ -117,7 +140,7 @@ export class ClaimsComponent implements OnInit {
       customer: ['', Validators.required],     // Sera pré-rempli après chargement
       contactPerson: ['', Validators.required],
       customerEmail: ['', [Validators.required, Validators.email]], // Sera pré-rempli
-      customerPhone: ['', Validators.required],
+      customerPhone: ['', [Validators.required, phoneValidator]],
       supplier: ['', Validators.required],
       supplierContactPerson: [''],
       orderNumber: ['', Validators.required],
@@ -152,6 +175,7 @@ export class ClaimsComponent implements OnInit {
 
       if (this.chargeSheetId) {
         this.form.patchValue({ chargeSheetId: this.chargeSheetId });
+      this.loadChargeSheetInfo();
       }
       if (this.relatedTo) {
         this.form.patchValue({ relatedTo: this.relatedTo });
@@ -161,7 +185,27 @@ export class ClaimsComponent implements OnInit {
       }
     });
   }
+loadChargeSheetInfo(): void {
+  if (!this.chargeSheetId) return;
 
+  // Importer ChargeSheetService si ce n'est pas déjà fait
+  // import { ChargeSheetService } from '../../../../services/charge-sheet.service';
+
+  this.chargeSheetService.getById(this.chargeSheetId).subscribe({
+    next: (chargeSheet) => {
+      console.log('📄 Infos cahier chargées:', chargeSheet);
+
+      // ✅ Pré-remplir le champ orderNumber
+      if (chargeSheet.orderNumber) {
+        this.form.patchValue({ orderNumber: chargeSheet.orderNumber });
+        console.log('✅ Order Number pré-rempli:', chargeSheet.orderNumber);
+      }
+    },
+    error: (err) => {
+      console.error('❌ Erreur chargement cahier:', err);
+    }
+  });
+}
 // Dans votre composant Angular
 
 loadEmails(): void {

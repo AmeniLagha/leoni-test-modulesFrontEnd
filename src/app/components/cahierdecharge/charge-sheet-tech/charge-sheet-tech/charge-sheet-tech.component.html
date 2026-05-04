@@ -6,7 +6,7 @@
         <div>
           <h1 class="text-white mb-2">
             <i class="bi bi-gear me-2"></i>
-            Partie technique - Cahier #{{ chargeSheetId }}
+            Partie technique - Cahier "{{chargeSheet?.orderNumber}}"
           </h1>
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
@@ -16,6 +16,10 @@
             </ol>
           </nav>
         </div>
+         <span *ngIf="hasLocalBackup" class="badge bg-warning text-dark ms-2"
+            title="Sauvegarde automatique effectuée">
+        <i class="bi bi-cloud-check"></i> Brouillon
+      </span>
         <div class="d-flex gap-2">
           <button class="btn btn-light" (click)="goBack()">
             <i class="bi bi-arrow-left me-2"></i>Retour
@@ -50,7 +54,7 @@
               <thead class="bg-light">
                 <!-- Ligne 1 : titres des groupes -->
                 <tr class="text-center">
-                  <th colspan="11" class="bg-primary bg-opacity-10 text-primary">Informations Ingénieur</th>
+                  <th colspan="10" class="bg-primary bg-opacity-10 text-primary">Informations Ingénieur</th>
                   <th [attr.colspan]="housingFields.length" class="bg-success bg-opacity-10 text-success">Housing Tests</th>
                   <th [attr.colspan]="fasteningFields.length" class="bg-warning bg-opacity-10 text-warning">Fastening / Assembly</th>
                   <th [attr.colspan]="cableFields.length" class="bg-info bg-opacity-10 text-info">Cable / Conduit</th>
@@ -62,7 +66,6 @@
 
                 <!-- Ligne 2 : noms des champs -->
                 <tr class="text-center">
-                  <th>#</th>
                   <th>Item</th>
                   <th>Samples exist</th>
                   <th>Ways</th>
@@ -84,10 +87,9 @@
                   <tr>
                     <!-- Informations Ingénieur (lecture seule) -->
                     <td class="fw-semibold text-primary">{{ i + 1 }}</td>
-                    <td><span class="badge bg-secondary">#{{ item.itemNumber }}</span></td>
                     <td>{{ item.samplesExist === 'Yes' ? 'Oui' : 'Non' }}</td>
                     <td>{{ item.ways || '-' }}</td>
-                    <td><span class="badge" [ngClass]="getColourBadge(item.housingColour)">{{ item.housingColour || '-' }}</span></td>
+                    <td>{{ item.housingColour || '-' }}</td>
                     <td>{{ item.testModuleExistInDatabase === 'Yes' ? 'Oui' : 'Non' }}</td>
                      <td>
     <input type="text"
@@ -112,7 +114,7 @@
                             placeholder="Quantite"
                             style="min-width: 140px;">
                     </td>
-            
+
 
                     <!-- Housing Tests - radio buttons -->
                     <td *ngFor="let key of housingFields">
@@ -173,6 +175,15 @@
         <div class="card-footer bg-white border-0 py-3 px-4">
           <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div class="d-flex gap-2">
+               <div *ngIf="hasLocalBackup" class="local-backup-indicator" title="Sauvegarde locale disponible">
+        <i class="bi bi-cloud-arrow-up-fill text-warning"></i>
+        <span class="small ms-1">Brouillon local</span>
+        <span *ngIf="lastLocalBackupDate" class="small text-muted ms-1">
+          ({{ lastLocalBackupDate | date:'HH:mm' }})
+        </span>
+      </div>
+
+    
               <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
                 <i class="bi bi-x-circle me-2"></i>Annuler
               </button>

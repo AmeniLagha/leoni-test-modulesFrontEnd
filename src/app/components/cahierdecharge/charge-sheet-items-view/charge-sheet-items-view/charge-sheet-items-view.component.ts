@@ -482,66 +482,72 @@ get canCreateCompliance(): boolean {
 
 
 
- openAddToExistingModal(item: ChargeSheetItemDto) {
-    this.currentItem = item;
+// charge-sheet-items-view.component.ts
+openAddToExistingModal(item: ChargeSheetItemDto) {
+  this.currentItem = item;
 
-    // ✅ Parser la référence Leoni de l'item
-    const parsedLeoni = this.parseLeoniReference(item.housingReferenceLeoni || '');
+  // Parser la référence Leoni
+  const parsedLeoni = this.parseLeoniReference(item.housingReferenceLeoni || '');
+  this.leoniPartNumber = parsedLeoni.partNumber;
+  this.leoniIndexValue = parsedLeoni.indexValue;
+  this.leoniProducer = parsedLeoni.producer;
+  this.leoniType = parsedLeoni.type;
 
-    // Mettre à jour les propriétés avec les valeurs parsées
-    this.leoniPartNumber = parsedLeoni.partNumber;
-    this.leoniIndexValue = parsedLeoni.indexValue;
-    this.leoniProducer = parsedLeoni.producer;
-    this.leoniType = parsedLeoni.type;
+  // Pré-remplir le formulaire
+  this.itemForm.reset({
+    technicianName: this.technicianName,
+    maintenanceDate: '',
+    xCode: '',
+    leoniReferenceNumber: this.leoniPartNumber,
+    indexValue: this.leoniIndexValue,
+    producer: this.leoniProducer,
+    type: this.leoniType,
+    referencePinePushBack: '',
+    position: '',
+    pinRigidityM1: '',
+    pinRigidityM2: '',
+    pinRigidityM3: '',
+    displacementPathM1: '',
+    displacementPathM2: '',
+    displacementPathM3: '',
+    maxSealingValueM1: '',
+    maxSealingValueM2: '',
+    maxSealingValueM3: '',
+    programmedSealingValueM1: '',
+    programmedSealingValueM2: '',
+    programmedSealingValueM3: '',
+    detectionsM1: '',
+    detectionsM2: '',
+    detectionsM3: '',
+    remarks: ''
+  });
 
-    console.log('📌 Pré-remplissage modal avec valeurs parsées:', {
-      leoniPartNumber: this.leoniPartNumber,
-      leoniIndexValue: this.leoniIndexValue,
-      leoniProducer: this.leoniProducer,
-      leoniType: this.leoniType
-    });
+  // ✅ Utiliser getAllDetailed() - déjà filtré par backend (site/projet/rôle)
+  this.technicalFileService.getAllDetailed().subscribe({
+    next: (filteredFiles) => {
+      console.log('📋 Dossiers techniques filtrés (backend):', filteredFiles);
 
-    // ✅ Pré-remplir le formulaire avec les valeurs parsées de la référence Leoni
-    this.itemForm.reset({
-      technicianName: this.technicianName,
-      maintenanceDate: '',
-      xCode: '',
-      leoniReferenceNumber: this.leoniPartNumber,      // Utiliser le part number parsé
-      indexValue: this.leoniIndexValue,                // Utiliser l'index parsé
-      producer: this.leoniProducer,                    // Utiliser le producer parsé
-      type: this.leoniType,                            // Utiliser le type parsé
-      referencePinePushBack: '',
-      position: '',
-      pinRigidityM1: '',
-      pinRigidityM2: '',
-      pinRigidityM3: '',
-      displacementPathM1: '',
-      displacementPathM2: '',
-      displacementPathM3: '',
-      maxSealingValueM1: '',
-      maxSealingValueM2: '',
-      maxSealingValueM3: '',
-      programmedSealingValueM1: '',
-      programmedSealingValueM2: '',
-      programmedSealingValueM3: '',
-      detectionsM1: '',
-      detectionsM2: '',
-      detectionsM3: '',
-      remarks: ''
-    });
+      // ✅ Afficher uniquement les dossiers qui ont des items
+      const filesWithItems = filteredFiles.filter(file => file.items && file.items.length > 0);
 
-    // Charger la liste des dossiers disponibles
-    this.technicalFileService.getList().subscribe({
-      next: (files) => {
-        this.availableTechnicalFiles = files;
-        this.showModal = true;
-      },
-      error: (err) => {
-        console.error('Erreur chargement dossiers:', err);
-        alert('Impossible de charger la liste des dossiers');
+      this.availableTechnicalFiles = filesWithItems.map(file => ({
+        id: file.id,
+        reference: file.reference,
+        itemCount: file.items?.length || 0
+      }));
+
+      if (this.availableTechnicalFiles.length === 0) {
+        alert('⚠️ Aucun dossier technique disponible pour ce site et projet.\n\nCréez un nouveau dossier technique pour cet item.');
       }
-    });
-  }
+
+      this.showModal = true;
+    },
+    error: (err) => {
+      console.error('Erreur chargement dossiers:', err);
+      alert('Impossible de charger la liste des dossiers');
+    }
+  });
+}
 // Modifiez addToExistingTechnicalFile pour inclure tous les champs
 addToExistingTechnicalFile() {
   if (!this.selectedTechnicalFileId || !this.currentItem?.id) {

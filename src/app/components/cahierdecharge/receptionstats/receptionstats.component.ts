@@ -1,3 +1,5 @@
+// receptionstats.component.ts - Version corrigée
+
 import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -24,14 +26,30 @@ export class ReceptionstatsComponent implements OnInit, AfterViewInit {
   loading = true;
   error: string | null = null;
 
-  // Sélection du mois
+  // ✅ Ajouter les filtres année et mois
+  selectedYear: string = '';
+  selectedMonth: string = '';
+  availableYears: number[] = [];
+  availableMonths: { value: string; label: string }[] = [
+    { value: '01', label: 'Janvier' },
+    { value: '02', label: 'Février' },
+    { value: '03', label: 'Mars' },
+    { value: '04', label: 'Avril' },
+    { value: '05', label: 'Mai' },
+    { value: '06', label: 'Juin' },
+    { value: '07', label: 'Juillet' },
+    { value: '08', label: 'Août' },
+    { value: '09', label: 'Septembre' },
+    { value: '10', label: 'Octobre' },
+    { value: '11', label: 'Novembre' },
+    { value: '12', label: 'Décembre' }
+  ];
+
+  // Sélection du mois (pour compatibilité)
   selectedMonthKey: string = '';
   selectedMonthLabel: string = '';
   selectedMonthStats: MonthlyStat | null = null;
   selectedMonthItems: MonthItemStat[] = [];
-
-  // Liste des mois disponibles
-  availableMonthsList: { value: string; label: string }[] = [];
 
   // Cache
   private sheetProjects: Map<number, string> = new Map();
@@ -99,7 +117,7 @@ export class ReceptionstatsComponent implements OnInit, AfterViewInit {
 
         Promise.all(receptionPromises).then(results => {
           this.receptions = results.flat();
-          this.buildAvailableMonthsList();
+          this.generateAvailableYears();
           this.loading = false;
         });
       },
@@ -111,30 +129,70 @@ export class ReceptionstatsComponent implements OnInit, AfterViewInit {
     });
   }
 
-  buildAvailableMonthsList(): void {
-    const monthsMap = new Map<string, { value: string; label: string; year: number; month: number }>();
-
+  // ✅ Générer les années disponibles
+  generateAvailableYears(): void {
+    const years = new Set<number>();
     this.receptions.forEach(reception => {
-      const date = new Date(reception.receptionDate);
-      const year = date.getFullYear();
-      const month = date.getMonth() + 1;
-      const value = `${year}-${String(month).padStart(2, '0')}`;
-      const label = this.getMonthLabel(month - 1, year);
-
-      if (!monthsMap.has(value)) {
-        monthsMap.set(value, { value, label, year, month });
+      if (reception.receptionDate) {
+        const year = parseInt(reception.receptionDate.split('-')[0], 10);
+        if (!isNaN(year)) {
+          years.add(year);
+        }
       }
     });
-
-    this.availableMonthsList = Array.from(monthsMap.values())
-      .sort((a, b) => {
-        if (a.year !== b.year) return b.year - a.year;
-        return b.month - a.month;
-      });
+    this.availableYears = Array.from(years).sort((a, b) => b - a);
   }
 
+  // ✅ Filtrer par année
+  onYearChange(): void {
+    this.updateStats();
+  }
+
+  // ✅ Filtrer par mois
   onMonthChange(): void {
-    if (!this.selectedMonthKey) {
+    this.updateStats();
+  }
+// Ajouter cette méthode
+resetFilters(): void {
+  this.selectedYear = '';
+  this.selectedMonth = '';
+  this.updateStats();
+}
+  // ✅ Mettre à jour les statistiques
+  updateStats(): void {
+    let filteredReceptions = [...this.receptions];
+
+    // Filtre par année
+    if (this.selectedYear && this.selectedYear !== '') {
+      filteredReceptions = filteredReceptions.filter(r => {
+        if (!r.receptionDate) return false;
+        const year = r.receptionDate.split('-')[0];
+        return year === this.selectedYear;
+      });
+    }
+
+    // Filtre par mois
+    if (this.selectedMonth && this.selectedMonth !== '') {
+      filteredReceptions = filteredReceptions.filter(r => {
+        if (!r.receptionDate) return false;
+        const month = r.receptionDate.split('-')[1];
+        return month === this.selectedMonth;
+      });
+    }
+
+    // Calculer le label pour l'affichage
+    let label = '';
+    if (this.selectedYear && this.selectedMonth) {
+      const monthName = this.availableMonths.find(m => m.value === this.selectedMonth)?.label || '';
+      label = `${monthName} ${this.selectedYear}`;
+    } else if (this.selectedYear) {
+      label = `Année ${this.selectedYear}`;
+    } else if (this.selectedMonth) {
+      const monthName = this.availableMonths.find(m => m.value === this.selectedMonth)?.label || '';
+      label = `Mois de ${monthName} (toutes années)`;
+    }
+
+    if (filteredReceptions.length === 0) {
       this.selectedMonthStats = null;
       this.selectedMonthItems = [];
       if (this.monthlyChart) {
@@ -144,22 +202,15 @@ export class ReceptionstatsComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    const selected = this.availableMonthsList.find(m => m.value === this.selectedMonthKey);
-    this.selectedMonthLabel = selected?.label || '';
-
-    const [year, month] = this.selectedMonthKey.split('-');
-    const filteredReceptions = this.receptions.filter(r => {
-      const date = new Date(r.receptionDate);
-      return date.getFullYear() === parseInt(year) && (date.getMonth() + 1) === parseInt(month);
-    });
-
-    this.selectedMonthStats = this.calculateMonthStats(filteredReceptions, this.selectedMonthLabel, parseInt(year), parseInt(month));
+    this.selectedMonthLabel = label;
+    this.selectedMonthStats = this.calculateMonthStats(filteredReceptions, label);
     this.selectedMonthItems = this.calculateMonthItemsStats(filteredReceptions);
 
     setTimeout(() => this.createMonthlyChart(), 100);
   }
 
-  calculateMonthStats(receptions: any[], monthLabel: string, year: number, month: number): MonthlyStat {
+  // ✅ Version simplifiée de calculateMonthStats
+  calculateMonthStats(receptions: any[], label: string): MonthlyStat {
     const quantityReceived = receptions.reduce((sum, r) => sum + r.quantityReceived, 0);
     const numberOfReceptions = receptions.length;
     const uniqueItems = new Set(receptions.map(r => r.item.id)).size;
@@ -178,10 +229,10 @@ export class ReceptionstatsComponent implements OnInit, AfterViewInit {
     const avgPerReception = numberOfReceptions > 0 ? Math.round(quantityReceived / numberOfReceptions) : 0;
 
     return {
-      month: monthLabel,
-      monthKey: `${year}-${String(month).padStart(2, '0')}`,
-      year,
-      monthNumber: month,
+      month: label,
+      monthKey: this.selectedYear && this.selectedMonth ? `${this.selectedYear}-${this.selectedMonth}` : label,
+      year: parseInt(this.selectedYear) || new Date().getFullYear(),
+      monthNumber: parseInt(this.selectedMonth) || 0,
       quantityReceived,
       numberOfReceptions,
       numberOfItems: uniqueItems,
@@ -249,7 +300,7 @@ export class ReceptionstatsComponent implements OnInit, AfterViewInit {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        indexAxis: 'y', // Graphique horizontal pour mieux voir les longues références
+        indexAxis: 'y',
         plugins: {
           legend: {
             position: 'top',
@@ -294,39 +345,16 @@ export class ReceptionstatsComponent implements OnInit, AfterViewInit {
 
   generateColors(count: number): string[] {
     const colors = [
-      'rgba(54, 162, 235, 0.7)',   // Bleu
-      'rgba(255, 99, 132, 0.7)',   // Rose
-      'rgba(75, 192, 192, 0.7)',   // Turquoise
-      'rgba(255, 206, 86, 0.7)',   // Jaune
-      'rgba(153, 102, 255, 0.7)',  // Violet
-      'rgba(255, 159, 64, 0.7)',   // Orange
-      'rgba(46, 204, 113, 0.7)',   // Vert
-      'rgba(52, 152, 219, 0.7)',   // Bleu ciel
-      'rgba(155, 89, 182, 0.7)',   // Mauve
-      'rgba(241, 196, 15, 0.7)',   // Jaune-or
-      'rgba(230, 126, 34, 0.7)',   // Orange foncé
-      'rgba(231, 76, 60, 0.7)',    // Rouge
-      'rgba(26, 188, 156, 0.7)',   // Vert d'eau
-      'rgba(142, 68, 173, 0.7)',   // Violet foncé
-      'rgba(22, 160, 133, 0.7)'    // Vert émeraude
+      'rgba(54, 162, 235, 0.7)', 'rgba(255, 99, 132, 0.7)',
+      'rgba(75, 192, 192, 0.7)', 'rgba(255, 206, 86, 0.7)',
+      'rgba(153, 102, 255, 0.7)', 'rgba(255, 159, 64, 0.7)',
+      'rgba(46, 204, 113, 0.7)', 'rgba(52, 152, 219, 0.7)',
+      'rgba(155, 89, 182, 0.7)', 'rgba(241, 196, 15, 0.7)',
+      'rgba(230, 126, 34, 0.7)', 'rgba(231, 76, 60, 0.7)',
+      'rgba(26, 188, 156, 0.7)', 'rgba(142, 68, 173, 0.7)',
+      'rgba(22, 160, 133, 0.7)'
     ];
-
-    const result = [];
-    for (let i = 0; i < count; i++) {
-      result.push(colors[i % colors.length]);
-    }
-    return result;
-  }
-
-  resetMonthSelection(): void {
-    this.selectedMonthKey = '';
-    this.selectedMonthLabel = '';
-    this.selectedMonthStats = null;
-    this.selectedMonthItems = [];
-    if (this.monthlyChart) {
-      this.monthlyChart.destroy();
-      this.monthlyChart = null;
-    }
+    return colors.slice(0, count);
   }
 
   getProjectForSheet(sheetId: number): string | undefined {
@@ -335,11 +363,6 @@ export class ReceptionstatsComponent implements OnInit, AfterViewInit {
 
   getPlantForSheet(sheetId: number): string | undefined {
     return this.sheetPlants.get(sheetId);
-  }
-
-  getMonthLabel(month: number, year: number): string {
-    const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-    return `${monthNames[month]} ${year}`;
   }
 
   exportToCSV(): void {
@@ -366,7 +389,6 @@ export class ReceptionstatsComponent implements OnInit, AfterViewInit {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   }
-  
 }
 
 // Interfaces

@@ -108,26 +108,31 @@ loadAllReceptions(): void {
             return [];
           })
       );
-        Promise.all(receptionPromises).then(results => {
-          this.receptions = results.flat();
-          this.uniqueReceptions = this.receptions.length;
+        // receptionlistglobal.component.ts - Modifier la fin de loadAllReceptions()
 
-          // Calculer les statistiques
-          const uniqueSheetIds = new Set(this.receptions.map(r => r.chargeSheetId));
-          const uniqueItemIds = new Set(this.receptions.map(r => r.item.id));
+Promise.all(receptionPromises).then(results => {
+  this.receptions = results.flat();
+  this.uniqueReceptions = this.receptions.length;
 
-          this.uniqueChargeSheets = uniqueSheetIds.size;
-          this.uniqueItems = uniqueItemIds.size;
-          this.totalQuantity = this.receptions.reduce((sum, r) => sum + r.quantityReceived, 0);
+  // ✅ Générer les années disponibles APRES avoir chargé les réceptions
+  this.generateAvailableYears();
 
-          // Extraire les fournisseurs uniques
-          this.suppliers = [...new Set(this.receptions
-            .map(r => r.deliveryNoteNumber?.split('-')[0] || '')
-            .filter(s => s))];
+  // Calculer les statistiques
+  const uniqueSheetIds = new Set(this.receptions.map(r => r.chargeSheetId));
+  const uniqueItemIds = new Set(this.receptions.map(r => r.item.id));
 
-          this.applyFilters();
-          this.loading = false;
-        });
+  this.uniqueChargeSheets = uniqueSheetIds.size;
+  this.uniqueItems = uniqueItemIds.size;
+  this.totalQuantity = this.receptions.reduce((sum, r) => sum + r.quantityReceived, 0);
+
+  // Extraire les fournisseurs uniques
+  this.suppliers = [...new Set(this.receptions
+    .map(r => r.deliveryNoteNumber?.split('-')[0] || '')
+    .filter(s => s))];
+
+  this.applyFilters();
+  this.loading = false;
+});
       },
       error: (err) => {
         console.error('Erreur chargement cahiers:', err);
@@ -145,51 +150,82 @@ private getItemReferenceFromSheet(sheet: any, itemId: number): string | null {
     return this.sheetProjects.get(sheetId);
   }
 
-  applyFilters(): void {
-    let filtered = [...this.receptions];
+ // receptionlistglobal.component.ts - Modifier applyFilters()
 
-    // Filtre par recherche textuelle
-    if (this.searchTerm) {
-      const term = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(r =>
-        r.deliveryNoteNumber?.toLowerCase().includes(term) ||
-        r.item.itemNumber.toLowerCase().includes(term) ||
-        r.comments?.toLowerCase().includes(term) ||
-        r.chargeSheetId.toString().includes(term)
-      );
-    }
+// receptionlistglobal.component.ts - Modifier applyFilters()
 
-    // Filtre par projet
-    if (this.selectedProject) {
-      filtered = filtered.filter(r =>
-        this.getProjectForSheet(r.chargeSheetId) === this.selectedProject
-      );
-    }
+applyFilters(): void {
+  let filtered = [...this.receptions];
 
-    // Filtre par date
-    if (this.dateFilter) {
-      filtered = filtered.filter(r =>
-        new Date(r.receptionDate).toISOString().split('T')[0] === this.dateFilter
-      );
-    }
-
-    // Filtre par fournisseur (basé sur le N° BL)
-    if (this.selectedSupplier) {
-      filtered = filtered.filter(r =>
-        r.deliveryNoteNumber?.startsWith(this.selectedSupplier)
-      );
-    }
-
-    this.filteredReceptions = filtered;
-    this.totalPages = Math.ceil(this.filteredReceptions.length / this.pageSize);
-    this.currentPage = 1;
+  // Filtre par recherche textuelle
+  if (this.searchTerm) {
+    const term = this.searchTerm.toLowerCase();
+    filtered = filtered.filter(r =>
+      r.deliveryNoteNumber?.toLowerCase().includes(term) ||
+      r.item.itemNumber?.toLowerCase().includes(term) ||
+      r.comments?.toLowerCase().includes(term) ||
+      r.chargeSheetId.toString().includes(term) ||
+      r.chargeSheetOrderNumber?.toLowerCase().includes(term)
+    );
   }
+
+  // Filtre par projet
+  if (this.selectedProject) {
+    filtered = filtered.filter(r =>
+      this.getProjectForSheet(r.chargeSheetId) === this.selectedProject
+    );
+  }
+
+  // Filtre par date exacte (dd/MM/yyyy)
+  if (this.dateFilter) {
+    filtered = filtered.filter(r => {
+      if (!r.receptionDate) return false;
+      return r.receptionDate === this.dateFilter;
+    });
+  }
+
+  // ✅ Filtre par année (corrigé pour format dd/MM/yyyy)
+  if (this.yearFilter && this.yearFilter !== '') {
+    filtered = filtered.filter(r => {
+      if (!r.receptionDate) return false;
+      // receptionDate est comme "2026-03-17"
+      const year = r.receptionDate.split('-')[0];
+      return year === this.yearFilter;
+    });
+  }
+
+  // ✅ Filtre par mois (date au format YYYY-MM-DD)
+  if (this.monthFilter && this.monthFilter !== '') {
+    filtered = filtered.filter(r => {
+      if (!r.receptionDate) return false;
+      // receptionDate est comme "2026-03-17" -> extraire "03"
+      const month = r.receptionDate.split('-')[1];
+      return month === this.monthFilter;
+    });
+  }
+  
+
+  // Filtre par fournisseur
+  if (this.selectedSupplier) {
+    filtered = filtered.filter(r =>
+      r.deliveryNoteNumber?.startsWith(this.selectedSupplier)
+    );
+  }
+
+  this.filteredReceptions = filtered;
+  this.totalPages = Math.ceil(this.filteredReceptions.length / this.pageSize);
+  this.currentPage = 1;
+  
+  console.log(`📊 Filtres appliqués : année=${this.yearFilter}, mois=${this.monthFilter}, résultats=${this.filteredReceptions.length}`);
+}
 
   resetFilters(): void {
     this.searchTerm = '';
     this.selectedProject = '';
     this.dateFilter = '';
     this.selectedSupplier = '';
+     this.monthFilter = '';   // ✅ AJOUTER
+  this.yearFilter = '';
     this.applyFilters();
   }
 
@@ -204,4 +240,89 @@ private getItemReferenceFromSheet(sheet: any, itemId: number): string | null {
       this.currentPage = page;
     }
   }
+  // receptionlistglobal.component.ts - Ajouter ces propriétés
+// receptionlistglobal.component.ts - Ajouter cette fonction utilitaire
+
+// ✅ Fonction pour parser une date au format dd/MM/yyyy
+private parseDate(dateStr: string): Date | null {
+  if (!dateStr) return null;
+  
+  // Vérifier si le format est dd/MM/yyyy
+  const parts = dateStr.split('/');
+  if (parts.length === 3) {
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1; // Les mois commencent à 0
+    const year = parseInt(parts[2], 10);
+    return new Date(year, month, day);
+  }
+  
+  // Fallback: essayer le format standard
+  const date = new Date(dateStr);
+  return isNaN(date.getTime()) ? null : date;
+}
+// Ajouter ces propriétés avec les autres
+monthFilter: string = '';
+yearFilter: string = '';
+availableMonths: { value: string; label: string }[] = [
+  { value: '01', label: 'Janvier' },
+  { value: '02', label: 'Février' },
+  { value: '03', label: 'Mars' },
+  { value: '04', label: 'Avril' },
+  { value: '05', label: 'Mai' },
+  { value: '06', label: 'Juin' },
+  { value: '07', label: 'Juillet' },
+  { value: '08', label: 'Août' },
+  { value: '09', label: 'Septembre' },
+  { value: '10', label: 'Octobre' },
+  { value: '11', label: 'Novembre' },
+  { value: '12', label: 'Décembre' }
+];
+availableYears: number[] = [];
+
+// receptionlistglobal.component.ts - Modifier generateAvailableYears()
+
+generateAvailableYears(): void {
+  const years = new Set<number>();
+  
+  this.receptions.forEach(reception => {
+    if (reception.receptionDate) {
+      // receptionDate est au format "2026-03-17"
+      const year = parseInt(reception.receptionDate.split('-')[0], 10);
+      if (!isNaN(year)) {
+        years.add(year);
+      }
+    }
+  });
+  
+  this.availableYears = Array.from(years).sort((a, b) => b - a);
+  console.log('📅 Années disponibles:', this.availableYears);
+}
+
+filterByYear(event: any): void {
+  const value = event?.target?.value;
+  if (value !== undefined) {
+    this.yearFilter = value;
+    console.log('📅 Année sélectionnée:', this.yearFilter);
+    this.applyFilters();
+  }
+}
+
+filterByMonth(event: any): void {
+  const value = event?.target?.value;
+  if (value !== undefined) {
+    this.monthFilter = value;
+    console.log('📅 Mois sélectionné:', this.monthFilter);
+    this.applyFilters();
+  }
+}
+
+getMonthLabel(monthValue: string): string {
+  const month = this.availableMonths.find(m => m.value === monthValue);
+  return month ? month.label : '';
+}
+
+hasActiveFilters(): boolean {
+  return !!(this.searchTerm || this.selectedProject || this.dateFilter ||
+            this.selectedSupplier || this.monthFilter || this.yearFilter);
+}
 }

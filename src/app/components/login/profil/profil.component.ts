@@ -2,7 +2,6 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import { AuthService } from '../../../../services/auth.service';
 import { UserService } from '../../../../services/UserService';
@@ -34,8 +33,9 @@ export class ProfilComponent implements OnInit {
 
   @ViewChild('activityChart') activityChartCanvas!: ElementRef<HTMLCanvasElement>;
 
+  // ✅ Statistiques industrielles (pas de gamification)
   stats = {
-    chargeSheets: { created: 0, lastDate: null as Date | null, items: [] as any[] },
+    chargeSheets: { created: 0, modified: 0, lastDate: null as Date | null, items: [] as any[] },
     compliances: { created: 0, lastDate: null as Date | null, items: [] as any[] },
     technicalFiles: { created: 0, lastDate: null as Date | null, items: [] as any[] },
     claims: { created: 0, received: 0, total: 0, lastDate: null as Date | null, items: [] as any[] }
@@ -68,14 +68,16 @@ export class ProfilComponent implements OnInit {
     this.userSite = this.authService.getUserSite();
 
     this.userService.getCurrentUserFromApi().subscribe({
-      next: (user) => {
+      next: (response: any) => {
+        const user = response.data || response;
         this.userFirstName = user.firstname;
         this.userLastName = user.lastname;
         this.userProjects = user.projets?.map((p: any) => p.name) || [];
         this.memberSince = user.createdAt ? new Date(user.createdAt) : new Date();
         this.loading = false;
       },
-      error: () => {
+      error: (err) => {
+        console.error('Erreur chargement profil:', err);
         this.userFirstName = this.userEmail.split('@')[0];
         this.loading = false;
       }
@@ -83,14 +85,17 @@ export class ProfilComponent implements OnInit {
   }
 
   loadUserStats(): void {
-    // Charger les cahiers créés par l'utilisateur
+    // Charger les cahiers
     this.chargeSheetService.getAll().subscribe({
       next: (sheets) => {
         const userSheets = sheets.filter(s => s.createdBy === this.userEmail);
         this.stats.chargeSheets.created = userSheets.length;
         this.stats.chargeSheets.items = userSheets;
+
+        const modifiedSheets = sheets.filter(s => s.updatedBy === this.userEmail);
+        this.stats.chargeSheets.modified = modifiedSheets.length;
+
         if (userSheets.length > 0) {
-          // ✅ CORRECTION: Vérifier que la date existe
           const dates = userSheets
             .map(s => s.createdAt || s.date)
             .filter(date => date)
@@ -99,18 +104,18 @@ export class ProfilComponent implements OnInit {
           this.stats.chargeSheets.lastDate = dates.length > 0 ? new Date(Math.max(...dates.map(d => d.getTime()))) : null;
         }
         this.addActivities(userSheets, 'cahier', 'bi bi-files', 'Cahier des charges créé');
+        this.addActivities(modifiedSheets, 'modification', 'bi bi-pencil-square', 'Cahier des charges modifié');
         this.buildActivityChart();
       }
     });
 
-    // Charger les conformités créées par l'utilisateur
+    // Charger les conformités
     this.complianceService.getAll2().subscribe({
       next: (compliances) => {
         const userCompliances = compliances.filter(c => c.createdBy === this.userEmail);
         this.stats.compliances.created = userCompliances.length;
         this.stats.compliances.items = userCompliances;
         if (userCompliances.length > 0) {
-          // ✅ CORRECTION: Vérifier que la date existe
           const dates = userCompliances
             .map(c => c.createdAt)
             .filter(date => date)
@@ -130,7 +135,6 @@ export class ProfilComponent implements OnInit {
         this.stats.technicalFiles.created = userFiles.length;
         this.stats.technicalFiles.items = userFiles;
         if (userFiles.length > 0) {
-          // ✅ CORRECTION: Vérifier que la date existe
           const dates = userFiles
             .map(f => f.createdAt)
             .filter(date => date)
@@ -142,32 +146,46 @@ export class ProfilComponent implements OnInit {
         this.buildActivityChart();
       }
     });
+// Charger les réclamations - VERSION CORRIGÉE (created_by pour créées, assigned_to pour reçues)
+this.claimService.getAllClaims().subscribe({
+  next: (claims) => {
+    console.log('🔍 === DIAGNOSTIC RÉCLAMATIONS ===');
+    console.log('👤 Email utilisateur:', this.userEmail);
+    console.log('📋 Total réclamations:', claims.length);
 
-    // Charger les réclamations
-    this.claimService.getAllClaims().subscribe({
-      next: (claims) => {
-        const userClaimsCreated = claims.filter(c => c.createdBy === this.userEmail);
-        const userClaimsReceived = claims.filter(c => c.assignedTo === this.userEmail);
-        this.stats.claims.created = userClaimsCreated.length;
-        this.stats.claims.received = userClaimsReceived.length;
-        this.stats.claims.total = userClaimsCreated.length + userClaimsReceived.length;
-        this.stats.claims.items = [...userClaimsCreated, ...userClaimsReceived];
-        if (this.stats.claims.items.length > 0) {
-          // ✅ CORRECTION: Vérifier que la date existe
-          const dates = this.stats.claims.items
-            .map(c => c.createdAt)
-            .filter(date => date)
-            .map(date => new Date(date!))
-            .filter(d => !isNaN(d.getTime()));
-          this.stats.claims.lastDate = dates.length > 0 ? new Date(Math.max(...dates.map(d => d.getTime()))) : null;
-        }
-        this.addActivities(userClaimsCreated, 'reclamation', 'bi bi-chat-dots', 'Réclamation créée');
-        this.addActivities(userClaimsReceived, 'reclamation', 'bi bi-inbox', 'Réclamation reçue');
-        this.buildActivityChart();
-      }
-    });
+    // ✅ CRÉÉES = l'utilisateur a CREÉ la réclamation
+    const withCreatedBy = claims.filter(c => c.createdBy === this.userEmail);
 
-    // Vérifier si l'utilisateur a fait des réceptions
+    // ✅ REÇUES = l'utilisateur est ASSIGNÉ à la réclamation
+    const withAssignedTo = claims.filter(c => c.assignedTo === this.userEmail);
+
+    console.log('✅ created_by:', withCreatedBy.length);
+    console.log('📌 assigned_to:', withAssignedTo.length);
+
+    // Assigner les valeurs aux statistiques
+    this.stats.claims.created = withCreatedBy.length;
+    this.stats.claims.received = withAssignedTo.length;
+    this.stats.claims.total = withCreatedBy.length + withAssignedTo.length;
+    this.stats.claims.items = [...withCreatedBy, ...withAssignedTo];
+
+    if (this.stats.claims.items.length > 0) {
+      const dates = this.stats.claims.items
+        .map(c => c.createdAt)
+        .filter(date => date)
+        .map(date => new Date(date))
+        .filter(d => !isNaN(d.getTime()));
+      this.stats.claims.lastDate = dates.length > 0 ? new Date(Math.max(...dates.map(d => d.getTime()))) : null;
+    }
+
+    // Ajouter aux activités
+    this.addActivities(withCreatedBy, 'reclamation', 'bi bi-chat-dots', 'Réclamation créée');
+    this.addActivities(withAssignedTo, 'reclamation', 'bi bi-inbox', 'Réclamation assignée');
+
+    this.buildActivityChart();
+  }
+});
+
+    // Vérifier les réceptions
     this.chargeSheetService.getAll().subscribe({
       next: (sheets) => {
         let receptionFound = false;
@@ -179,7 +197,6 @@ export class ProfilComponent implements OnInit {
               const userReceptions = histories.filter(h => h.receivedBy === this.userEmail);
               if (userReceptions.length > 0) {
                 receptionFound = true;
-                // ✅ CORRECTION: Vérifier que la date existe
                 const receptionDates = userReceptions
                   .map(r => r.receptionDate)
                   .filter(date => date)
@@ -206,7 +223,7 @@ export class ProfilComponent implements OnInit {
 
   addActivities(items: any[], type: string, icon: string, prefix: string): void {
     items.forEach(item => {
-      let date = item.createdAt || item.receptionDate || item.date;
+      let date = item.updatedAt || item.createdAt || item.receptionDate || item.date;
       if (date) {
         this.allActivities.push({
           type: type,
@@ -226,6 +243,8 @@ export class ProfilComponent implements OnInit {
     switch(type) {
       case 'cahier':
         return `Cahier #${item.orderNumber || item.id} - Projet: ${item.project}`;
+      case 'modification':
+        return `Cahier #${item.orderNumber || item.id} modifié - Statut: ${item.status}`;
       case 'conformite':
         return `Conformité #${item.id} - Item: ${item.item?.itemNumber || 'N/A'}`;
       case 'technique':
@@ -264,7 +283,6 @@ export class ProfilComponent implements OnInit {
       if (!this.activityChartCanvas?.nativeElement) return;
       if (this.activityChart) this.activityChart.destroy();
 
-      // Compter les activités par mois
       const monthlyMap = new Map<string, { cahier: number; conformite: number; technique: number; reclamation: number }>();
 
       this.allActivities.forEach(activity => {
@@ -275,6 +293,7 @@ export class ProfilComponent implements OnInit {
         const stats = monthlyMap.get(monthKey)!;
         switch(activity.type) {
           case 'cahier': stats.cahier++; break;
+          case 'modification': stats.cahier++; break;
           case 'conformite': stats.conformite++; break;
           case 'technique': stats.technique++; break;
           case 'reclamation': stats.reclamation++; break;
@@ -293,7 +312,6 @@ export class ProfilComponent implements OnInit {
         return `${monthNames[parseInt(month) - 1]} ${year}`;
       });
 
-      // ✅ CORRECTION: stepSize doit être dans ticks
       const config: ChartConfiguration = {
         type: 'bar',
         data: {
@@ -301,7 +319,7 @@ export class ProfilComponent implements OnInit {
           datasets: [
             { label: 'Cahiers', data: cahierData, backgroundColor: '#0d6efd', borderRadius: 8 },
             { label: 'Conformités', data: conformiteData, backgroundColor: '#198754', borderRadius: 8 },
-            { label: 'Dossiers tech.', data: techniqueData, backgroundColor: '#0dcaf0', borderRadius: 8 },
+            { label: 'Dossiers techniques', data: techniqueData, backgroundColor: '#0dcaf0', borderRadius: 8 },
             { label: 'Réclamations', data: reclamationData, backgroundColor: '#ffc107', borderRadius: 8 }
           ]
         },
@@ -319,7 +337,7 @@ export class ProfilComponent implements OnInit {
         }
       };
       this.activityChart = new Chart(this.activityChartCanvas.nativeElement, config);
-    }, 100);
+    }, 200);
   }
 
   getUserRoleLabel(role: string): string {

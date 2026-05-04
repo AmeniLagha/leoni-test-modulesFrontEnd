@@ -405,7 +405,128 @@
   background: #bfdbfe;
   transform: translateY(-2px);
 }
+/* technical-file-list.component.css */
 
+/* ===== PAGINATION STYLES ===== */
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.pagination-info {
+  color: #4a5568;
+  font-size: 0.875rem;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.pagination-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: white;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  color: #1e293b;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-pages {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.pagination-page-btn {
+  min-width: 2rem;
+  padding: 0.5rem;
+  background: white;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  color: #1e293b;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pagination-page-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.pagination-page-btn.active {
+  background: #1e3a5f;
+  border-color: #1e3a5f;
+  color: white;
+}
+
+.pagination-per-page {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pagination-per-page label {
+  color: #4a5568;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.pagination-per-page select {
+  padding: 0.4rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  background: white;
+  cursor: pointer;
+}
+
+.pagination-per-page select:focus {
+  outline: none;
+  border-color: #1e3a5f;
+  ring: 2px solid rgba(30, 58, 95, 0.2);
+}
+
+/* Responsive pour la pagination */
+@media (max-width: 768px) {
+  .pagination-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .pagination-controls {
+    justify-content: center;
+  }
+  
+  .pagination-per-page {
+    justify-content: center;
+  }
+}
 .btn-sm.btn-detail {
   background: #e0e7ff;
   color: #4338ca;

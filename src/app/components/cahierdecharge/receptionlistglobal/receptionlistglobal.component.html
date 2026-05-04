@@ -39,39 +39,58 @@
       </div>
 
       <!-- FILTRES RAPIDES -->
-      <div class="filters-section" *ngIf="!loading && receptions.length > 0">
-        <div class="search-box">
-          <i class="bi bi-search"></i>
-          <input type="text"
-                 class="search-input"
-                 placeholder="Rechercher par N° BL, item, cahier..."
-                 [(ngModel)]="searchTerm"
-                 (ngModelChange)="applyFilters()">
-        </div>
+      <!-- FILTRES RAPIDES - Version modernisée avec année et mois -->
+<div class="filters-section" *ngIf="!loading && receptions.length > 0">
 
-        <div class="filter-group">
-          <select class="filter-select" [(ngModel)]="selectedProject" (ngModelChange)="applyFilters()">
-            <option value="">Tous les projets</option>
-            <option *ngFor="let project of projects" [value]="project">{{ project }}</option>
-          </select>
+  <!-- Ligne 1: Recherche -->
+  <div class="search-box">
+    <i class="bi bi-search"></i>
+    <input type="text"
+           class="search-input"
+           placeholder="Rechercher par N° BL, item, cahier..."
+           [(ngModel)]="searchTerm"
+           (ngModelChange)="applyFilters()">
+  </div>
 
-          <input type="date"
-                 class="filter-date"
-                 [(ngModel)]="dateFilter"
-                 (ngModelChange)="applyFilters()"
-                 placeholder="Filtrer par date">
+  <!-- Ligne 2: Filtres -->
+  <!-- Dans receptionlistglobal.component.html -->
 
-          <select class="filter-select" [(ngModel)]="selectedSupplier" (ngModelChange)="applyFilters()">
-            <option value="">Tous les fournisseurs</option>
-            <option *ngFor="let supplier of suppliers" [value]="supplier">{{ supplier }}</option>
-          </select>
-        </div>
+<!-- MODIFIER ces selects -->
+<div class="filter-group">
+  <select class="filter-select" [(ngModel)]="selectedProject" (change)="applyFilters()">
+    <option value="">📁 Tous les projets</option>
+    <option *ngFor="let project of projects" [value]="project">{{ project }}</option>
+  </select>
 
-        <button *ngIf="searchTerm || selectedProject || dateFilter || selectedSupplier"
-                class="btn-clear" (click)="resetFilters()">
-          <i class="bi bi-x-circle"></i> Effacer les filtres
-        </button>
-      </div>
+  <input type="date"
+         class="filter-date"
+         [(ngModel)]="dateFilter"
+         (change)="applyFilters()"
+         placeholder="Date exacte">
+
+  <!-- ✅ Filtre année - utiliser (change) -->
+  <select class="filter-select" [(ngModel)]="yearFilter" (change)="applyFilters()">
+    <option value="">📅 Toutes les années</option>
+    <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
+  </select>
+
+  <!-- ✅ Filtre mois - utiliser (change) -->
+  <select class="filter-select" [(ngModel)]="monthFilter" (change)="applyFilters()">
+    <option value="">📅 Tous les mois</option>
+    <option *ngFor="let month of availableMonths" [value]="month.value">{{ month.label }}</option>
+  </select>
+
+  <select class="filter-select" [(ngModel)]="selectedSupplier" (change)="applyFilters()">
+    <option value="">🏭 Tous les fournisseurs</option>
+    <option *ngFor="let supplier of suppliers" [value]="supplier">{{ supplier }}</option>
+  </select>
+</div>
+
+  <!-- Bouton effacer les filtres -->
+  <button *ngIf="hasActiveFilters()" class="btn-clear" (click)="resetFilters()">
+    <i class="bi bi-x-circle"></i> Effacer les filtres
+  </button>
+</div>
 
       <!-- LOADING -->
       <div *ngIf="loading" class="loading-container">

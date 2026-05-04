@@ -1,8 +1,17 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { ClaimCreateDto, Claim } from "../models/claim.model";
-import { Observable } from "rxjs";
+import { Observable, map } from "rxjs";
 import { environment } from "../environments/environment";
+
+// ✅ Interface ApiResponse (ou importer depuis un fichier partagé)
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  statusCode: number;
+  data: T;
+  timestamp: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class ClaimService {
@@ -16,35 +25,41 @@ export class ClaimService {
     return new HttpHeaders({ 'Authorization': `Bearer ${token}` });
   }
 
-  createClaim(dto: ClaimCreateDto) {
-    return this.http.post<Claim>(this.api, dto, { headers: this.getAuthHeaders() });
+  createClaim(dto: ClaimCreateDto): Observable<Claim> {
+    return this.http.post<ApiResponse<Claim>>(this.api, dto, { headers: this.getAuthHeaders() })
+      .pipe(map(response => response.data));
   }
 
-  getAllClaims() {
-    return this.http.get<Claim[]>(this.api, { headers: this.getAuthHeaders() });
+  getAllClaims(): Observable<Claim[]> {
+    return this.http.get<ApiResponse<Claim[]>>(this.api, { headers: this.getAuthHeaders() })
+      .pipe(map(response => response.data));
   }
 
-  assign(id: number, dto: any) {
-    return this.http.put<Claim>(`${this.api}/${id}/assign`, dto, { headers: this.getAuthHeaders() });
+  assign(id: number, dto: any): Observable<Claim> {
+    return this.http.put<ApiResponse<Claim>>(`${this.api}/${id}/assign`, dto, { headers: this.getAuthHeaders() })
+      .pipe(map(response => response.data));
   }
 
-  start(id: number) {
-    return this.http.patch<Claim>(`${this.api}/${id}/status/IN_PROGRESS`, {}, { headers: this.getAuthHeaders() });
+  start(id: number): Observable<Claim> {
+    return this.http.patch<ApiResponse<Claim>>(`${this.api}/${id}/status/IN_PROGRESS`, {}, { headers: this.getAuthHeaders() })
+      .pipe(map(response => response.data));
   }
 
-  resolve(id: number, dto: any) {
-    return this.http.put<Claim>(`${this.api}/${id}/resolve`, dto, { headers: this.getAuthHeaders() });
+  resolve(id: number, dto: any): Observable<Claim> {
+    return this.http.put<ApiResponse<Claim>>(`${this.api}/${id}/resolve`, dto, { headers: this.getAuthHeaders() })
+      .pipe(map(response => response.data));
   }
-   // ==================== GESTION DES IMAGES ====================
+
+  // ==================== GESTION DES IMAGES ====================
   uploadClaimImage(claimId: number, file: File): Observable<{ filename: string; path: string; message: string }> {
     const formData = new FormData();
     formData.append('file', file);
 
-    return this.http.post<{ filename: string; path: string; message: string }>(
+    return this.http.post<ApiResponse<{ filename: string; path: string; message: string }>>(
       `${this.api}/${claimId}/upload-image`,
       formData,
       { headers: this.getAuthHeaders() }
-    );
+    ).pipe(map(response => response.data));
   }
 
   getClaimImageUrl(claimId: number): Observable<Blob> {
@@ -55,31 +70,33 @@ export class ClaimService {
   }
 
   deleteClaimImage(claimId: number): Observable<{ message: string }> {
-    return this.http.delete<{ message: string }>(`${this.api}/${claimId}/image`, {
+    return this.http.delete<ApiResponse<{ message: string }>>(`${this.api}/${claimId}/image`, {
       headers: this.getAuthHeaders()
-    });
+    }).pipe(map(response => response.data));
   }
-  // claim.service.ts - Ajoutez cette méthode
-deleteClaim(claimId: number): Observable<void> {
-  return this.http.delete<void>(`${this.api}/${claimId}`, { headers: this.getAuthHeaders() });
-}
-// claim.service.ts - Ajoutez ces méthodes
 
-/** Récupérer la variation entre les deux derniers mois pour les réclamations */
-getLastTwoMonthsVariation(project?: string): Observable<any> {
-  let url = `${this.api}/stats/last-two-months`;
-  if (project && project !== 'ALL') {
-    url += `?project=${project}`;
+  deleteClaim(claimId: number): Observable<void> {
+    return this.http.delete<ApiResponse<void>>(`${this.api}/${claimId}`, { headers: this.getAuthHeaders() })
+      .pipe(map(() => void 0));
   }
-  return this.http.get<any>(url, { headers: this.getAuthHeaders() });
-}
 
-/** Récupérer la variation entre deux mois spécifiques pour les réclamations */
-getVariationBetweenMonths(month1: string, month2: string, project?: string): Observable<any> {
-  let url = `${this.api}/stats/monthly-variation?month1=${month1}&month2=${month2}`;
-  if (project && project !== 'ALL') {
-    url += `&project=${project}`;
+  /** Récupérer la variation entre les deux derniers mois pour les réclamations */
+  getLastTwoMonthsVariation(project?: string): Observable<any> {
+    let url = `${this.api}/stats/last-two-months`;
+    if (project && project !== 'ALL') {
+      url += `?project=${project}`;
+    }
+    return this.http.get<ApiResponse<any>>(url, { headers: this.getAuthHeaders() })
+      .pipe(map(response => response.data));
   }
-  return this.http.get<any>(url, { headers: this.getAuthHeaders() });
-}
+
+  /** Récupérer la variation entre deux mois spécifiques pour les réclamations */
+  getVariationBetweenMonths(month1: string, month2: string, project?: string): Observable<any> {
+    let url = `${this.api}/stats/monthly-variation?month1=${month1}&month2=${month2}`;
+    if (project && project !== 'ALL') {
+      url += `&project=${project}`;
+    }
+    return this.http.get<ApiResponse<any>>(url, { headers: this.getAuthHeaders() })
+      .pipe(map(response => response.data));
+  }
 }

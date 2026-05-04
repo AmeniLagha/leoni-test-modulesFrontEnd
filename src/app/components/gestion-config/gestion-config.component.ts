@@ -137,45 +137,50 @@ export class GestionConfigComponent implements OnInit {
   }
 
   // ============ SITES ============
-  loadSites(): void {
-    this.loading = true;
-    this.siteService.getAll().subscribe({
-      next: (data) => {
-        // ✅ Transformer les données pour avoir la propriété projets
-        this.sites = data.map(site => {
-          const projetIds = (site as any).projetIds || [];
-          const projetNames = (site as any).projetNames || [];
+  // gestion-config.component.ts - Corriger loadSites()
 
-          const projets = projetIds.map((id: number, index: number) => ({
-            id: id,
-            name: projetNames[index] || `Projet ${id}`,
-            description: '',
-            active: true
-          }));
+loadSites(): void {
+  this.loading = true;
+  this.siteService.getAll().subscribe({
+    next: (sites) => {  // ✅ sites est déjà un tableau de Site[]
+      console.log('📋 Sites reçus:', sites);
 
-          return {
-            ...site,
-            projets: projets
-          };
-        });
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error(err);
-        this.loading = false;
-      }
-    });
-  }
+      this.sites = sites.map((site: any) => {
+        const projetIds = site.projetIds || [];
+        const projetNames = site.projetNames || [];
 
-  // ✅ Méthode pour rafraîchir un site spécifique après association
-// gestion-config.component.ts - Corriger refreshSite()
+        console.log(`🏢 Site ${site.name} - Projets reçus:`, projetNames);
 
-refreshSite(siteId: number): void {
+        const projets = projetIds.map((id: number, index: number) => ({
+          id: id,
+          name: projetNames[index] || `Projet ${id}`,
+          description: '',
+          active: true
+        }));
+
+        return {
+          ...site,
+          projets: projets
+        };
+      });
+
+      console.log('📋 Tous les sites chargés:', this.sites);
+      this.loading = false;
+    },
+    error: (err) => {
+      console.error(err);
+      this.loading = false;
+    }
+  });
+}
+
+ refreshSite(siteId: number): void {
   this.siteService.getById(siteId).subscribe({
-    next: (site) => {
+    next: (site) => {  // ✅ site est déjà un objet Site
       console.log('🔄 Rafraîchissement du site:', site);
+      console.log('📋 ProjetIds reçus:', site.projetIds);
+      console.log('📋 ProjetNames reçus:', site.projetNames);
 
-      // ✅ Transformer les données comme dans loadSites()
       const projetIds = (site as any).projetIds || [];
       const projetNames = (site as any).projetNames || [];
 
@@ -186,17 +191,17 @@ refreshSite(siteId: number): void {
         active: true
       }));
 
-      const siteAvecProjets = { ...site, projets: projets };
+      const siteAvecProjets = { ...site, projets };
 
-      // Mettre à jour le tableau
       const index = this.sites.findIndex(s => s.id === siteId);
       if (index !== -1) {
         this.sites[index] = siteAvecProjets;
       }
 
       console.log('✅ Site après mise à jour:', this.sites[index]);
+      this.sites = [...this.sites];
     },
-    error: (err) => console.error(err)
+    error: (err) => console.error('Erreur refresh:', err)
   });
 }
 
@@ -292,26 +297,34 @@ refreshSite(siteId: number): void {
     }
   }
 
- // gestion-config.component.ts
-saveAssociation(): void {
+ saveAssociation(): void {
   if (!this.selectedSiteForAssociation) return;
 
-  console.log('📤 Envoi association - siteId:', this.selectedSiteForAssociation.id);
-  console.log('📤 ProjetIds:', this.selectedProjetIds);
+  this.siteService.updateSiteProjets(this.selectedSiteForAssociation.id, this.selectedProjetIds).subscribe({
+    next: (updatedSite) => {
+      // ✅ Mettre à jour uniquement le site modifié
+      const index = this.sites.findIndex(s => s.id === updatedSite.id);
+      if (index !== -1) {
+        const projetIds = (updatedSite as any).projetIds || [];
+        const projetNames = (updatedSite as any).projetNames || [];
 
-  // ✅ Appeler addProjetToSite pour chaque projet sélectionné
-  const requests = this.selectedProjetIds.map(projetId =>
-    this.siteService.addProjetToSite(this.selectedSiteForAssociation!.id, projetId)
-  );
+        const projets = projetIds.map((id: number, idx: number) => ({
+          id: id,
+          name: projetNames[idx] || `Projet ${id}`,
+          description: '',
+          active: true
+        }));
 
-  // Exécuter toutes les requêtes en parallèle
-  Promise.all(requests.map(req => req.toPromise())).then(() => {
-    this.showAssociationModal = false;
-    this.loadSites(); // Recharger tous les sites
-    alert(`✅ Projets associés au site "${this.selectedSiteForAssociation?.name}" avec succès`);
-  }).catch(err => {
-    console.error('❌ Erreur:', err);
-    alert('❌ Erreur lors de l\'association');
+        this.sites[index] = { ...updatedSite, projets };
+        this.sites = [...this.sites]; // Forcer le refresh
+      }
+
+      this.showAssociationModal = false;
+      alert(`✅ Projets associés au site "${this.selectedSiteForAssociation?.name}" avec succès`);
+    },
+    error: (err) => {
+      alert('❌ Erreur lors de l\'association: ' + (err.error?.message || err.message));
+    }
   });
 }
 

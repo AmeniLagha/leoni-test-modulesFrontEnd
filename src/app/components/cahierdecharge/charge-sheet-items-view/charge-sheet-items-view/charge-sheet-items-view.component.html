@@ -1,8 +1,10 @@
 <div class="container-fluid px-4 py-4">
   <!-- HEADER GRADIENT -->
-  <div class="card border-0 shadow-lg mb-4" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+  <div class="card border-0 shadow-lg mb-4"
+    style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
     <div class="card-body p-4">
-      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <div
+        class="d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div>
           <h1 class="text-white mb-2">
             <i class="bi bi-list-check me-2"></i>
@@ -10,9 +12,15 @@
           </h1>
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
-              <li class="breadcrumb-item"><a routerLink="/charge-sheets/list" class="text-white text-decoration-none">Cahiers des charges</a></li>
-              <li class="breadcrumb-item"><a [routerLink]="['/charge-sheets', chargeSheetId]" class="text-white text-decoration-none">{{ chargeSheetId }}</a></li>
-              <li class="breadcrumb-item active text-white-50">Tous les items</li>
+              <li class="breadcrumb-item"><a routerLink="/charge-sheets/list"
+                  class="text-white text-decoration-none">Cahiers des
+                  charges</a></li>
+              <li class="breadcrumb-item"><a
+                  [routerLink]="['/charge-sheets', chargeSheetId]"
+                  class="text-white text-decoration-none">{{ chargeSheetId
+                  }}</a></li>
+              <li class="breadcrumb-item active text-white-50">Tous les
+                items</li>
             </ol>
           </nav>
         </div>
@@ -20,7 +28,8 @@
           <button class="btn btn-light" (click)="goBack()">
             <i class="bi bi-arrow-left me-2"></i>Retour
           </button>
-          <button class="btn btn-outline-light" (click)="exportToExcelWithImages()">
+          <button class="btn btn-outline-light"
+            (click)="exportToExcelWithImages()">
             <i class="bi bi-file-earmark-excel me-2"></i>Export Excel
           </button>
         </div>
@@ -30,14 +39,17 @@
 
   <!-- LOADING -->
   <div *ngIf="loading" class="text-center py-5">
-    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"
+      role="status">
       <span class="visually-hidden">Chargement...</span>
     </div>
     <p class="text-muted mt-3">Chargement des items...</p>
   </div>
 
   <!-- ERROR -->
-  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+  <div *ngIf="error"
+    class="alert alert-danger alert-dismissible fade show shadow-sm"
+    role="alert">
     <i class="bi bi-exclamation-triangle-fill me-2"></i>
     {{ error }}
     <button type="button" class="btn-close" (click)="error = null"></button>
@@ -58,68 +70,85 @@
         <div class="row g-4">
           <div class="col-md-3 col-sm-6">
             <div class="info-item">
-              <label class="text-muted small text-uppercase fw-semibold">PLANT</label>
+              <label
+                class="text-muted small text-uppercase fw-semibold">PLANT</label>
               <div class="fw-semibold">{{ chargeSheet.plant }}</div>
             </div>
           </div>
           <div class="col-md-3 col-sm-6">
             <div class="info-item">
-              <label class="text-muted small text-uppercase fw-semibold">PROJECT</label>
+              <label
+                class="text-muted small text-uppercase fw-semibold">PROJECT</label>
               <div class="fw-semibold">{{ chargeSheet.project }}</div>
             </div>
           </div>
           <div class="col-md-3 col-sm-6">
             <div class="info-item">
-              <label class="text-muted small text-uppercase fw-semibold">HARNESS REF</label>
+              <label class="text-muted small text-uppercase fw-semibold">HARNESS
+                REF</label>
               <div><code>{{ chargeSheet.harnessRef }}</code></div>
             </div>
           </div>
           <div class="col-md-3 col-sm-6">
             <div class="info-item">
-              <label class="text-muted small text-uppercase fw-semibold">ISSUED BY</label>
+              <label class="text-muted small text-uppercase fw-semibold">ISSUED
+                BY</label>
               <div>{{ chargeSheet.issuedBy }}</div>
             </div>
           </div>
           <div class="col-md-3 col-sm-6">
             <div class="info-item">
-              <label class="text-muted small text-uppercase fw-semibold">E-MAI ADRESSL</label>
-              <div><i class="bi bi-envelope me-1"></i>{{ chargeSheet.emailAddress }}</div>
+              <label class="text-muted small text-uppercase fw-semibold">E-MAI
+                ADRESSL</label>
+              <div><i class="bi bi-envelope me-1"></i>{{
+                chargeSheet.emailAddress }}</div>
             </div>
           </div>
           <div class="col-md-3 col-sm-6">
             <div class="info-item">
-              <label class="text-muted small text-uppercase fw-semibold">PHONE NUMBER</label>
-              <div><i class="bi bi-telephone me-1"></i>{{ chargeSheet.phoneNumber }}</div>
+              <label class="text-muted small text-uppercase fw-semibold">PHONE
+                NUMBER</label>
+              <div><i class="bi bi-telephone me-1"></i>{{
+                chargeSheet.phoneNumber }}</div>
             </div>
           </div>
           <div class="col-md-3 col-sm-6">
             <div class="info-item">
-              <label class="text-muted small text-uppercase fw-semibold">ORDER NUMBER</label>
+              <label class="text-muted small text-uppercase fw-semibold">ORDER
+                NUMBER</label>
               <div>{{ chargeSheet.orderNumber }}</div>
             </div>
           </div>
           <div class="col-md-3 col-sm-6">
             <div class="info-item">
-              <label class="text-muted small text-uppercase fw-semibold">COST CENTER NUMBER</label>
+              <label class="text-muted small text-uppercase fw-semibold">COST
+                CENTER NUMBER</label>
               <div>{{ chargeSheet.costCenterNumber }}</div>
             </div>
           </div>
           <div class="col-md-3 col-sm-6">
             <div class="info-item">
-              <label class="text-muted small text-uppercase fw-semibold">DATE</label>
-              <div><i class="bi bi-calendar me-1"></i>{{ chargeSheet.date | date:'dd/MM/yyyy' }}</div>
+              <label
+                class="text-muted small text-uppercase fw-semibold">DATE</label>
+              <div><i class="bi bi-calendar me-1"></i>{{ chargeSheet.date |
+                date:'dd/MM/yyyy' }}</div>
             </div>
           </div>
           <div class="col-md-3 col-sm-6">
             <div class="info-item">
-              <label class="text-muted small text-uppercase fw-semibold">PREFERRED DELIVERY DATE</label>
-              <div><i class="bi bi-calendar-check me-1"></i>{{ chargeSheet.preferredDeliveryDate | date:'dd/MM/yyyy' }}</div>
+              <label
+                class="text-muted small text-uppercase fw-semibold">PREFERRED
+                DELIVERY DATE</label>
+              <div><i class="bi bi-calendar-check me-1"></i>{{
+                chargeSheet.preferredDeliveryDate | date:'dd/MM/yyyy' }}</div>
             </div>
           </div>
           <div class="col-md-3 col-sm-6">
             <div class="info-item">
-              <label class="text-muted small text-uppercase fw-semibold">Statut</label>
-              <span class="badge" [ngClass]="getStatusBadgeClass(chargeSheet.status)">
+              <label
+                class="text-muted small text-uppercase fw-semibold">Statut</label>
+              <span class="badge"
+                [ngClass]="getStatusBadgeClass(chargeSheet.status)">
                 <i class="bi" [ngClass]="getStatusIcon(chargeSheet.status)"></i>
                 {{ chargeSheetService.getStatusLabel(chargeSheet.status) }}
               </span>
@@ -130,557 +159,746 @@
     </div>
 
     <!-- Tableau style Excel -->
-    <div *ngIf="chargeSheet.items && chargeSheet.items.length > 0;" class="card border-0 shadow-sm">
+    <div *ngIf="chargeSheet.items && chargeSheet.items.length > 0;"
+      class="card border-0 shadow-sm">
       <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-hover align-middle mb-0">
             <thead class="bg-light">
-          <tr>
-            <th colspan="11">RESPONSABLE PRODUCTION ENGINEERING</th>
-            <th colspan="58">STANDARD TEST CRITERIA FOR TEST MODULES</th>
-            <th colspan="20">SPECIAL FUNCTIONS / TEST CRITERIA</th>
-            <th colspan="6">TYPE OF TEST MODULE</th>
-            <th colspan="12">TEST SYSTEM</th>
-            <th colspan="2">PRICE</th>
-            <th colspan="1">Quantité reçue</th>
-            <th colspan="1">Actions</th>
-          </tr>
-          <!-- Sous-en-tête avec les noms des champs -->
-          <tr>
-            <!-- Général -->
-            <th>Item</th>
-            <th>Samples exist</th>
-            <th>Ways</th>
-            <th>Housing colour</th>
-            <th>Test module already existe in DB</th>
-            <th>Housing Reference LEONI</th>
-            <th>Housing Reference Supplier/customer</th>
-            <th>Reference seals,clips</th>
-             <!-- Image -->
-            <th>Real connector picture</th>
-            <th>Quantity of test modules</th>
+              <tr>
+                <th colspan="11">RESPONSABLE PRODUCTION ENGINEERING</th>
+                <th colspan="58">STANDARD TEST CRITERIA FOR TEST MODULES</th>
+                <th colspan="20">SPECIAL FUNCTIONS / TEST CRITERIA</th>
+                <th colspan="6">TYPE OF TEST MODULE</th>
+                <th colspan="11">TEST SYSTEM</th>
+                <th colspan="2">PRICE</th>
+                <th colspan="1">Quantité reçue</th>
+                <th colspan="1">Actions</th>
+              </tr>
+              <!-- Sous-en-tête avec les noms des champs -->
+              <tr>
+                <!-- Général -->
+                <th>Item</th>
+                <th>Samples exist (*)</th>
+                <th>Ways</th>
+                <th>Housing colour</th>
+                <th>Test module already existe in DB</th>
+                <th>Housing Reference LEONI</th>
+                <th>Housing Reference Supplier/customer</th>
+                <th>Reference seals,clips</th>
+                <!-- Image -->
+                <th>Real connector picture</th>
+                <th>Quantity of test modules</th>
 
-            <!-- Housing (16 champs) -->
-            <th>Outside housing exist</th>
-            <th>Inside housing exist</th>
-            <th>Mechanical coding</th>
-            <th>Electrical coding</th>
-            <th>CPA existe,open</th>
-            <th>CPA existe,closed</th>
-            <th>cover-Hood exist</th>
-            <th>cover-Hood closed</th>
-            <th>Cap Exist</th>
-            <th>Bayonet cap Exist</th>
-            <th>Bracket Exist</th>
-            <th>Bracket Open</th>
-            <th>Bracket Closed</th>
-            <th>Latch Wing exist</th>
-            <th>Slider Exist</th>
-            <th>Slider Open</th>
-            <th>Slider Closed</th>
-            <th>Secondary Lock Exist</th>
-            <th>Secondary Lock Open</th>
-            <th>Secondary Lock Closed</th>
+                <!-- Housing (16 champs) -->
+                <th>Outside housing exist</th>
+                <th>Inside housing exist</th>
+                <th>Mechanical coding</th>
+                <th>Electrical coding</th>
+                <th>CPA existe,open</th>
+                <th>CPA existe,closed</th>
+                <th>cover-Hood exist</th>
+                <th>cover-Hood closed</th>
+                <th>Cap Exist</th>
+                <th>Bayonet cap Exist</th>
+                <th>Bracket Exist</th>
+                <th>Bracket Open</th>
+                <th>Bracket Closed</th>
+                <th>Latch Wing exist</th>
+                <th>Slider Exist</th>
+                <th>Slider Open</th>
+                <th>Slider Closed</th>
+                <th>Secondary Lock Exist</th>
+                <th>Secondary Lock Open</th>
+                <th>Secondary Lock Closed</th>
 
-            <!-- Fastening (15 champs) -->
-            <th>Offset Test</th>
-            <th>Push Back Test</th>
-            <th>Terminal Orientation</th>
-            <th>Terminal Differentation</th>
-            <th>Airbag test via service window</th>
-            <th>Leak test pressure</th>
-            <th>Leak Test Vacum</th>
-            <th>Seal exist</th>
-            <th>Cable tie Exist</th>
-            <th>Cable tie Left</th>
-            <th>Cable tie Right</th>
-            <th>Cable tie Middle</th>
-            <th>Cable tie (left/right)</th>
-            <th>Clip exist</th>
-            <th>Screw exist</th>
+                <!-- Fastening (15 champs) -->
+                <th>Offset Test</th>
+                <th>Push Back Test</th>
+                <th>Terminal Orientation</th>
+                <th>Terminal Differentation</th>
+                <th>Airbag test via service window</th>
+                <th>Leak test pressure</th>
+                <th>Leak Test Vacum</th>
+                <th>Seal exist</th>
+                <th>Cable tie Exist</th>
+                <th>Cable tie Left</th>
+                <th>Cable tie Right</th>
+                <th>Cable tie Middle</th>
+                <th>Cable tie (left/right)</th>
+                <th>Clip exist</th>
+                <th>Screw exist</th>
 
-            <!-- Cable (19 champs) -->
-            <th>Nut exist</th>
-            <th>Convoluted Conduit Exist</th>
-            <th>Convoluted Conduit Closed</th>
-            <th>Antenna (only presence test)</th>
-            <th>Antenna (only contacting  of shield)</th>
-            <th>Antenna (Contacting of shield and core wire)</th>
-            <th>Ring terminal</th>
-            <th>Diameter inside</th>
-            <th>Diameter outside</th>
-            <th>Single Contact</th>
-            <th>Heat Shrink Exist</th>
-            <th>Open Shunts (Airbag)</th>
-            <th>Flow Test</th>
-            <th>Solid Metal Contour</th>
-            <th>Metal contour Adjustable</th>
-            <th>Grommet Exist</th>
-            <th>Grommet Orientation</th>
-            <th>Cable Channel Exist</th>
-            <th>Cable Channel Closed</th>
-            <th>Colour Detection Prepared</th>
+                <!-- Cable (19 champs) -->
+                <th>Nut exist</th>
+                <th>Convoluted Conduit Exist</th>
+                <th>Convoluted Conduit Closed</th>
+                <th>Antenna (only presence test)</th>
+                <th>Antenna (only contacting of shield)</th>
+                <th>Antenna (Contacting of shield and core wire)</th>
+                <th>Ring terminal</th>
+                <th>Diameter inside</th>
+                <th>Diameter outside</th>
+                <th>Single Contact</th>
+                <th>Heat Shrink Exist</th>
+                <th>Open Shunts (Airbag)</th>
+                <th>Flow Test</th>
+                <th>Solid Metal Contour</th>
+                <th>Metal contour Adjustable</th>
+                <th>Grommet Exist</th>
+                <th>Grommet Orientation</th>
+                <th>Cable Channel Exist</th>
+                <th>Cable Channel Closed</th>
+                <th>Colour Detection Prepared</th>
 
-            <!-- Electrical (40 champs) -->
-            <th>Extra LED</th>
-            <th>Spring</th>
-            <th>Other Detection</th>
-            <th>Spacer Closing Unit</th>
-            <th>Leak Test COMPLEX</th>
-            <th>Pin Straightness Check</th>
-            <th>Presence test of one-side-connected shield</th>
-            <th>Contrast Detection (Grey Value Sensor)</th>
-            <th>Colour Detection</th>
-            <th>Attenuation (with mode scramber)</th>
-            <th>Attenuation (without mode scramber)</th>
-            <th>Insulation Resistance</th>
-            <th>Hight voltage module</th>
-            <th>Kelvin Measurement (HV)</th>
-            <th>Actuator test (HV)</th>
-            <th>Charging System (Electrical)</th>
-            <th>PTU(pipe test Unit)</th>
-            <th>GTU(Grommet test unit)</th>
-            <th>LED(Led test unit)</th>
-            <th>TIG(Terminal insertion Guidance)</th>
-            <th>LIN-Bus Functionality Test</th>
-            <th>CAN-Bus Functionality Test</th>
-            <th>ESD conform module</th>
-            <th>Fixed Block</th>
-            <th>Moving Block</th>
-            <th>Tilt Module</th>
-            <th>Slide Module</th>
-            <th>Hand Adapter</th>
-            <th>LSM(Leoni Smart Module)</th>
-            <th>Leoni Standard Test Table</th>
-            <th>Metal rails fastening system</th>
-            <th>Metal plates fastening system<</th>
-            <th>Quick connection by Canon connector</th>
-            <th>Test Board</th>
-            <th>Weetech</th>
-            <th>BAK</th>
-            <th>OGC</th>
-            <th>Adaptronic (High voltage)</th>
-            <th>EMDEP HV Banana Plug</th>
-            <th>Leoni EMO Standard HV</th>
-            <th>Remarques</th>
+                <!-- Electrical (40 champs) -->
+                <th>Extra LED</th>
+                <th>Spring</th>
+                <th>Other Detection</th>
+                <th>Spacer Closing Unit</th>
+                <th>Leak Test COMPLEX</th>
+                <th>Pin Straightness Check</th>
+                <th>Presence test of one-side-connected shield</th>
+                <th>Contrast Detection (Grey Value Sensor)</th>
+                <th>Colour Detection</th>
+                <th>Attenuation (with mode scramber)</th>
+                <th>Attenuation (without mode scramber)</th>
+                <th>Insulation Resistance</th>
+                <th>Hight voltage module</th>
+                <th>Kelvin Measurement (HV)</th>
+                <th>Actuator test (HV)</th>
+                <th>Charging System (Electrical)</th>
+                <th>PTU(pipe test Unit)</th>
+                <th>GTU(Grommet test unit)</th>
+                <th>LED(Led test unit)</th>
+                <th>TIG(Terminal insertion Guidance)</th>
+                <th>LIN-Bus Functionality Test</th>
+                <th>CAN-Bus Functionality Test</th>
+                <th>ESD conform module</th>
+                <th>Fixed Block</th>
+                <th>Moving Block</th>
+                <th>Tilt Module</th>
+                <th>Slide Module</th>
+                <th>Hand Adapter</th>
+                <th>LSM(Leoni Smart Module)</th>
+                <th>Leoni Standard Test Table</th>
+                <th>Metal rails fastening system</th>
+                <th>Metal plates fastening system</th>
+                <th>Quick connection by Canon connector</th>
+                <th>Test Board</th>
+                <th>Weetech</th>
+                <th>BAK</th>
+                <th>OGC</th>
+                <th>Adaptronic (High voltage)</th>
+                <th>EMDEP HV Banana Plug</th>
+                <th>Leoni EMO Standard HV</th>
+                <th>Remarques</th>
 
-            <!-- Prix -->
-            <th>Unit Price</th>
-            <th>Total price</th>
-            <th>Quantité reçue</th>
+                <!-- Prix -->
+                <th>Unit Price</th>
+                <th>Total price</th>
+<th></th>
+<th></th>
+              </tr>
+            </thead>
 
+            <tbody>
+              <tr *ngFor="let item of chargeSheet.items; let i = index">
+                <!-- Général -->
+                <td class="fw-semibold text-primary">{{ item.itemNumber }}</td>
+                <td>{{ item.samplesExist === 'Yes' ? 'Oui' : 'Non' }}</td>
+                <td>{{ item.ways || '-' }}</td>
+                <td>{{ item.housingColour || '-' }}</td>
+                <td>{{ item.testModuleExistInDatabase === 'Yes' ? 'Oui' : 'Non'
+                  }}</td>
+                <td>{{ item.housingReferenceLeoni || '-' }}</td>
+                <td>{{ item.housingReferenceSupplierCustomer || '-' }}</td>
+                <td>{{ item.referenceSealsClipsCableTiesCap || '-' }}</td>
+                <td>
+                  <div *ngIf="itemImages[item.id!]"
+                    class="position-relative d-inline-block">
+                    <img [src]="itemImages[item.id!]"
+                      alt="Connecteur"
+                      class="img-thumbnail"
+                      style="width: 40px; height: 40px; object-fit: cover; cursor: pointer;"
+                      (click)="openImageModal(itemImages[item.id!])">
+                  </div>
+                  <span *ngIf="!itemImages[item.id!]"
+                    class="text-muted">-</span>
+                </td>
+                <td><span class="badge bg-info">{{ item.quantityOfTestModules ||
+                    0 }}</span></td>
 
-            <!-- Actions -->
-            <th>Actions</th>
-          </tr>
-        </thead>
+                <!-- Housing -->
+                <td>{{ formatFieldValue(item, 'outsideHousingExist') }}</td>
+                <td>{{ formatFieldValue(item, 'insideHousingExist') }}</td>
+                <td>{{ formatFieldValue(item, 'mechanicalCoding') }}</td>
+                <td>{{ formatFieldValue(item, 'electricalCoding') }}</td>
+                <td>{{ formatFieldValue(item, 'cpaExistOpen') }}</td>
+                <td>{{ formatFieldValue(item, 'cpaExistClosed') }}</td>
+                <td>{{ formatFieldValue(item, 'coverHoodExist') }}</td>
+                <td>{{ formatFieldValue(item, 'coverHoodClosed') }}</td>
+                <td>{{ formatFieldValue(item, 'capExist') }}</td>
+                <td>{{ formatFieldValue(item, 'bayonetCapExist') }}</td>
+                <td>{{ formatFieldValue(item, 'bracketExist') }}</td>
+                <td>{{ formatFieldValue(item, 'bracketOpen') }}</td>
+                <td>{{ formatFieldValue(item, 'bracketClosed') }}</td>
+                <td>{{ formatFieldValue(item, 'latchWingExist') }}</td>
+                <td>{{ formatFieldValue(item, 'sliderExist') }}</td>
+                <td>{{ formatFieldValue(item, 'sliderOpen') }}</td>
 
-        <tbody>
-          <tr *ngFor="let item of chargeSheet.items; let i = index">
-            <!-- Général -->
-            <td  class="fw-semibold text-primary">{{ item.itemNumber }}</td>
-            <td>{{ item.samplesExist === 'Yes' ? 'Oui' : 'Non' }}</td>
-            <td>{{ item.ways || '-' }}</td>
-            <td>{{ item.housingColour || '-' }}</td>
-            <td>{{ item.testModuleExistInDatabase === 'Yes' ? 'Oui' : 'Non' }}</td>
-            <td>{{ item.housingReferenceLeoni || '-' }}</td>
-            <td>{{ item.housingReferenceSupplierCustomer || '-' }}</td>
-            <td>{{ item.referenceSealsClipsCableTiesCap || '-' }}</td>
-             <td>
-              <div *ngIf="itemImages[item.id!]" class="position-relative d-inline-block">
-                <img [src]="itemImages[item.id!]"
-                     alt="Connecteur"
-                    class="img-thumbnail" style="width: 40px; height: 40px; object-fit: cover; cursor: pointer;"
-                     (click)="openImageModal(itemImages[item.id!])">
-              </div>
-              <span *ngIf="!itemImages[item.id!]" class="text-muted">-</span>
-            </td>
-            <td><span class="badge bg-info">{{ item.quantityOfTestModules || 0 }}</span></td>
+                <!-- Fastening -->
+                <td>{{ formatFieldValue(item, 'sliderClosed') }}</td>
+                <td>{{ formatFieldValue(item, 'secondaryLockExist') }}</td>
+                <td>{{ formatFieldValue(item, 'secondaryLockOpen') }}</td>
+                <td>{{ formatFieldValue(item, 'secondaryLockClosed') }}</td>
+                <td>{{ formatFieldValue(item, 'offsetTest') }}</td>
+                <td>{{ formatFieldValue(item, 'pushBackTest') }}</td>
+                <td>{{ formatFieldValue(item, 'terminalOrientation') }}</td>
+                <td>{{ formatFieldValue(item, 'terminalDifferentiation') }}</td>
+                <td>{{ formatFieldValue(item, 'airbagTestViaServiceWindow')
+                  }}</td>
+                <td>{{ formatFieldValue(item, 'leakTestPressure') }}</td>
+                <td>{{ formatFieldValue(item, 'leakTestVacuum') }}</td>
+                <td>{{ formatFieldValue(item, 'sealExist') }}</td>
+                <td>{{ formatFieldValue(item, 'cableTieExist') }}</td>
+                <td>{{ formatFieldValue(item, 'cableTieLeft') }}</td>
+                <td>{{ formatFieldValue(item, 'cableTieRight') }}</td>
 
-            <!-- Housing -->
-            <td>{{ formatFieldValue(item, 'outsideHousingExist') }}</td>
-            <td>{{ formatFieldValue(item, 'insideHousingExist') }}</td>
-            <td>{{ formatFieldValue(item, 'mechanicalCoding') }}</td>
-            <td>{{ formatFieldValue(item, 'electricalCoding') }}</td>
-            <td>{{ formatFieldValue(item, 'cpaExistOpen') }}</td>
-            <td>{{ formatFieldValue(item, 'cpaExistClosed') }}</td>
-            <td>{{ formatFieldValue(item, 'coverHoodExist') }}</td>
-            <td>{{ formatFieldValue(item, 'coverHoodClosed') }}</td>
-            <td>{{ formatFieldValue(item, 'capExist') }}</td>
-            <td>{{ formatFieldValue(item, 'bayonetCapExist') }}</td>
-            <td>{{ formatFieldValue(item, 'bracketExist') }}</td>
-            <td>{{ formatFieldValue(item, 'bracketOpen') }}</td>
-            <td>{{ formatFieldValue(item, 'bracketClosed') }}</td>
-            <td>{{ formatFieldValue(item, 'latchWingExist') }}</td>
-            <td>{{ formatFieldValue(item, 'sliderExist') }}</td>
-            <td>{{ formatFieldValue(item, 'sliderOpen') }}</td>
+                <!-- Cable -->
+                <td>{{ formatFieldValue(item, 'cableTieMiddle') }}</td>
+                <td>{{ formatFieldValue(item, 'cableTieLeftRight') }}</td>
+                <td>{{ formatFieldValue(item, 'clipExist') }}</td>
+                <td>{{ formatFieldValue(item, 'screwExist') }}</td>
+                <td>{{ formatFieldValue(item, 'nutExist') }}</td>
+                <td>{{ formatFieldValue(item, 'convolutedConduitExist') }}</td>
+                <td>{{ formatFieldValue(item, 'convolutedConduitClosed') }}</td>
+                <td>{{ formatFieldValue(item, 'antennaOnlyPresenceTest') }}</td>
+                <td>{{ formatFieldValue(item, 'antennaOnlyContactingOfShield')
+                  }}</td>
+                <td>{{ formatFieldValue(item,
+                  'antennaContactingOfShieldAndCoreWire') }}</td>
+                <td>{{ formatFieldValue(item, 'ringTerminal') }}</td>
+                <td>{{ formatFieldValue(item, 'diameterInside') }}</td>
+                <td>{{ formatFieldValue(item, 'diameterOutside') }}</td>
+                <td>{{ formatFieldValue(item, 'singleContact') }}</td>
+                <td>{{ formatFieldValue(item,'heatShrinkExist' )}}</td>
+                <td>{{ formatFieldValue(item, 'openShuntsAirbag') }}</td>
+                <td>{{ formatFieldValue(item, 'flowTest') }}</td>
+                <td>{{ formatFieldValue(item, 'solidMetalContour') }}</td>
+                <td>{{ formatFieldValue(item, 'metalContourAdjustable') }}</td>
+                <td>{{ formatFieldValue(item, 'grommetExist') }}</td>
 
-            <!-- Fastening -->
-            <td>{{ formatFieldValue(item, 'sliderClosed') }}</td>
-            <td>{{ formatFieldValue(item, 'secondaryLockExist') }}</td>
-            <td>{{ formatFieldValue(item, 'secondaryLockOpen') }}</td>
-            <td>{{ formatFieldValue(item, 'secondaryLockClosed') }}</td>
-            <td>{{ formatFieldValue(item, 'offsetTest') }}</td>
-            <td>{{ formatFieldValue(item, 'pushBackTest') }}</td>
-            <td>{{ formatFieldValue(item, 'terminalOrientation') }}</td>
-            <td>{{ formatFieldValue(item, 'terminalDifferentiation') }}</td>
-            <td>{{ formatFieldValue(item, 'airbagTestViaServiceWindow') }}</td>
-            <td>{{ formatFieldValue(item, 'leakTestPressure') }}</td>
-            <td>{{ formatFieldValue(item, 'leakTestVacuum') }}</td>
-            <td>{{ formatFieldValue(item, 'sealExist') }}</td>
-            <td>{{ formatFieldValue(item, 'cableTieExist') }}</td>
-            <td>{{ formatFieldValue(item, 'cableTieLeft') }}</td>
-            <td>{{ formatFieldValue(item, 'cableTieRight') }}</td>
+                <!-- Electrical -->
+                <td>{{ formatFieldValue(item, 'grommetOrientation') }}</td>
+                <td>{{ formatFieldValue(item, 'cableChannelExist') }}</td>
+                <td>{{ formatFieldValue(item, 'cableChannelClosed') }}</td>
+                <td>{{ formatFieldValue(item, 'colourDetectionPrepared') }}</td>
+                <td>{{ formatFieldValue(item, 'extraLED') }}</td>
+                <td>{{ formatFieldValue(item, 'spring') }}</td>
+                <td>{{ formatFieldValue(item, 'otherDetection') }}</td>
+                <td>{{ formatFieldValue(item, 'spacerClosingUnit') }}</td>
+                <td>{{ formatFieldValue(item, 'leakTestComplex') }}</td>
+                <td>{{ formatFieldValue(item, 'pinStraightnessCheck') }}</td>
+                <td>{{ formatFieldValue(item,
+                  'presenceTestOfOneSideConnectedShield') }}</td>
+                <td>{{ formatFieldValue(item,
+                  'contrastDetectionGreyValueSensor') }}</td>
+                <td>{{ formatFieldValue(item, 'colourDetection') }}</td>
+                <td>{{ formatFieldValue(item, 'attenuationWithModeScrambler')
+                  }}</td>
+                <td>{{ formatFieldValue(item, 'attenuationWithoutModeScrambler')
+                  }}</td>
+                <td>{{ formatFieldValue(item, 'insulationResistance') }}</td>
+                <td>{{ formatFieldValue(item, 'highVoltageModule') }}</td>
+                <td>{{ formatFieldValue(item, 'kelvinMeasurementHV') }}</td>
+                <td>{{ formatFieldValue(item, 'actuatorTestHV') }}</td>
+                <td>{{ formatFieldValue(item, 'chargingSystemElectrical')
+                  }}</td>
+                <td>{{ formatFieldValue(item, 'ptuPipeTestUnit') }}</td>
+                <td>{{ formatFieldValue(item, 'gtuGrommetTestUnit') }}</td>
+                <td>{{ formatFieldValue(item, 'ledLEDTestModule') }}</td>
+                <td>{{ formatFieldValue(item, 'tigTerminalInsertionGuidance')
+                  }}</td>
+                <td>{{ formatFieldValue(item, 'linBusFunctionalityTest') }}</td>
+                <td>{{ formatFieldValue(item, 'canBusFunctionalityTest') }}</td>
+                <td>{{ formatFieldValue(item, 'esdConformModule') }}</td>
+                <td>{{ formatFieldValue(item, 'fixedBlock') }}</td>
+                <td>{{ formatFieldValue(item, 'movingBlock') }}</td>
+                <td>{{ formatFieldValue(item, 'tiltModule') }}</td>
+                <td>{{ formatFieldValue(item, 'slideModule') }}</td>
+                <td>{{ formatFieldValue(item, 'handAdapter') }}</td>
+                <td>{{ formatFieldValue(item,'lsmLeoniSmartModule')}}</td>
+                <td>{{ formatFieldValue(item, 'leoniStandardTestTable') }}</td>
+                <td>{{ formatFieldValue(item, 'metalRailsFasteningSystem')
+                  }}</td>
+                <td>{{ formatFieldValue(item, 'metalPlatesFasteningSystem')
+                  }}</td>
+                <td>{{ formatFieldValue(item, 'quickConnectionByCanonConnector')
+                  }}</td>
+                <td>{{ formatFieldValue(item, 'testBoard') }}</td>
+                <td>{{ formatFieldValue(item, 'weetech') }}</td>
+                <td>{{ formatFieldValue(item, 'bak') }}</td>
+                <td>{{ formatFieldValue(item, 'ogc') }}</td>
+                <td>{{ formatFieldValue(item, 'adaptronicHighVoltage') }}</td>
+                <td>{{ formatFieldValue(item, 'emdepHVBananaPlug') }}</td>
+                <td>{{ formatFieldValue(item, 'leoniEMOStandardHV') }}</td>
+                <td class="remarks-cell">
+                  <span class="remarks-text">{{
+                    formatFieldValue(item,'clipOrientation') }}</span>
+                </td>
 
-            <!-- Cable -->
-            <td>{{ formatFieldValue(item, 'cableTieMiddle') }}</td>
-            <td>{{ formatFieldValue(item, 'cableTieLeftRight') }}</td>
-            <td>{{ formatFieldValue(item, 'clipExist') }}</td>
-            <td>{{ formatFieldValue(item, 'screwExist') }}</td>
-            <td>{{ formatFieldValue(item, 'nutExist') }}</td>
-            <td>{{ formatFieldValue(item, 'convolutedConduitExist') }}</td>
-            <td>{{ formatFieldValue(item, 'convolutedConduitClosed') }}</td>
-            <td>{{ formatFieldValue(item, 'antennaOnlyPresenceTest') }}</td>
-            <td>{{ formatFieldValue(item, 'antennaOnlyContactingOfShield') }}</td>
-            <td>{{ formatFieldValue(item, 'antennaContactingOfShieldAndCoreWire') }}</td>
-            <td>{{ formatFieldValue(item, 'ringTerminal') }}</td>
-            <td>{{ formatFieldValue(item, 'diameterInside') }}</td>
-            <td>{{ formatFieldValue(item, 'diameterOutside') }}</td>
-            <td>{{ formatFieldValue(item, 'singleContact') }}</td>
-            <td>{{ formatFieldValue(item,'heatShrinkExist' )}}</td>
-            <td>{{ formatFieldValue(item, 'openShuntsAirbag') }}</td>
-            <td>{{ formatFieldValue(item, 'flowTest') }}</td>
-            <td>{{ formatFieldValue(item, 'solidMetalContour') }}</td>
-            <td>{{ formatFieldValue(item, 'metalContourAdjustable') }}</td>
-            <td>{{ formatFieldValue(item, 'grommetExist') }}</td>
+                <!-- Prix -->
+                <td>{{ item.unitPrice ? (item.unitPrice | number:'1.2-2') : '-'
+                  }}</td>
+                <td>{{ item.totalPrice ? (item.totalPrice | number:'1.2-2') :
+                  '-' }}</td>
 
-            <!-- Electrical -->
-            <td>{{ formatFieldValue(item, 'grommetOrientation') }}</td>
-            <td>{{ formatFieldValue(item, 'cableChannelExist') }}</td>
-            <td>{{ formatFieldValue(item, 'cableChannelClosed') }}</td>
-            <td>{{ formatFieldValue(item, 'colourDetectionPrepared') }}</td>
-            <td>{{ formatFieldValue(item, 'extraLED') }}</td>
-            <td>{{ formatFieldValue(item, 'spring') }}</td>
-            <td>{{ formatFieldValue(item, 'otherDetection') }}</td>
-            <td>{{ formatFieldValue(item, 'spacerClosingUnit') }}</td>
-            <td>{{ formatFieldValue(item, 'leakTestComplex') }}</td>
-            <td>{{ formatFieldValue(item, 'pinStraightnessCheck') }}</td>
-            <td>{{ formatFieldValue(item, 'presenceTestOfOneSideConnectedShield') }}</td>
-            <td>{{ formatFieldValue(item, 'contrastDetectionGreyValueSensor') }}</td>
-            <td>{{ formatFieldValue(item, 'colourDetection') }}</td>
-            <td>{{ formatFieldValue(item, 'attenuationWithModeScrambler') }}</td>
-            <td>{{ formatFieldValue(item, 'attenuationWithoutModeScrambler') }}</td>
-            <td>{{ formatFieldValue(item, 'insulationResistance') }}</td>
-            <td>{{ formatFieldValue(item, 'highVoltageModule') }}</td>
-            <td>{{ formatFieldValue(item, 'kelvinMeasurementHV') }}</td>
-            <td>{{ formatFieldValue(item, 'actuatorTestHV') }}</td>
-            <td>{{ formatFieldValue(item, 'chargingSystemElectrical') }}</td>
-            <td>{{ formatFieldValue(item, 'ptuPipeTestUnit') }}</td>
-            <td>{{ formatFieldValue(item, 'gtuGrommetTestUnit') }}</td>
-            <td>{{ formatFieldValue(item, 'ledLEDTestModule') }}</td>
-            <td>{{ formatFieldValue(item, 'tigTerminalInsertionGuidance') }}</td>
-            <td>{{ formatFieldValue(item, 'linBusFunctionalityTest') }}</td>
-            <td>{{ formatFieldValue(item, 'canBusFunctionalityTest') }}</td>
-            <td>{{ formatFieldValue(item, 'esdConformModule') }}</td>
-            <td>{{ formatFieldValue(item, 'fixedBlock') }}</td>
-            <td>{{ formatFieldValue(item, 'movingBlock') }}</td>
-            <td>{{ formatFieldValue(item, 'tiltModule') }}</td>
-            <td>{{ formatFieldValue(item, 'slideModule') }}</td>
-            <td>{{ formatFieldValue(item, 'handAdapter') }}</td>
-            <td>{{ formatFieldValue(item,'lsmLeoniSmartModule')}}</td>
-            <td>{{ formatFieldValue(item, 'leoniStandardTestTable') }}</td>
-            <td>{{ formatFieldValue(item, 'metalRailsFasteningSystem') }}</td>
-            <td>{{ formatFieldValue(item, 'metalPlatesFasteningSystem') }}</td>
-            <td>{{ formatFieldValue(item, 'quickConnectionByCanonConnector') }}</td>
-            <td>{{ formatFieldValue(item, 'testBoard') }}</td>
-            <td>{{ formatFieldValue(item, 'weetech') }}</td>
-            <td>{{ formatFieldValue(item, 'bak') }}</td>
-            <td>{{ formatFieldValue(item, 'ogc') }}</td>
-            <td>{{ formatFieldValue(item, 'adaptronicHighVoltage') }}</td>
-            <td>{{ formatFieldValue(item, 'emdepHVBananaPlug') }}</td>
-            <td>{{ formatFieldValue(item, 'leoniEMOStandardHV') }}</td>
-           <td class="remarks-cell">
-  <span class="remarks-text">{{ formatFieldValue(item,'clipOrientation') }}</span>
-</td>
-
-            <!-- Prix -->
-            <td>{{ item.unitPrice ? (item.unitPrice | number:'1.2-2') : '-' }}</td>
-            <td>{{ item.totalPrice ? (item.totalPrice | number:'1.2-2') : '-' }}</td>
-
-            <td class="text-center">
-  <span *ngIf="item.id" class="badge"
-        [ngClass]="getReceivedQuantity(item.id) === 0 ? 'bg-danger' :
+                <td class="text-center">
+                  <span *ngIf="item.id" class="badge"
+                    [ngClass]="getReceivedQuantity(item.id) === 0 ? 'bg-danger' :
                    (getReceivedQuantity(item.id) >= (item.quantityOfTestModules || 0) ? 'bg-success' : 'bg-warning')">
-    {{ getReceivedQuantity(item.id) }} / {{ item.quantityOfTestModules || 0 }}
-  </span>
-  <span *ngIf="!item.id" class="badge bg-secondary">-</span>
-</td>
+                    {{ getReceivedQuantity(item.id) }} / {{
+                    item.quantityOfTestModules || 0 }}
+                  </span>
+                  <span *ngIf="!item.id" class="badge bg-secondary">-</span>
+                </td>
 
+                <!-- Actions -->
+                <td class="actions-cell">
+                  <div class="btn-group btn-group-sm">
+                    <button *ngIf="canCreateCompliance && item.id"
+                      class="btn btn-outline-success"
+                      [class.btn-warning]="hasExistingCompliance(item.id)"
+                      [title]="hasExistingCompliance(item.id) ? 'Des fiches existent déjà' : 'Créer fiche de conformité'"
+                      (click)="goToCreateConforme(item)">
+                      <i class="bi"
+                        [ngClass]="hasExistingCompliance(item.id) ? 'bi-exclamation-triangle' : 'bi-file-earmark-check'"></i>
+                    </button>
 
-            <!-- Actions -->
-<td class="actions-cell">
-   <div class="btn-group btn-group-sm">
-    <button *ngIf="canCreateCompliance && item.id"
-            class="btn btn-outline-success"
-            [class.btn-warning]="hasExistingCompliance(item.id)"
-            [title]="hasExistingCompliance(item.id) ? 'Des fiches existent déjà' : 'Créer fiche de conformité'"
-            (click)="goToCreateConforme(item)">
-       <i class="bi" [ngClass]="hasExistingCompliance(item.id) ? 'bi-exclamation-triangle' : 'bi-file-earmark-check'"></i>
-    </button>
+                    <!-- Dans le template, modifiez le bouton du dossier technique -->
+                    <!-- Dans le template, remplacez les boutons du dossier technique par ceci : -->
+                    <div class="btn-group"
+                      *ngIf="canCreatetechnicalfile && item.id">
+                      <button class="btn btn-outline-warning"
+                        (click)="createNewTechnicalFile(item)"
+                        title="Nouveau dossier"
+                        [disabled]="getReceivedQuantity(item.id!) !== (item.quantityOfTestModules || 0)">
+                        <i class="bi bi-plus-circle"></i>
+                      </button>
+                      <button class="btn btn-outline-info"
+                        (click)="openAddToExistingModal(item)"
+                        title="Ajouter à dossier existant"
+                        [disabled]="getReceivedQuantity(item.id!) !== (item.quantityOfTestModules || 0)">
+                        <i class="bi bi-folder-plus"></i>
+                      </button>
 
-   <!-- Dans le template, modifiez le bouton du dossier technique -->
-<!-- Dans le template, remplacez les boutons du dossier technique par ceci : -->
-<div class="btn-group" *ngIf="canCreatetechnicalfile && item.id">
-  <button class="btn btn-outline-warning"
-          (click)="createNewTechnicalFile(item)"
-          title="Nouveau dossier"
-          [disabled]="getReceivedQuantity(item.id!) !== (item.quantityOfTestModules || 0)">
-    <i class="bi bi-plus-circle"></i>
-  </button>
-  <button class="btn btn-outline-info"
-          (click)="openAddToExistingModal(item)"
-          title="Ajouter à dossier existant"
-          [disabled]="getReceivedQuantity(item.id!) !== (item.quantityOfTestModules || 0)">
-    <i class="bi bi-folder-plus"></i>
-  </button>
-</div>
-                    <button class="btn btn-outline-secondary" [routerLink]="['/charge-sheets', chargeSheetId, 'receptions']" [queryParams]="{ itemId: item.id }" title="Historique réceptions">
+                    <button class="btn btn-outline-secondary"
+                      [routerLink]="['/charge-sheets', chargeSheetId, 'receptions']"
+                      [queryParams]="{ itemId: item.id }"
+                      title="Historique réceptions">
                       <i class="bi bi-truck"></i>
                     </button>
+                  </div>
                     <button *ngIf="canCreateClaim"
-            class="btn btn-outline-danger"
-            [routerLink]="['/claims/create']"
-            [queryParams]="{
+                      class="btn btn-outline-danger"
+                      [routerLink]="['/claims/create']"
+                      [queryParams]="{
               chargeSheetId: chargeSheetId,
               relatedTo: 'CHARGE_SHEET',
               relatedId: item.id
             }"
-            title="Créer une réclamation">
-      <i class="bi bi-exclamation-diamond"></i>
-    </button>
+                      title="Créer une réclamation">
+                      <i class="bi bi-exclamation-diamond"></i>
+                    </button>
                   </div>
                 </td>
 
-          </tr>
-        </tbody>
-      </table>
-       <ng-template #noItems>
-      <div class="text-center py-5">
-        <div class="card border-0 shadow-sm">
-          <div class="card-body py-5">
-            <i class="bi bi-inbox display-1 text-muted"></i>
-            <h3 class="mt-3 text-muted">Aucun item</h3>
-            <p class="text-muted">Ce cahier des charges ne contient aucun item.</p>
-          </div>
+              </tr>
+            </tbody>
+          </table>
+          <ng-template #noItems>
+            <div class="text-center py-5">
+              <div class="card border-0 shadow-sm">
+                <div class="card-body py-5">
+                  <i class="bi bi-inbox display-1 text-muted"></i>
+                  <h3 class="mt-3 text-muted">Aucun item</h3>
+                  <p class="text-muted">Ce cahier des charges ne contient aucun
+                    item.</p>
+                </div>
+              </div>
+            </div>
+          </ng-template>
+        </div>
+
+        <!-- Modal pour sélectionner un dossier existant -->
+        <div class="modal" [class.show]="showModal" *ngIf="showModal">
+          <!-- ... (contenu de la modal inchangé) ... -->
         </div>
       </div>
-    </ng-template>
-    </div>
+      <!-- Modal pour ajouter à un dossier existant -->
+      <div class="modal" [class.show]="showModal" *ngIf="showModal"
+        style="display: block; background: rgba(0,0,0,0.5); position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1050;">
+        <div class="modal-dialog modal-xl"
+          style="margin: 2rem auto; max-width: 1400px;">
+          <div class="modal-content"
+            style="background: white; border-radius: 12px; overflow: hidden;">
 
+            <!-- En-tête -->
+            <div class="modal-header"
+              style="padding: 1rem 1.5rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+              <h5 class="modal-title"
+                style="margin: 0; font-size: 1.2rem; color: #1e293b;">
+                <i class="bi bi-folder-plus"
+                  style="margin-right: 0.5rem; color: #3498db;"></i>
+                Ajouter l'item {{ currentItem?.housingReferenceLeoni }} à un
+                dossier existant
+              </h5>
+              <button type="button" class="btn-close" (click)="closeModal()"
+                style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">×</button>
+            </div>
 
-  <!-- Modal pour sélectionner un dossier existant -->
-  <div class="modal" [class.show]="showModal" *ngIf="showModal">
-    <!-- ... (contenu de la modal inchangé) ... -->
-  </div>
-</div>
-<!-- Modal pour ajouter à un dossier existant -->
-<div class="modal" [class.show]="showModal" *ngIf="showModal" style="display: block; background: rgba(0,0,0,0.5); position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1050;">
-  <div class="modal-dialog modal-xl" style="margin: 2rem auto; max-width: 1400px;">
-    <div class="modal-content" style="background: white; border-radius: 12px; overflow: hidden;">
+            <!-- Corps de la modal -->
+            <div class="modal-body"
+              style="padding: 1.5rem; max-height: 80vh; overflow-y: auto;">
 
-      <!-- En-tête -->
-      <div class="modal-header" style="padding: 1rem 1.5rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
-        <h5 class="modal-title" style="margin: 0; font-size: 1.2rem; color: #1e293b;">
-          <i class="bi bi-folder-plus" style="margin-right: 0.5rem; color: #3498db;"></i>
-          Ajouter l'item {{ currentItem?.housingReferenceLeoni }} à un dossier existant
-        </h5>
-        <button type="button" class="btn-close" (click)="closeModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">×</button>
-      </div>
+              <!-- Étape 1: Sélection du dossier -->
+              <div style="margin-bottom: 2rem;">
+                <h6
+                  style="margin-bottom: 1rem; color: #2c3e50; font-weight: 600;">
+                  <span
+                    style="background: #3498db; color: white; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; margin-right: 0.5rem; font-size: 0.9rem;">1</span>
+                  Sélectionner un dossier
+                </h6>
 
-      <!-- Corps de la modal -->
-      <div class="modal-body" style="padding: 1.5rem; max-height: 80vh; overflow-y: auto;">
+                <div *ngIf="availableTechnicalFiles.length === 0"
+                  class="text-center p-4"
+                  style="background: #f8fafc; border-radius: 8px;">
+                  <i class="bi bi-folder"
+                    style="font-size: 3rem; color: #94a3b8;"></i>
+                  <p class="mt-2" style="color: #64748b;">Aucun dossier
+                    technique disponible</p>
+                  <button class="btn btn-primary"
+                    (click)="createNewTechnicalFile(currentItem!)"
+                    style="background: #3498db;">
+                    <i class="bi bi-plus-circle"></i> Créer un nouveau dossier
+                  </button>
+                </div>
 
-        <!-- Étape 1: Sélection du dossier -->
-        <div style="margin-bottom: 2rem;">
-          <h6 style="margin-bottom: 1rem; color: #2c3e50; font-weight: 600;">
-            <span style="background: #3498db; color: white; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; margin-right: 0.5rem; font-size: 0.9rem;">1</span>
-            Sélectionner un dossier
-          </h6>
-
-          <div *ngIf="availableTechnicalFiles.length === 0" class="text-center p-4" style="background: #f8fafc; border-radius: 8px;">
-            <i class="bi bi-folder" style="font-size: 3rem; color: #94a3b8;"></i>
-            <p class="mt-2" style="color: #64748b;">Aucun dossier technique disponible</p>
-            <button class="btn btn-primary" (click)="createNewTechnicalFile(currentItem!)" style="background: #3498db;">
-              <i class="bi bi-plus-circle"></i> Créer un nouveau dossier
-            </button>
-          </div>
-
-          <div *ngIf="availableTechnicalFiles.length > 0" style="display: flex; flex-direction: column; gap: 0.75rem; max-height: 250px; overflow-y: auto;">
-            <div *ngFor="let file of availableTechnicalFiles"
-                 (click)="selectedTechnicalFileId = file.id"
-                 style="display: flex; gap: 1rem; padding: 1rem; border: 2px solid; border-color: {{ selectedTechnicalFileId === file.id ? '#3498db' : '#e2e8f0' }}; border-radius: 8px; cursor: pointer; background: white;">
-              <div>
-                <input type="radio"
-                       name="technicalFile"
-                       [value]="file.id"
-                       [checked]="selectedTechnicalFileId === file.id"
-                       (change)="selectedTechnicalFileId = file.id"
-                       style="width: 18px; height: 18px;">
+                <div *ngIf="availableTechnicalFiles.length > 0"
+                  style="display: flex; flex-direction: column; gap: 0.75rem; max-height: 250px; overflow-y: auto;">
+                  <div *ngFor="let file of availableTechnicalFiles"
+                    (click)="selectedTechnicalFileId = file.id"
+                    style="display: flex; gap: 1rem; padding: 1rem; border: 2px solid; border-color: {{ selectedTechnicalFileId === file.id ? '#3498db' : '#e2e8f0' }}; border-radius: 8px; cursor: pointer; background: white;">
+                    <div>
+                      <input type="radio"
+                        name="technicalFile"
+                        [value]="file.id"
+                        [checked]="selectedTechnicalFileId === file.id"
+                        (change)="selectedTechnicalFileId = file.id"
+                        style="width: 18px; height: 18px;">
+                    </div>
+                    <div style="flex: 1;">
+                      <div
+                        style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="font-weight: 600; color: #3498db;">{{
+                          file.id }}</span>
+                      </div>
+                      <div
+                        style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; font-size: 0.9rem;">
+                        <span><strong>Réf:</strong> {{ file.reference || '-'
+                          }}</span>
+                        <span><strong>Items:</strong> {{ file.itemCount || 0
+                          }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div style="flex: 1;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                  <span style="font-weight: 600; color: #3498db;">{{ file.id }}</span>
-                </div>
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; font-size: 0.9rem;">
-                  <span><strong>Réf:</strong> {{ file.reference || '-' }}</span>
-                  <span><strong>Items:</strong> {{ file.itemCount || 0 }}</span>
-                </div>
+
+              <!-- Étape 2: Formulaire (visible seulement si un dossier est sélectionné) -->
+              <div *ngIf="selectedTechnicalFileId"
+                style="border-top: 1px solid #e2e8f0; padding-top: 1.5rem;">
+                <h6
+                  style="margin-bottom: 1rem; color: #2c3e50; font-weight: 600;">
+                  <span
+                    style="background: #3498db; color: white; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; margin-right: 0.5rem; font-size: 0.9rem;">2</span>
+                  Saisir les valeurs pour l'item {{
+                  currentItem?.housingReferenceLeoni }}
+                </h6>
+
+                <form [formGroup]="itemForm">
+                  <div
+                    style="overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
+                    <table
+                      style="width: 100%; border-collapse: collapse; font-size: 0.85rem; table-layout: fixed; min-width: 1600px;">
+                      <thead>
+                        <tr style="background: #f1f5f9;">
+                          <th rowspan="2"
+                            style="width: 100px; padding: 0.9rem; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle;">Position</th>
+                          <th rowspan="2"
+                            style="width: 150px; padding: 0.9rem; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle;">Date
+                            d'entretien</th>
+                          <th rowspan="2"
+                            style="width: 200px; padding: 0.9rem; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle;">Nom
+                            du Technicien</th>
+                          <th rowspan="2"
+                            style="width: 80px; padding: 0.9rem; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle;">X_Code</th>
+                          <th rowspan="2"
+                            style="width: 250px; padding: 0.9rem; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle;">Numéro
+                            de référence Leoni</th>
+                          <th rowspan="2"
+                            style="width: 90px; padding: 0.9rem; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle;">Index</th>
+                          <th rowspan="2"
+                            style="width: 90px; padding: 0.9rem; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle;">Producer</th>
+                          <th rowspan="2"
+                            style="width: 90px; padding: 0.9rem; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle;">Type</th>
+                          <th rowspan="2"
+                            style="width: 250px; padding: 0.9rem; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle;">Reference
+                            pine Push Back</th>
+                          <th colspan="3"
+                            style="width: 180px; padding: 0.9rem; border: 1px solid #e2e8f0; background: #cbd5e1; text-align: center;">Raideur
+                            des pins</th>
+                          <th colspan="3"
+                            style="width: 250px; padding: 0.9rem; border: 1px solid #e2e8f0; background: #cbd5e1; text-align: center;">Déplacement
+                            path (pour Push Back)</th>
+                          <th colspan="3"
+                            style="width: 200px; padding: 0.9rem; border: 1px solid #e2e8f0; background: #cbd5e1; text-align: center;">Valeur
+                            maximale d'étanchéité</th>
+                          <th colspan="3"
+                            style="width: 200px; padding: 0.9rem; border: 1px solid #e2e8f0; background: #cbd5e1; text-align: center;">Valeur
+                            d'étanchéité programmée</th>
+                          <th colspan="3"
+                            style="width: 200px; padding: 0.9rem; border: 1px solid #e2e8f0; background: #cbd5e1; text-align: center;">Les
+                            Détections</th>
+                          <th rowspan="2"
+                            style="width: 200px; padding: 0.9rem; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle;">Remarques</th>
+                        </tr>
+                        <tr style="background: #e2e8f0;">
+                          <th
+                            style="width: 60px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M1</th>
+                          <th
+                            style="width: 60px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M2</th>
+                          <th
+                            style="width: 60px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M3</th>
+                          <th
+                            style="width: 66px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M1</th>
+                          <th
+                            style="width: 67px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M2</th>
+                          <th
+                            style="width: 67px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M3</th>
+                          <th
+                            style="width: 66px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M1</th>
+                          <th
+                            style="width: 67px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M2</th>
+                          <th
+                            style="width: 67px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M3</th>
+                          <th
+                            style="width: 66px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M1</th>
+                          <th
+                            style="width: 67px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M2</th>
+                          <th
+                            style="width: 67px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M3</th>
+                          <th
+                            style="width: 60px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M1</th>
+                          <th
+                            style="width: 60px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M2</th>
+                          <th
+                            style="width: 60px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M3</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td
+                            style="padding: 0.8rem; border: 1px solid #e2e8f0;">
+                            <input type="text" formControlName="position"
+                              placeholder="Position"
+                              style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box;">
+                          </td>
+                          <td
+                            style="padding: 0.8rem; border: 1px solid #e2e8f0;">
+                            <input type="date" formControlName="maintenanceDate"
+                              style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box;">
+                          </td>
+                          <td
+                            style="padding: 0.8rem; border: 1px solid #e2e8f0;">
+                            <input type="text" formControlName="technicianName"
+                              style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box;"
+                              readonly>
+                          </td>
+                          <td
+                            style="padding: 0.8rem; border: 1px solid #e2e8f0;">
+                            <input type="text" formControlName="xCode"
+                              placeholder="X12345"
+                              style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box;">
+                          </td>
+                          <td
+                            style="padding: 0.8rem; border: 1px solid #e2e8f0;">
+                            <input type="text"
+                              formControlName="leoniReferenceNumber"
+                              placeholder="LEO-001"
+                              style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box;"
+                              readonly>
+                          </td>
+                          <td
+                            style="padding: 0.8rem; border: 1px solid #e2e8f0;">
+                            <input type="text" formControlName="indexValue"
+                              placeholder="01"
+                              style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;"
+                              readonly>
+                          </td>
+                          <td
+                            style="padding: 0.8rem; border: 1px solid #e2e8f0;">
+                            <input type="text" formControlName="producer"
+                              placeholder="N/T"
+                              style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;"
+                              readonly>
+                          </td>
+                          <td
+                            style="padding: 0.8rem; border: 1px solid #e2e8f0;">
+                            <input type="text" formControlName="type"
+                              placeholder="T/F"
+                              style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;"
+                              readonly>
+                          </td>
+                          <td
+                            style="padding: 0.8rem; border: 1px solid #e2e8f0;">
+                            <input type="text"
+                              formControlName="referencePinePushBack"
+                              placeholder="REF-PB"
+                              style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box;">
+                          </td>
+                          <td
+                            style="padding: 0.8rem; border: 1px solid #e2e8f0;">
+                            <input type="text" formControlName="pinRigidityM1"
+                              placeholder="0.0 N"
+                              style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
+                          </td>
+                          <td
+                            style="padding: 0.8rem; border: 1px solid #e2e8f0;">
+                            <input type="text" formControlName="pinRigidityM2"
+                              placeholder="0.0 N"
+                              style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
+                          </td>
+                          <td
+                            style="padding: 0.8rem; border: 1px solid #e2e8f0;">
+                            <input type="text" formControlName="pinRigidityM3"
+                              placeholder="0.0 N"
+                              style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
+                          </td>
+                          <td
+                            style="padding: 0.8rem; border: 1px solid #e2e8f0;">
+                            <input type="text"
+                              formControlName="displacementPathM1"
+                              placeholder="0.0 mm"
+                              style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
+                          </td>
+                          <td
+                            style="padding: 0.8rem; border: 1px solid #e2e8f0;">
+                            <input type="text"
+                              formControlName="displacementPathM2"
+                              placeholder="0.0 mm"
+                              style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
+                          </td>
+                          <td
+                            style="padding: 0.8rem; border: 1px solid #e2e8f0;">
+                            <input type="text"
+                              formControlName="displacementPathM3"
+                              placeholder="0.0 mm"
+                              style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
+                          </td>
+                          <td
+                            style="padding: 0.8rem; border: 1px solid #e2e8f0;">
+                            <input type="text"
+                              formControlName="maxSealingValueM1"
+                              placeholder="mbar"
+                              style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
+                          </td>
+                          <td
+                            style="padding: 0.8rem; border: 1px solid #e2e8f0;">
+                            <input type="text"
+                              formControlName="maxSealingValueM2"
+                              placeholder="mbar"
+                              style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
+                          </td>
+                          <td
+                            style="padding: 0.8rem; border: 1px solid #e2e8f0;">
+                            <input type="text"
+                              formControlName="maxSealingValueM3"
+                              placeholder="mbar"
+                              style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
+                          </td>
+                          <td
+                            style="padding: 0.8rem; border: 1px solid #e2e8f0;">
+                            <input type="text"
+                              formControlName="programmedSealingValueM1"
+                              placeholder="mbar"
+                              style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
+                          </td>
+                          <td
+                            style="padding: 0.8rem; border: 1px solid #e2e8f0;">
+                            <input type="text"
+                              formControlName="programmedSealingValueM2"
+                              placeholder="mbar"
+                              style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
+                          </td>
+                          <td
+                            style="padding: 0.8rem; border: 1px solid #e2e8f0;">
+                            <input type="text"
+                              formControlName="programmedSealingValueM3"
+                              placeholder="mbar"
+                              style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
+                          </td>
+                          <td
+                            style="padding: 0.8rem; border: 1px solid #e2e8f0;">
+                            <input type="text" formControlName="detectionsM1"
+                              placeholder="Activé/Désactivé"
+                              style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
+                          </td>
+                          <td
+                            style="padding: 0.8rem; border: 1px solid #e2e8f0;">
+                            <input type="text" formControlName="detectionsM2"
+                              placeholder="Activé/Désactivé"
+                              style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
+                          </td>
+                          <td
+                            style="padding: 0.8rem; border: 1px solid #e2e8f0;">
+                            <input type="text" formControlName="detectionsM3"
+                              placeholder="Activé/Désactivé"
+                              style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
+                          </td>
+                          <td
+                            style="padding: 0.8rem; border: 1px solid #e2e8f0;">
+                            <input type="text" formControlName="remarks"
+                              placeholder="Remarques..."
+                              style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box;">
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <!-- Boutons -->
+                  <div
+                    style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="button" class="btn-cancel"
+                      (click)="closeModal()"
+                      style="padding: 0.6rem 1.2rem; border: 1px solid #cbd5e1; background: white; border-radius: 8px; cursor: pointer;">
+                      Annuler
+                    </button>
+                    <button type="button" class="btn-save"
+                      (click)="addToExistingTechnicalFile()"
+                      [disabled]="itemForm.invalid"
+                      style="padding: 0.6rem 1.2rem; background: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                      Ajouter
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
         </div>
-
-        <!-- Étape 2: Formulaire (visible seulement si un dossier est sélectionné) -->
-        <div *ngIf="selectedTechnicalFileId" style="border-top: 1px solid #e2e8f0; padding-top: 1.5rem;">
-          <h6 style="margin-bottom: 1rem; color: #2c3e50; font-weight: 600;">
-            <span style="background: #3498db; color: white; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; margin-right: 0.5rem; font-size: 0.9rem;">2</span>
-            Saisir les valeurs pour l'item {{ currentItem?.housingReferenceLeoni  }}
-          </h6>
-
-     <form [formGroup]="itemForm">
-      <div style="overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
-        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; table-layout: fixed; min-width: 1600px;">
-          <thead>
-            <tr style="background: #f1f5f9;">
-              <th rowspan="2" style="width: 100px; padding: 0.9rem; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle;">Position</th>
-              <th rowspan="2" style="width: 150px; padding: 0.9rem; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle;">Date d'entretien</th>
-              <th rowspan="2" style="width: 200px; padding: 0.9rem; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle;">Nom du Technicien</th>
-              <th rowspan="2" style="width: 80px; padding: 0.9rem; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle;">X_Code</th>
-              <th rowspan="2" style="width: 250px; padding: 0.9rem; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle;">Numéro de référence Leoni</th>
-              <th rowspan="2" style="width: 90px; padding: 0.9rem; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle;">Index</th>
-              <th rowspan="2" style="width: 90px; padding: 0.9rem; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle;">Producer</th>
-              <th rowspan="2" style="width: 90px; padding: 0.9rem; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle;">Type</th>
-              <th rowspan="2" style="width: 250px; padding: 0.9rem; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle;">Reference pine Push Back</th>
-              <th colspan="3" style="width: 180px; padding: 0.9rem; border: 1px solid #e2e8f0; background: #cbd5e1; text-align: center;">Raideur des pins</th>
-              <th colspan="3" style="width: 250px; padding: 0.9rem; border: 1px solid #e2e8f0; background: #cbd5e1; text-align: center;">Déplacement path (pour Push Back)</th>
-              <th colspan="3" style="width: 200px; padding: 0.9rem; border: 1px solid #e2e8f0; background: #cbd5e1; text-align: center;">Valeur maximale d'étanchéité</th>
-              <th colspan="3" style="width: 200px; padding: 0.9rem; border: 1px solid #e2e8f0; background: #cbd5e1; text-align: center;">Valeur d'étanchéité programmée</th>
-              <th colspan="3" style="width: 200px; padding: 0.9rem; border: 1px solid #e2e8f0; background: #cbd5e1; text-align: center;">Les Détections</th>
-              <th rowspan="2" style="width: 200px; padding: 0.9rem; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle;">Remarques</th>
-            </tr>
-            <tr style="background: #e2e8f0;">
-              <th style="width: 60px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M1</th>
-              <th style="width: 60px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M2</th>
-              <th style="width: 60px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M3</th>
-              <th style="width: 66px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M1</th>
-              <th style="width: 67px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M2</th>
-              <th style="width: 67px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M3</th>
-              <th style="width: 66px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M1</th>
-              <th style="width: 67px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M2</th>
-              <th style="width: 67px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M3</th>
-              <th style="width: 66px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M1</th>
-              <th style="width: 67px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M2</th>
-              <th style="width: 67px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M3</th>
-              <th style="width: 60px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M1</th>
-              <th style="width: 60px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M2</th>
-              <th style="width: 60px; padding: 0.5rem; border: 1px solid #e2e8f0; text-align: center;">M3</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style="padding: 0.8rem; border: 1px solid #e2e8f0;">
-                <input type="text" formControlName="position" placeholder="Position" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box;">
-              </td>
-              <td style="padding: 0.8rem; border: 1px solid #e2e8f0;">
-                <input type="date" formControlName="maintenanceDate" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box;">
-              </td>
-              <td style="padding: 0.8rem; border: 1px solid #e2e8f0;">
-                <input type="text" formControlName="technicianName" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box;" readonly>
-              </td>
-              <td style="padding: 0.8rem; border: 1px solid #e2e8f0;">
-                <input type="text" formControlName="xCode" placeholder="X12345" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box;">
-              </td>
-              <td style="padding: 0.8rem; border: 1px solid #e2e8f0;">
-                <input type="text" formControlName="leoniReferenceNumber" placeholder="LEO-001" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box;" readonly>
-              </td>
-              <td style="padding: 0.8rem; border: 1px solid #e2e8f0;">
-                <input type="text" formControlName="indexValue" placeholder="01" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;" readonly>
-              </td>
-              <td style="padding: 0.8rem; border: 1px solid #e2e8f0;">
-                <input type="text" formControlName="producer" placeholder="N/T" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;" readonly>
-              </td>
-              <td style="padding: 0.8rem; border: 1px solid #e2e8f0;">
-                <input type="text" formControlName="type" placeholder="T/F" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;" readonly>
-              </td>
-              <td style="padding: 0.8rem; border: 1px solid #e2e8f0;">
-                <input type="text" formControlName="referencePinePushBack" placeholder="REF-PB" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box;">
-              </td>
-              <td style="padding: 0.8rem; border: 1px solid #e2e8f0;">
-                <input type="text" formControlName="pinRigidityM1" placeholder="0.0 N" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
-              </td>
-              <td style="padding: 0.8rem; border: 1px solid #e2e8f0;">
-                <input type="text" formControlName="pinRigidityM2" placeholder="0.0 N" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
-              </td>
-              <td style="padding: 0.8rem; border: 1px solid #e2e8f0;">
-                <input type="text" formControlName="pinRigidityM3" placeholder="0.0 N" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
-              </td>
-              <td style="padding: 0.8rem; border: 1px solid #e2e8f0;">
-                <input type="text" formControlName="displacementPathM1" placeholder="0.0 mm" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
-              </td>
-              <td style="padding: 0.8rem; border: 1px solid #e2e8f0;">
-                <input type="text" formControlName="displacementPathM2" placeholder="0.0 mm" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
-              </td>
-              <td style="padding: 0.8rem; border: 1px solid #e2e8f0;">
-                <input type="text" formControlName="displacementPathM3" placeholder="0.0 mm" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
-              </td>
-              <td style="padding: 0.8rem; border: 1px solid #e2e8f0;">
-                <input type="text" formControlName="maxSealingValueM1" placeholder="mbar" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
-              </td>
-              <td style="padding: 0.8rem; border: 1px solid #e2e8f0;">
-                <input type="text" formControlName="maxSealingValueM2" placeholder="mbar" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
-              </td>
-              <td style="padding: 0.8rem; border: 1px solid #e2e8f0;">
-                <input type="text" formControlName="maxSealingValueM3" placeholder="mbar" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
-              </td>
-              <td style="padding: 0.8rem; border: 1px solid #e2e8f0;">
-                <input type="text" formControlName="programmedSealingValueM1" placeholder="mbar" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
-              </td>
-              <td style="padding: 0.8rem; border: 1px solid #e2e8f0;">
-                <input type="text" formControlName="programmedSealingValueM2" placeholder="mbar" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
-              </td>
-              <td style="padding: 0.8rem; border: 1px solid #e2e8f0;">
-                <input type="text" formControlName="programmedSealingValueM3" placeholder="mbar" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
-              </td>
-              <td style="padding: 0.8rem; border: 1px solid #e2e8f0;">
-                <input type="text" formControlName="detectionsM1" placeholder="Activé/Désactivé" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
-              </td>
-              <td style="padding: 0.8rem; border: 1px solid #e2e8f0;">
-                <input type="text" formControlName="detectionsM2" placeholder="Activé/Désactivé" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
-              </td>
-              <td style="padding: 0.8rem; border: 1px solid #e2e8f0;">
-                <input type="text" formControlName="detectionsM3" placeholder="Activé/Désactivé" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box; text-align: center;">
-              </td>
-              <td style="padding: 0.8rem; border: 1px solid #e2e8f0;">
-                <input type="text" formControlName="remarks" placeholder="Remarques..." style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 4px; box-sizing: border-box;">
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-            <!-- Boutons -->
-            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
-              <button type="button" class="btn-cancel" (click)="closeModal()" style="padding: 0.6rem 1.2rem; border: 1px solid #cbd5e1; background: white; border-radius: 8px; cursor: pointer;">
-                Annuler
-              </button>
-              <button type="button" class="btn-save" (click)="addToExistingTechnicalFile()" [disabled]="itemForm.invalid" style="padding: 0.6rem 1.2rem; background: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer;">
-                Ajouter
-              </button>
-            </div>
-          </form>
-        </div>
       </div>
     </div>
   </div>
 </div>
-

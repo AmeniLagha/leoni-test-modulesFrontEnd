@@ -56,7 +56,7 @@
         <table class="leoni-table">
           <thead>
             <tr>
-              <th>ID</th>
+
               <th>Nom</th>
               <th>Description</th>
               <th>Actions</th>
@@ -64,7 +64,7 @@
           </thead>
           <tbody>
             <tr *ngFor="let projet of projets">
-              <td><span class="badge-id">#{{ projet.id }}</span></td>
+
               <td><strong>{{ projet.name }}</strong></td>
               <td>{{ projet.description || '—' }}</td>
               <td>
@@ -106,7 +106,6 @@
         <table class="leoni-table">
           <thead>
             <tr>
-              <th>ID</th>
               <th>Nom</th>
               <th>Description</th>
               <th>Projets associés</th>
@@ -115,7 +114,7 @@
           </thead>
           <tbody>
             <tr *ngFor="let site of sites">
-              <td><span class="badge-id">#{{ site.id }}</span></td>
+
               <td><strong>{{ site.name }}</strong></td>
               <td>{{ site.description || '—' }}</td>
               <td>

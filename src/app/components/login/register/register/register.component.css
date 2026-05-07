@@ -187,8 +187,8 @@
   width: 35px;
   height: 35px;
   border-radius: 50%;
-  background: #dee2e6;
-  color: #014071;
+  background: #022548;
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -210,6 +210,7 @@
 .step.completed .step-number::after {
   content: '✓';
   font-size: 1rem;
+  background-color: 022548;
 }
 
 .step-label {
@@ -226,7 +227,7 @@
 .step-line {
   width: 60px;
   height: 2px;
-  background: #dee2e6;
+  background: #022548;
   margin: 0 0.5rem;
   transition: all 0.3s;
 }

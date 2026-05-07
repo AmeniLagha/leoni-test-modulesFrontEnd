@@ -91,11 +91,7 @@
         <ul>
           <li><a routerLink="/dashboard" routerLinkActive="active" class="nav-item-leoni"><i class="bi bi-speedometer2"></i><span>Dashboard</span><span class="nav-indicator"></span></a></li>
           <li *ngIf="hasPermission(['admin:readuser'])">
-            <a (click)="toggleSubMenu('users')" class="nav-item-leoni has-submenu"><i class="bi bi-people"></i><span>Utilisateurs</span><i class="bi bi-chevron-right submenu-arrow"></i></a>
-            <ul class="submenu" [class.open]="openSubmenu === 'users'">
-              <li><a routerLink="/listeuser"><i class="bi bi-list-ul"></i> Liste</a></li>
-              <li *ngIf="hasPermission(['admin:createuser'])"><a routerLink="/register"><i class="bi bi-person-plus"></i> Nouveau</a></li>
-            </ul>
+            <a routerLink="/listeuser" routerLinkActive="active" class="nav-item-leoni"><i class="bi bi-people"></i><span>Utilisateurs</span><i class="bi bi-chevron-right submenu-arrow"></i></a>
           </li>
           <li *ngIf="hasPermission(['admin:readuser'])"><a routerLink="/gestion-config" routerLinkActive="active" class="nav-item-leoni"><i class="bi bi-files"></i><span>Gestion des Sites/Projet</span></a></li>
           <li><a routerLink="/charge-sheets/list" routerLinkActive="active" class="nav-item-leoni"><i class="bi bi-files"></i><span>Cahiers des charges</span></a></li>
@@ -188,7 +184,7 @@
                     <span class="stat-label">cahiers</span>
                   </div>
                 </div>
-               
+
               </div>
               <div class="card-progress">
                 <div class="progress-bar-custom">

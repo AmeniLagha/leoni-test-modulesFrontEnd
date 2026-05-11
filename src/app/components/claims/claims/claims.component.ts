@@ -165,7 +165,7 @@ export class ClaimsComponent implements OnInit {
     });
   }
 
-  loadQueryParams(): void {
+ loadQueryParams(): void {
     this.route.queryParams.subscribe(params => {
       console.log('🔍 Query params reçus:', params);
 
@@ -173,9 +173,30 @@ export class ClaimsComponent implements OnInit {
       this.relatedTo = params['relatedTo'] || null;
       this.relatedId = params['relatedId'] ? Number(params['relatedId']) : null;
 
+      // ✅ Vérifier si les paramètres requis sont présents
+      const missingParams: string[] = [];
+
+      if (!this.chargeSheetId && this.form.get('chargeSheetId')?.enabled) {
+        missingParams.push('chargeSheetId');
+      }
+      if (!this.relatedTo && this.form.get('relatedTo')?.enabled) {
+        missingParams.push('relatedTo');
+      }
+      if (!this.relatedId && this.form.get('relatedId')?.enabled) {
+        missingParams.push('relatedId');
+      }
+
+      if (missingParams.length > 0) {
+        console.error('❌ Paramètres manquants:', missingParams);
+        alert(`Paramètres requis manquants: ${missingParams.join(', ')}. Veuillez accéder à cette page depuis un cahier de charges.`);
+        this.router.navigate(['/charge-sheets']);
+        return;
+      }
+
+      // Mettre à jour le formulaire
       if (this.chargeSheetId) {
         this.form.patchValue({ chargeSheetId: this.chargeSheetId });
-      this.loadChargeSheetInfo();
+        this.loadChargeSheetInfo();
       }
       if (this.relatedTo) {
         this.form.patchValue({ relatedTo: this.relatedTo });
@@ -183,8 +204,13 @@ export class ClaimsComponent implements OnInit {
       if (this.relatedId) {
         this.form.patchValue({ relatedId: this.relatedId });
       }
+
+      // ✅ Marquer ces champs comme "touched" pour qu'ils ne bloquent pas le formulaire
+      this.form.get('chargeSheetId')?.markAsTouched();
+      this.form.get('relatedTo')?.markAsTouched();
+      this.form.get('relatedId')?.markAsTouched();
     });
-  }
+}
 loadChargeSheetInfo(): void {
   if (!this.chargeSheetId) return;
 
@@ -245,7 +271,34 @@ loadEmails(): void {
     this.imagePreview = null;
   }
 
-  submit(): void {
+ submit(): void {
+    // ✅ Vérification spécifique pour les champs cachés
+    if (!this.form.get('chargeSheetId')?.value) {
+        alert('Erreur: Aucun cahier de charges associé. Veuillez accéder depuis un cahier de charges.');
+        return;
+    }
+
+    if (!this.form.get('relatedTo')?.value) {
+        alert('Erreur: Type de relation manquant.');
+        return;
+    }
+
+    if (!this.form.get('relatedId')?.value) {
+        alert('Erreur: ID de relation manquant.');
+        return;
+    }
+
+    if (this.form.invalid) {
+        console.log('❌ Formulaire invalide:', this.form.errors);
+        Object.keys(this.form.controls).forEach(key => {
+            const control = this.form.get(key);
+            if (control?.invalid) {
+                console.log(`🔴 Champ invalide: ${key}`, control.errors);
+            }
+        });
+        alert('Veuillez remplir tous les champs obligatoires');
+        return;
+    }
     if (this.form.invalid) {
       console.log('❌ Formulaire invalide:', this.form.errors);
       // Marquer tous les champs comme touched pour afficher les erreurs

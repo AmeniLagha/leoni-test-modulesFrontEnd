@@ -26,7 +26,10 @@
   <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
     <div class="card-body p-4 p-lg-5">
       <form [formGroup]="form" (ngSubmit)="submit()">
-
+ <!-- ✅ CHAMPS CACHÉS (requis mais invisibles) -->
+  <input type="hidden" formControlName="chargeSheetId">
+  <input type="hidden" formControlName="relatedTo">
+  <input type="hidden" formControlName="relatedId">
         <!-- SECTION 1 -->
         <div class="section-card mb-5">
           <div class="section-header mb-4 pb-2 border-bottom">

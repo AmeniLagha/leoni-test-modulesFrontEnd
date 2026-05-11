@@ -261,16 +261,6 @@
             </div>
           </div>
         </div>
-<div class="alert alert-warning mt-3" *ngIf="form.invalid">
-  <strong>⚠️ Formulaire invalide :</strong>
-  <ul class="mb-0 mt-2">
-    <li *ngFor="let control of form.controls | keyvalue">
-      <span *ngIf="control.value?.invalid" class="text-danger">
-        {{ control.key }} : {{ control.value?.errors | json }}
-      </span>
-    </li>
-  </ul>
-</div>
         <!-- BOUTONS FINAUX -->
         <div class="d-flex justify-content-end gap-3 pt-3 border-top">
           <button type="button" class="btn btn-outline-danger px-4 py-2 rounded-pill" (click)="goBack()">

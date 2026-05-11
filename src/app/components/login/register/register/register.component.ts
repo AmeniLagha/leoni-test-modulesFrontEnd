@@ -82,8 +82,36 @@ export class RegisterComponent implements OnInit {
     this.registerForm.get('matricule')?.valueChanges.subscribe(() => {
       this.matriculeExistsError = '';
     });
+    this.registerForm.get('role')?.valueChanges.subscribe(role => {
+  this.updateValidatorsForRole(role);
+});
+
+// Appeler une première fois pour initialiser
+this.updateValidatorsForRole(this.registerForm.get('role')?.value);
+  }
+// ✅ Méthode pour mettre à jour les validateurs selon le rôle
+updateValidatorsForRole(role: string): void {
+  const projetsControl = this.registerForm.get('projets');
+  const siteNameControl = this.registerForm.get('siteName');
+
+  if (role === 'ADMIN') {
+    // ADMIN : pas besoin de projet ni site
+    projetsControl?.clearValidators();
+    siteNameControl?.clearValidators();
+
+    // Optionnel : vider les valeurs
+    projetsControl?.setValue([]);
+    siteNameControl?.setValue('');
+  } else {
+    // Autres rôles : projets et site requis
+    projetsControl?.setValidators([Validators.required]);
+    siteNameControl?.setValidators([Validators.required]);
   }
 
+  // Mettre à jour l'état des champs
+  projetsControl?.updateValueAndValidity();
+  siteNameControl?.updateValueAndValidity();
+}
   // ✅ Validateur asynchrone pour l'email
   emailAsyncValidator(control: AbstractControl): Promise<ValidationErrors | null> | Observable<ValidationErrors | null> {
     if (!control.value) {
@@ -185,107 +213,167 @@ export class RegisterComponent implements OnInit {
     return icons[role] || 'bi-person';
   }
 
-  onSubmit() {
+ onSubmit() {
+  // ✅ Vérification spéciale pour ADMIN
+  const role = this.registerForm.value.role;
+
+  if (role === 'ADMIN') {
+    // ADMIN : on désactive temporairement les validations des champs non requis
+    const projetsControl = this.registerForm.get('projets');
+    const siteControl = this.registerForm.get('siteName');
+
+    // Sauvegarder les validateurs originaux
+    const originalProjetsValidators = projetsControl?.validator;
+    const originalSiteValidators = siteControl?.validator;
+
+    // Supprimer les validateurs
+    projetsControl?.clearValidators();
+    siteControl?.clearValidators();
+    projetsControl?.updateValueAndValidity();
+    siteControl?.updateValueAndValidity();
+
+    // Appeler la logique d'envoi
+    this.submitRegistration();
+
+    // Restaurer les validateurs (optionnel)
+    setTimeout(() => {
+      if (originalProjetsValidators) projetsControl?.setValidators(originalProjetsValidators);
+      if (originalSiteValidators) siteControl?.setValidators(originalSiteValidators);
+      projetsControl?.updateValueAndValidity();
+      siteControl?.updateValueAndValidity();
+    }, 100);
+
+  } else {
+    // Autres rôles : validation normale
     if (this.registerForm.valid) {
-      this.isLoading = true;
-      this.errorMessage = '';
-
-      const selectedProjets = this.registerForm.value.projets;
-      const projetNames = selectedProjets.map((p: any) => typeof p === 'string' ? p : p.name);
-
-      const registerData = {
-        firstname: this.registerForm.value.firstname,
-        lastname: this.registerForm.value.lastname,
-        email: this.registerForm.value.email,
-        matricule: this.registerForm.value.matricule,
-        password: this.registerForm.value.password,
-        role: this.registerForm.value.role,
-        projets: projetNames,
-        siteName: this.registerForm.value.siteName
-      };
-
-      console.log('🚀 Tentative de création utilisateur:', registerData);
-      this.successMessage = '';
-
-      this.authService.register(registerData).subscribe({
-        next: (response) => {
-          console.log('✅ Utilisateur créé avec succès:', response);
-          this.successMessage = 'Utilisateur créé avec succès ! Redirection...';
-          setTimeout(() => {
-            this.router.navigate(['/listeuser']);
-          }, 1500);
-        },
-        error: (error) => {
-          console.error('❌ Erreur création:', error);
-          if (error.status === 401) {
-            this.errorMessage = "Vous n'êtes pas autorisé à créer des utilisateurs";
-          } else if (error.status === 403) {
-            this.errorMessage = "Vous n'avez pas la permission admin";
-          } else if (error.error?.message) {
-            this.errorMessage = error.error.message;
-          } else {
-            this.errorMessage = "Erreur lors de l'inscription";
-          }
-          this.isLoading = false;
-        },
-        complete: () => this.isLoading = false
-      });
+      this.submitRegistration();
     } else {
       Object.keys(this.registerForm.controls).forEach(key => {
         this.registerForm.get(key)?.markAsTouched();
       });
     }
   }
+}
+
+// ✅ Extraire la logique d'envoi dans une méthode séparée
+private submitRegistration(): void {
+  this.isLoading = true;
+  this.errorMessage = '';
+
+  const role = this.registerForm.value.role;
+  let registerData: any = {
+    firstname: this.registerForm.value.firstname,
+    lastname: this.registerForm.value.lastname,
+    email: this.registerForm.value.email,
+    matricule: this.registerForm.value.matricule,
+    password: this.registerForm.value.password,
+    role: role
+  };
+
+  // Ajouter projets et site seulement si ce n'est pas ADMIN
+  if (role !== 'ADMIN') {
+    const selectedProjets = this.registerForm.value.projets;
+    const projetNames = selectedProjets.map((p: any) => typeof p === 'string' ? p : p.name);
+    registerData.projets = projetNames;
+    registerData.siteName = this.registerForm.value.siteName;
+  } else {
+    // Pour ADMIN, on envoie des valeurs vides ou null
+    registerData.projets = [];
+    registerData.siteName = '';
+  }
+
+  console.log('🚀 Tentative de création utilisateur:', registerData);
+  this.successMessage = '';
+
+  this.authService.register(registerData).subscribe({
+    next: (response) => {
+      console.log('✅ Utilisateur créé avec succès:', response);
+      this.successMessage = 'Utilisateur créé avec succès ! Redirection...';
+      setTimeout(() => {
+        this.router.navigate(['/listeuser']);
+      }, 1500);
+    },
+    error: (error) => {
+      console.error('❌ Erreur création:', error);
+      if (error.status === 401) {
+        this.errorMessage = "Vous n'êtes pas autorisé à créer des utilisateurs";
+      } else if (error.status === 403) {
+        this.errorMessage = "Vous n'avez pas la permission admin";
+      } else if (error.error?.message) {
+        this.errorMessage = error.error.message;
+      } else {
+        this.errorMessage = "Erreur lors de l'inscription";
+      }
+      this.isLoading = false;
+    },
+    complete: () => this.isLoading = false
+  });
+}
 
   nextStep(): void {
-    // Validation de l'étape 1 avant de passer à l'étape 2
-    if (this.currentStep === 1) {
-      const step1Controls = ['firstname', 'lastname', 'email', 'matricule'];
-      let isValid = true;
+  // Validation de l'étape 1 avant de passer à l'étape 2
+  if (this.currentStep === 1) {
+    const step1Controls = ['firstname', 'lastname', 'email', 'matricule'];
+    let isValid = true;
 
-      step1Controls.forEach(control => {
-        this.registerForm.get(control)?.markAsTouched();
-        if (this.registerForm.get(control)?.invalid) {
-          isValid = false;
-        }
-      });
-
-      if (!isValid) {
-        this.errorMessage = 'Veuillez remplir correctement tous les champs de l\'étape 1';
-        return;
+    step1Controls.forEach(control => {
+      this.registerForm.get(control)?.markAsTouched();
+      if (this.registerForm.get(control)?.invalid) {
+        isValid = false;
       }
+    });
 
-      // Vérifier les erreurs asynchrones
-      if (this.emailExistsError || this.matriculeExistsError) {
-        this.errorMessage = 'Veuillez corriger les erreurs avant de continuer';
-        return;
-      }
+    if (!isValid) {
+      this.errorMessage = 'Veuillez remplir correctement tous les champs de l\'étape 1';
+      return;
     }
 
-    if (this.currentStep === 2) {
-      const step2Controls = ['password'];
-      let isValid = true;
-
-      step2Controls.forEach(control => {
-        this.registerForm.get(control)?.markAsTouched();
-        if (this.registerForm.get(control)?.invalid) {
-          isValid = false;
-        }
-      });
-
-      if (!isValid) {
-        this.errorMessage = 'Veuillez saisir un mot de passe valide (minimum 6 caractères)';
-        return;
-      }
-    }
-
-    if (this.currentStep < 3) {
-      this.currentStep++;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      this.errorMessage = '';
+    // Vérifier les erreurs asynchrones
+    if (this.emailExistsError || this.matriculeExistsError) {
+      this.errorMessage = 'Veuillez corriger les erreurs avant de continuer';
+      return;
     }
   }
 
+  if (this.currentStep === 2) {
+    const step2Controls = ['password'];
+    let isValid = true;
+
+    step2Controls.forEach(control => {
+      this.registerForm.get(control)?.markAsTouched();
+      if (this.registerForm.get(control)?.invalid) {
+        isValid = false;
+      }
+    });
+
+    if (!isValid) {
+      this.errorMessage = 'Veuillez saisir un mot de passe valide (minimum 6 caractères)';
+      return;
+    }
+  }
+
+  // ✅ Validation spécifique pour étape 3
+  if (this.currentStep === 3) {
+    const role = this.registerForm.get('role')?.value;
+
+    // Si ce n'est pas ADMIN, vérifier projets et site
+    if (role !== 'ADMIN') {
+      const projetsValid = this.registerForm.get('projets')?.valid;
+      const siteValid = this.registerForm.get('siteName')?.valid;
+
+      if (!projetsValid || !siteValid) {
+        this.errorMessage = 'Veuillez sélectionner au moins un projet et un site';
+        return;
+      }
+    }
+  }
+
+  if (this.currentStep < 3) {
+    this.currentStep++;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    this.errorMessage = '';
+  }
+}
   prevStep(): void {
     if (this.currentStep > 1) {
       this.currentStep--;

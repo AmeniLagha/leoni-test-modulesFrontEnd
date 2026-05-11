@@ -184,70 +184,76 @@
 
           <!-- Rôle -->
           <div class="role-selector">
-            <label class="form-label fw-semibold">
-              <i class="bi bi-person-badge me-2"></i>Rôle
-            </label>
-            <div class="role-cards">
-              <div *ngFor="let r of roles" class="role-card"
-                   [class.selected]="registerForm.get('role')?.value === r"
-                   (click)="registerForm.get('role')?.setValue(r)">
-                <i class="bi" [ngClass]="getRoleIcon(r)"></i>
-                <span>{{ getRoleLabel(r) }}</span>
-              </div>
-            </div>
-            <div class="invalid-feedback d-block" *ngIf="registerForm.get('role')?.touched && registerForm.get('role')?.invalid">
-              Le rôle est requis
-            </div>
-          </div>
+    <label class="form-label fw-semibold">
+      <i class="bi bi-person-badge me-2"></i>Rôle
+    </label>
+    <div class="role-cards">
+      <div *ngFor="let r of roles" class="role-card"
+           [class.selected]="registerForm.get('role')?.value === r"
+           (click)="registerForm.get('role')?.setValue(r)">
+        <i class="bi" [ngClass]="getRoleIcon(r)"></i>
+        <span>{{ getRoleLabel(r) }}</span>
+      </div>
+    </div>
+    <div class="invalid-feedback d-block" *ngIf="registerForm.get('role')?.touched && registerForm.get('role')?.invalid">
+      Le rôle est requis
+    </div>
+  </div>
 
           <!-- Projets -->
-          <div class="mt-4">
-            <label class="form-label fw-semibold">
-              <i class="bi bi-diagram-3 me-2"></i>Projets
-            </label>
-            <div class="projects-container" [class.loading]="loadingProjets">
-              <div class="projects-grid">
-                <div *ngFor="let p of projets" class="project-chip"
-                     [class.selected]="isProjectSelected(p.name)"
-                     (click)="toggleProject(p.name)">
-                  {{ p.name }}
-                </div>
-              </div>
-              <div class="loading-overlay" *ngIf="loadingProjets">
-                <div class="spinner-border spinner-border-sm"></div>
-                <span>Chargement...</span>
-              </div>
-            </div>
-            <small class="text-muted">Cliquez sur les projets pour les sélectionner</small>
-            <div class="invalid-feedback d-block" *ngIf="registerForm.get('projets')?.touched && registerForm.get('projets')?.invalid">
-              Au moins un projet est requis
-            </div>
-          </div>
+          <div class="mt-4" *ngIf="registerForm.get('role')?.value !== 'ADMIN'">
+    <label class="form-label fw-semibold">
+      <i class="bi bi-diagram-3 me-2"></i>Projets
+    </label>
+    <div class="projects-container" [class.loading]="loadingProjets">
+      <div class="projects-grid">
+        <div *ngFor="let p of projets" class="project-chip"
+             [class.selected]="isProjectSelected(p.name)"
+             (click)="toggleProject(p.name)">
+          {{ p.name }}
+        </div>
+      </div>
+      <div class="loading-overlay" *ngIf="loadingProjets">
+        <div class="spinner-border spinner-border-sm"></div>
+        <span>Chargement...</span>
+      </div>
+    </div>
+    <small class="text-muted">Cliquez sur les projets pour les sélectionner</small>
+    <div class="invalid-feedback d-block" *ngIf="registerForm.get('projets')?.touched && registerForm.get('projets')?.invalid">
+      Au moins un projet est requis
+    </div>
+  </div>
 
-          <!-- Site -->
-          <div class="mt-4">
-            <label class="form-label fw-semibold">
-              <i class="bi bi-building me-2"></i>Site
-            </label>
-            <div class="site-selector">
-              <div class="site-input-group">
-                <i class="bi bi-building"></i>
-                <select class="form-select" formControlName="siteName"
-                        [class.is-invalid]="registerForm.get('siteName')?.invalid && registerForm.get('siteName')?.touched"
-                        [disabled]="loadingSites">
-                  <option value="" disabled>Sélectionner un site</option>
-                  <option *ngFor="let site of sites" [value]="site.name">
-                    {{ site.name }}
-                  </option>
-                </select>
-              </div>
-              <div class="loading-indicator" *ngIf="loadingSites">
-                <div class="spinner-border spinner-border-sm"></div>
-              </div>
-            </div>
-            <div class="invalid-feedback d-block" *ngIf="registerForm.get('siteName')?.touched && registerForm.get('siteName')?.invalid">
-              Le site est requis
-            </div>
+  <!-- ✅ Afficher un message pour ADMIN -->
+  <div class="alert alert-info mt-3" *ngIf="registerForm.get('role')?.value === 'ADMIN'">
+    <i class="bi bi-info-circle-fill me-2"></i>
+    En tant qu'Administrateur, vous n'avez pas besoin de sélectionner de projet ou de site.
+  </div>
+
+  <!-- ✅ Site - Masqué si ADMIN -->
+  <div class="mt-4" *ngIf="registerForm.get('role')?.value !== 'ADMIN'">
+    <label class="form-label fw-semibold">
+      <i class="bi bi-building me-2"></i>Site
+    </label>
+    <div class="site-selector">
+      <div class="site-input-group">
+        <i class="bi bi-building"></i>
+        <select class="form-select" formControlName="siteName"
+                [class.is-invalid]="registerForm.get('siteName')?.invalid && registerForm.get('siteName')?.touched"
+                [disabled]="loadingSites">
+          <option value="" disabled>Sélectionner un site</option>
+          <option *ngFor="let site of sites" [value]="site.name">
+            {{ site.name }}
+          </option>
+        </select>
+      </div>
+      <div class="loading-indicator" *ngIf="loadingSites">
+        <div class="spinner-border spinner-border-sm"></div>
+      </div>
+    </div>
+    <div class="invalid-feedback d-block" *ngIf="registerForm.get('siteName')?.touched && registerForm.get('siteName')?.invalid">
+      Le site est requis
+    </div>
           </div>
         </div>
 

@@ -158,7 +158,6 @@ export class ClaimsComponent implements OnInit {
 
       // SECTION 3: INFORMATIONS RÉCLAMATION
       title: ['', Validators.required],
-      description: ['', Validators.required],
       assignedTo: ['', Validators.required],
       priority: ['MEDIUM', Validators.required],
       category: ['TECHNICAL', Validators.required]

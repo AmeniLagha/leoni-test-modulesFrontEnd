@@ -69,32 +69,16 @@
                 <i class="bi bi-envelope-fill me-1"></i>Customer E-Mail
               </label>
               <input type="email" class="form-control form-control-lg bg-light" formControlName="customerEmail" readonly>
-
-            </div>
-           <!-- SECTION 1 - Version corrigée -->
-<div class="col-md-4">
+</div>
+        <div class="col-md-4">
   <label class="form-label fw-semibold small text-muted text-uppercase">
     <i class="bi bi-telephone-fill me-1"></i>Customer Phone <span class="text-danger">*</span>
   </label>
-
-  <!-- ✅ Groupe input + feedback ensemble -->
-  <div>
-    <input type="tel" class="form-control form-control-lg" formControlName="customerPhone"
-           [class.is-invalid]="form.get('customerPhone')?.invalid && form.get('customerPhone')?.touched"
-           [class.is-valid]="form.get('customerPhone')?.valid && form.get('customerPhone')?.touched"
-           placeholder="Numéro de téléphone">
-
-    <!-- ✅ invalid-feedback à l'intérieur de la même div parente -->
-    <div class="invalid-feedback"
-         *ngIf="form.get('customerPhone')?.invalid && form.get('customerPhone')?.touched">
-      <span *ngIf="form.get('customerPhone')?.errors?.['required']">
-        <i class="bi bi-exclamation-circle me-1"></i>Le numéro de téléphone est requis
-      </span>
-      <span *ngIf="form.get('customerPhone')?.errors?.['invalidPhone']">
-        <i class="bi bi-exclamation-triangle me-1"></i>
-        Format invalide. Exemples: 12345678, +21612345678, 0612345678
-      </span>
-    </div>
+  <input type="tel" class="form-control form-control-lg" formControlName="customerPhone"
+         [class.is-invalid]="form.get('customerPhone')?.invalid && form.get('customerPhone')?.touched"
+         placeholder="Numéro de téléphone">
+  <div class="invalid-feedback" *ngIf="form.get('customerPhone')?.invalid && form.get('customerPhone')?.touched">
+    <i class="bi bi-exclamation-circle me-1"></i>Format invalide (ex: 12345678, +21612345678)
   </div>
 </div>
             <div class="col-md-4">
@@ -277,7 +261,16 @@
             </div>
           </div>
         </div>
-
+<div class="alert alert-warning mt-3" *ngIf="form.invalid">
+  <strong>⚠️ Formulaire invalide :</strong>
+  <ul class="mb-0 mt-2">
+    <li *ngFor="let control of form.controls | keyvalue">
+      <span *ngIf="control.value?.invalid" class="text-danger">
+        {{ control.key }} : {{ control.value?.errors | json }}
+      </span>
+    </li>
+  </ul>
+</div>
         <!-- BOUTONS FINAUX -->
         <div class="d-flex justify-content-end gap-3 pt-3 border-top">
           <button type="button" class="btn btn-outline-danger px-4 py-2 rounded-pill" (click)="goBack()">

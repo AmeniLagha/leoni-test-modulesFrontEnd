@@ -208,7 +208,7 @@
       <form [formGroup]="siteForm">
         <div class="form-group">
           <label>Nom du site <span class="required">*</span></label>
-          <input type="text" id="siteName" formControlName="name" placeholder="Ex: Manzel Hayet, LTN1, LTN2, Mateur...">
+          <input type="text" id="siteName" formControlName="name" placeholder="Ex: Manzel Hayet, LTN1, LTN2, Mateur..." required>
           <div class="error-msg" *ngIf="siteForm.get('name')?.invalid && siteForm.get('name')?.touched">
             Le nom est requis
           </div>

@@ -234,21 +234,40 @@ export class ClaimslisteComponent implements OnInit, OnDestroy {
   }
 
   // ========== IMAGES ==========
-  loadImagesForClaims(): void {
-    console.log('🖼️ Début chargement des images...');
+  // Dans loadImagesForClaims(), ajoutez ce nettoyage
+loadImagesForClaims(): void {
+  console.log('🖼️ Début chargement des images...');
 
-    this.allClaims.forEach(claim => {
-      // ✅ Ne charger que si imagePath existe
-      if (claim.id && claim.imagePath && claim.imagePath.trim() !== '') {
-        console.log(`📸 Chargement image pour claim ${claim.id}: ${claim.imagePath}`);
-        this.imageLoading.set(claim.id, true);
-        this.loadClaimImage(claim.id);
-      } else if (claim.id && (!claim.imagePath || claim.imagePath === '')) {
-        console.log(`❌ Claim ${claim.id}: pas d'imagePath`);
-        this.imageErrors.set(claim.id, true);
+  this.allClaims.forEach(claim => {
+    if (claim.id && claim.imagePath && claim.imagePath.trim() !== '') {
+      // ✅ Nettoyer le chemin côté frontend
+      let cleanPath = claim.imagePath;
+
+      // Supprimer "uploads/" au début
+      if (cleanPath.startsWith('uploads/')) {
+        cleanPath = cleanPath.substring(8);
       }
-    });
-  }
+
+      // Supprimer "/app/uploads/" au début
+      if (cleanPath.startsWith('/app/uploads/')) {
+        cleanPath = cleanPath.substring(12);
+      }
+
+      // Supprimer "./" au début
+      if (cleanPath.startsWith('./')) {
+        cleanPath = cleanPath.substring(2);
+      }
+
+      console.log(`📸 Claim ${claim.id}: ${claim.imagePath} → ${cleanPath}`);
+
+      // Stocker le chemin nettoyé temporairement
+      (claim as any).cleanImagePath = cleanPath;
+
+      this.imageLoading.set(claim.id, true);
+      this.loadClaimImage(claim.id);
+    }
+  });
+}
 
   loadClaimImage(claimId: number): void {
     this.claimService.getClaimImageUrl(claimId).subscribe({

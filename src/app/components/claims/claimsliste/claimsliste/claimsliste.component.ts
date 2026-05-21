@@ -1,4 +1,3 @@
-// claimsliste.component.ts
 import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { ClaimService } from '../../../../../services/claim.service';
 import { Claim } from '../../../../../models/claim.model';
@@ -13,7 +12,7 @@ import { RouterLink } from '@angular/router';
 @Component({
   selector: 'app-claimsliste',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule,RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink],
   templateUrl: './claimsliste.component.html',
   styleUrls: ['./claimsliste.component.css']
 })
@@ -55,8 +54,9 @@ export class ClaimslisteComponent implements OnInit, OnDestroy {
   imageLoading: Map<number, boolean> = new Map();
   showImageModal = false;
   modalImageUrl: SafeUrl | null = null;
+  imageErrors: Map<number, boolean> = new Map(); // ✅ Pour suivre les erreurs
 
-  // ✅ NOUVEAUX ONGLETS
+  // Onglets
   activeTab: 'all' | 'compliance' | 'chargeSheet' = 'all';
 
   allClaims: Claim[] = [];
@@ -74,26 +74,39 @@ export class ClaimslisteComponent implements OnInit, OnDestroy {
     this.loadClaims();
     this.initEditForm();
   }
-   loadClaims() {
+
+  loadClaims() {
     this.loading = true;
     this.claimService.getAllClaims().subscribe({
       next: (res: Claim[]) => {
         this.allClaims = res;
-   const claimsWithImages = res.filter(c => c.imagePath);
-      console.log('📸 Réclamations avec image:', claimsWithImages.length);
-      claimsWithImages.forEach(c => {
-        console.log(`  - Claim ${c.id}: ${c.imagePath}`);
-      });
-        // ✅ Séparer les réclamations par type
+
+        // Log pour debug
+        console.log('📋 Total claims:', this.allClaims.length);
+        const claimsWithImages = res.filter(c => c.imagePath);
+        console.log('📸 Claims avec imagePath:', claimsWithImages.length);
+        claimsWithImages.forEach(c => {
+          console.log(`  - Claim ${c.id}: ${c.imagePath}`);
+        });
+
+        // Séparer par type
         this.complianceClaims = res.filter(claim => claim.relatedTo === 'COMPLIANCE');
         this.chargeSheetClaims = res.filter(claim => claim.relatedTo === 'CHARGE_SHEET');
 
         this.extractAvailableYears();
         this.applyFilters();
-        this.loadImagesForClaims();
+
+        // ✅ AFFICHER D'ABORD LA LISTE (sans attendre les images)
         this.loading = false;
+        this.cdr.detectChanges();
+
+        // ✅ ENSUITE charger les images en arrière-plan
+        this.loadImagesForClaims();
       },
-      error: () => this.loading = false
+      error: (err) => {
+        console.error('❌ Erreur chargement claims:', err);
+        this.loading = false;
+      }
     });
   }
 
@@ -107,17 +120,15 @@ export class ClaimslisteComponent implements OnInit, OnDestroy {
     });
   }
 
-
-
   extractAvailableYears(): void {
     const years = new Set<number>();
-    this.claims.forEach(claim => {
+    this.allClaims.forEach(claim => {
       if (claim.reportedDate) years.add(new Date(claim.reportedDate).getFullYear());
     });
     this.availableYears = Array.from(years).sort((a, b) => b - a);
   }
 
-    applyFilters(): void {
+  applyFilters(): void {
     let sourceClaims: Claim[] = [];
 
     switch (this.activeTab) {
@@ -133,7 +144,6 @@ export class ClaimslisteComponent implements OnInit, OnDestroy {
     }
 
     this.filteredClaims = sourceClaims.filter(claim => {
-      // Recherche
       if (this.searchTerm) {
         const term = this.searchTerm.toLowerCase();
         if (!claim.id?.toString().includes(term) &&
@@ -143,17 +153,13 @@ export class ClaimslisteComponent implements OnInit, OnDestroy {
         }
       }
 
-      // Date
       if (claim.reportedDate) {
         const date = new Date(claim.reportedDate);
         if (this.monthFilter && (date.getMonth() + 1).toString() !== this.monthFilter) return false;
         if (this.yearFilter && date.getFullYear().toString() !== this.yearFilter) return false;
       }
 
-      // Priorité
       if (this.priorityFilter && claim.priority !== this.priorityFilter) return false;
-
-      // Statut
       if (this.statusFilter && claim.status !== this.statusFilter) return false;
 
       return true;
@@ -163,7 +169,6 @@ export class ClaimslisteComponent implements OnInit, OnDestroy {
     this.currentPage = 1;
   }
 
-  // ✅ Mettre à jour resetFilters
   resetFilters(): void {
     this.searchTerm = '';
     this.monthFilter = '';
@@ -173,51 +178,36 @@ export class ClaimslisteComponent implements OnInit, OnDestroy {
     this.applyFilters();
   }
 
-  // ✅ Méthode pour obtenir le badge de type de réclamation
- // ✅ Accepter string | undefined
-getRelatedToLabel(relatedTo: string | undefined): string {
-  if (!relatedTo) return 'Autre';
-  switch (relatedTo) {
-    case 'COMPLIANCE':
-      return 'Conformité';
-    case 'CHARGE_SHEET':
-      return 'Cahier de charge';
-    default:
-      return 'Autre';
+  getRelatedToLabel(relatedTo: string | undefined): string {
+    if (!relatedTo) return 'Autre';
+    switch (relatedTo) {
+      case 'COMPLIANCE': return 'Conformité';
+      case 'CHARGE_SHEET': return 'Cahier de charge';
+      default: return 'Autre';
+    }
   }
-}
 
-// ✅ Accepter string | undefined
-getRelatedToBadgeClass(relatedTo: string | undefined): string {
-  if (!relatedTo) return 'bg-secondary bg-opacity-10 text-secondary';
-  switch (relatedTo) {
-    case 'COMPLIANCE':
-      return 'bg-primary bg-opacity-10 text-primary';
-    case 'CHARGE_SHEET':
-      return 'bg-success bg-opacity-10 text-success';
-    default:
-      return 'bg-secondary bg-opacity-10 text-secondary';
+  getRelatedToBadgeClass(relatedTo: string | undefined): string {
+    if (!relatedTo) return 'bg-secondary bg-opacity-10 text-secondary';
+    switch (relatedTo) {
+      case 'COMPLIANCE': return 'bg-primary bg-opacity-10 text-primary';
+      case 'CHARGE_SHEET': return 'bg-success bg-opacity-10 text-success';
+      default: return 'bg-secondary bg-opacity-10 text-secondary';
+    }
   }
-}
 
-// ✅ Accepter string | undefined
-getRelatedToIcon(relatedTo: string | undefined): string {
-  if (!relatedTo) return 'bi-question-circle';
-  switch (relatedTo) {
-    case 'COMPLIANCE':
-      return 'bi-file-earmark-check';
-    case 'CHARGE_SHEET':
-      return 'bi-files';
-    default:
-      return 'bi-question-circle';
+  getRelatedToIcon(relatedTo: string | undefined): string {
+    if (!relatedTo) return 'bi-question-circle';
+    switch (relatedTo) {
+      case 'COMPLIANCE': return 'bi-file-earmark-check';
+      case 'CHARGE_SHEET': return 'bi-files';
+      default: return 'bi-question-circle';
+    }
   }
-}
 
   hasActiveFilters(): boolean {
     return !!(this.searchTerm || this.monthFilter || this.yearFilter || this.priorityFilter || this.statusFilter);
   }
-
-
 
   get paginatedClaims(): Claim[] {
     const start = (this.currentPage - 1) * this.pageSize;
@@ -243,89 +233,100 @@ getRelatedToIcon(relatedTo: string | undefined): string {
     this.totalPages = Math.ceil(this.filteredClaims.length / this.pageSize);
   }
 
+  // ========== IMAGES ==========
+  loadImagesForClaims(): void {
+    console.log('🖼️ Début chargement des images...');
 
-// ========== IMAGES ==========
-loadImagesForClaims(): void {
-  // Utiliser allClaims au lieu de claims
-  console.log('🖼️ Chargement des images pour', this.allClaims.length, 'réclamations');
+    this.allClaims.forEach(claim => {
+      // ✅ Ne charger que si imagePath existe
+      if (claim.id && claim.imagePath && claim.imagePath.trim() !== '') {
+        console.log(`📸 Chargement image pour claim ${claim.id}: ${claim.imagePath}`);
+        this.imageLoading.set(claim.id, true);
+        this.loadClaimImage(claim.id);
+      } else if (claim.id && (!claim.imagePath || claim.imagePath === '')) {
+        console.log(`❌ Claim ${claim.id}: pas d'imagePath`);
+        this.imageErrors.set(claim.id, true);
+      }
+    });
+  }
 
-  this.allClaims.forEach(claim => {
-    if (claim.id && claim.imagePath) {
-      console.log(`📸 Image trouvée pour claim ${claim.id}: ${claim.imagePath}`);
-      this.imageLoading.set(claim.id, true);
-      this.loadClaimImage(claim.id);
-    }
-  });
-}
+  loadClaimImage(claimId: number): void {
+    this.claimService.getClaimImageUrl(claimId).subscribe({
+      next: (blob: Blob) => {
+        console.log(`✅ Image reçue pour claim ${claimId}, taille: ${blob.size} bytes`);
 
-loadClaimImage(claimId: number): void {
-  console.log('📸 Chargement image pour claim:', claimId);
+        if (blob && blob.size > 0) {
+          const url = URL.createObjectURL(blob);
+          this.imageUrls.set(claimId, this.sanitizer.bypassSecurityTrustUrl(url));
+          this.imageLoading.set(claimId, false);
+          this.imageErrors.set(claimId, false);
+        } else {
+          console.log(`⚠️ Blob vide pour claim ${claimId}`);
+          this.imageLoading.set(claimId, false);
+          this.imageErrors.set(claimId, true);
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error(`❌ Erreur chargement image pour claim ${claimId}:`, err.status, err.message);
+        this.imageLoading.set(claimId, false);
+        this.imageErrors.set(claimId, true);
+        this.cdr.detectChanges();
+      }
+    });
+  }
 
-  // Vérifier si le claim a un imagePath
-  const claim = this.allClaims.find(c => c.id === claimId);
-  console.log('Claim info:', claim);
-  console.log('Image path:', claim?.imagePath);
+  getImageUrl(claimId: number): SafeUrl | null {
+    return this.imageUrls.get(claimId) || null;
+  }
 
-  this.claimService.getClaimImageUrl(claimId).subscribe({
-    next: (blob) => {
-      console.log('✅ Image reçue, taille:', blob.size);
-      const url = URL.createObjectURL(blob);
-      this.imageUrls.set(claimId, this.sanitizer.bypassSecurityTrustUrl(url));
-      this.imageLoading.set(claimId, false);
-      this.cdr.detectChanges();
-    },
-    error: (err) => {
-      console.error('❌ Erreur chargement image pour claim', claimId, err);
-      this.imageLoading.set(claimId, false);
-    }
-  });
-}
+  hasImage(claimId: number): boolean {
+    return this.imageUrls.has(claimId) && !this.imageErrors.get(claimId);
+  }
 
-getImageUrl(claimId: number): SafeUrl | null {
-  const url = this.imageUrls.get(claimId) || null;
-  console.log(`🔍 getImageUrl pour claim ${claimId}:`, url ? 'URL trouvée' : 'pas d\'URL');
-  return url;
-}
+  isImageLoading(claimId: number): boolean {
+    return this.imageLoading.get(claimId) === true;
+  }
 
   openImageModal(claimId: number): void {
-    this.modalImageUrl = this.getImageUrl(claimId);
-    this.showImageModal = true;
+    const url = this.getImageUrl(claimId);
+    if (url) {
+      this.modalImageUrl = url;
+      this.showImageModal = true;
+    }
   }
 
   closeImageModal(): void {
     this.showImageModal = false;
     this.modalImageUrl = null;
   }
-// ========== SUPPRESSION ==========
-deleteClaim(claim: Claim): void {
-  if (!claim.id) return;
 
-  // Confirmation avant suppression
-  const confirmDelete = confirm(`Êtes-vous sûr de vouloir supprimer la réclamation "${claim.title}" ?\n\nCette action est irréversible.`);
+  // ========== SUPPRESSION ==========
+  deleteClaim(claim: Claim): void {
+    if (!claim.id) return;
 
-  if (!confirmDelete) return;
+    const confirmDelete = confirm(`Êtes-vous sûr de vouloir supprimer la réclamation "${claim.title}" ?\n\nCette action est irréversible.`);
+    if (!confirmDelete) return;
 
-  // Supprimer l'image associée si elle existe
-  if (claim.imagePath) {
-    this.claimService.deleteClaimImage(claim.id).subscribe({
-      next: () => console.log('✅ Image supprimée'),
-      error: (err) => console.error('❌ Erreur suppression image:', err)
+    if (claim.imagePath) {
+      this.claimService.deleteClaimImage(claim.id).subscribe({
+        next: () => console.log('✅ Image supprimée'),
+        error: (err) => console.error('❌ Erreur suppression image:', err)
+      });
+    }
+
+    this.claimService.deleteClaim(claim.id).subscribe({
+      next: () => {
+        console.log(`✅ Réclamation ${claim.id} supprimée`);
+        this.loadClaims();
+      },
+      error: (err) => {
+        console.error('❌ Erreur suppression:', err);
+        alert('Erreur lors de la suppression de la réclamation');
+      }
     });
   }
 
-  // Supprimer la réclamation
-  this.claimService.deleteClaim(claim.id).subscribe({
-    next: () => {
-      console.log(`✅ Réclamation ${claim.id} supprimée`);
-      // Recharger la liste
-      this.loadClaims();
-    },
-    error: (err) => {
-      console.error('❌ Erreur suppression:', err);
-      alert('Erreur lors de la suppression de la réclamation');
-    }
-  });
-}
   // ========== ACTIONS ==========
   startClaim(claim: Claim) {
     if (!claim.id) return;
@@ -591,6 +592,7 @@ private imageToBase64(url: string): Promise<string | null> {
     img.src = url;
   });
 }
+
 
   exportAllClaimsPDF() {
     const doc = new jsPDF();

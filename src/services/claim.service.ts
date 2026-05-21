@@ -68,6 +68,11 @@ export class ClaimService {
       responseType: 'blob'
     });
   }
+  // Dans claim.service.ts
+getClaimImageUrlDirect(claimId: number, imagePath: string): Observable<Blob> {
+  // Utiliser l'API existante qui utilise l'ID
+  return this.getClaimImageUrl(claimId);
+}
 
   deleteClaimImage(claimId: number): Observable<{ message: string }> {
     return this.http.delete<ApiResponse<{ message: string }>>(`${this.api}/${claimId}/image`, {

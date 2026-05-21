@@ -490,8 +490,8 @@ async exportClaimPDF(claim: Claim) {
 
       if (imageBase64) {
         // Dimensions pour l'image (redimensionnée)
-        const maxWidth = 180;
-        const maxHeight = 120;
+        const maxWidth = 90;
+        const maxHeight = 60;
 
         doc.addImage(imageBase64, 'JPEG', 15, y, maxWidth, maxHeight);
         y += maxHeight + 10;

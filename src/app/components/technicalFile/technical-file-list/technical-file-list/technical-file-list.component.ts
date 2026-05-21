@@ -68,7 +68,7 @@ export class TechnicalFileListComponent implements OnInit {
 updatePagination(): void {
     // Calculer le nombre total de pages
     this.totalPages = Math.ceil(this.filteredFiles.length / this.itemsPerPage);
-    
+
     // S'assurer que la page courante est valide
     if (this.currentPage > this.totalPages && this.totalPages > 0) {
       this.currentPage = this.totalPages;
@@ -76,11 +76,11 @@ updatePagination(): void {
     if (this.currentPage < 1) {
       this.currentPage = 1;
     }
-    
+
     // Calculer les indices de début et fin
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
-    
+
     // Extraire les éléments de la page courante
     this.paginatedFiles = this.filteredFiles.slice(startIndex, endIndex);
   }
@@ -117,7 +117,7 @@ updatePagination(): void {
   getPagesToShow(): number[] {
     const pages: number[] = [];
     const maxPagesToShow = 5; // Nombre maximum de pages à afficher
-    
+
     if (this.totalPages <= maxPagesToShow) {
       // Afficher toutes les pages
       for (let i = 1; i <= this.totalPages; i++) {
@@ -128,16 +128,16 @@ updatePagination(): void {
       const half = Math.floor(maxPagesToShow / 2);
       let start = Math.max(1, this.currentPage - half);
       let end = Math.min(this.totalPages, start + maxPagesToShow - 1);
-      
+
       if (end - start + 1 < maxPagesToShow) {
         start = Math.max(1, end - maxPagesToShow + 1);
       }
-      
+
       for (let i = start; i <= end; i++) {
         pages.push(i);
       }
     }
-    
+
     return pages;
   }
 
@@ -451,7 +451,7 @@ canValidateItem(item: any): boolean {
   switch (this.currentUserRole) {
     case 'PP': return status === 'DRAFT';
     case 'MC': return status === 'VALIDATED_PP';
-    case 'MP': return status === 'VALIDATED_PP';
+    case 'MP': return status === 'VALIDATED_MP';
     default: return false;
   }
 }

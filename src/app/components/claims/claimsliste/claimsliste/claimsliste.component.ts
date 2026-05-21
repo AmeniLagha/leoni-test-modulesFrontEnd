@@ -398,112 +398,199 @@ deleteClaim(claim: Claim): void {
   }
 
   // ========== EXPORT PDF COMPLET ==========
-  exportClaimPDF(claim: Claim) {
-    const doc = new jsPDF();
+// ========== EXPORT PDF COMPLET AVEC IMAGE ==========
+async exportClaimPDF(claim: Claim) {
+  const doc = new jsPDF();
 
-    // Logo
-    doc.addImage("assets/leonilogo.png", 'PNG', 15, 8, 30, 15);
+  // Logo
+  doc.addImage("assets/leonilogo.png", 'PNG', 15, 8, 30, 15);
 
-    // Titre
-    doc.setFontSize(18);
-    doc.text("RAPPORT DE RÉCLAMATION", 105, 20, { align: "center" });
+  // Titre
+  doc.setFontSize(18);
+  doc.text("RAPPORT DE RÉCLAMATION", 105, 20, { align: "center" });
 
-    doc.setFontSize(10);
-    doc.text(`Généré le: ${new Date().toLocaleString()}`, 14, 30);
-    doc.text(`Réclamation #${claim.id}`, 14, 38);
+  doc.setFontSize(10);
+  doc.text(`Généré le: ${new Date().toLocaleString()}`, 14, 30);
+  doc.text(`Réclamation #${claim.id}`, 14, 38);
 
-    // Section 1: Informations générales
+  // Section 1: Informations générales
+  doc.setFontSize(12);
+  doc.text("1. INFORMATIONS GÉNÉRALES", 14, 50);
+
+  autoTable(doc, {
+    startY: 55,
+    head: [['Champ', 'Valeur']],
+    body: [
+      ['ID', claim.id?.toString() || '-'],
+      ['Plant', claim.plant || '-'],
+      ['Customer', claim.customer || '-'],
+      ['Contact Person', claim.contactPerson || '-'],
+      ['Customer Email', claim.customerEmail || '-'],
+      ['Customer Phone', claim.customerPhone || '-'],
+      ['Supplier', claim.supplier || '-'],
+      ['Supplier Contact', claim.supplierContactPerson || '-'],
+      ['Order Number', claim.orderNumber || '-'],
+      ['Test Module Number', claim.testModuleNumber || '-'],
+      ['Test Module Quantity', claim.testModuleQuantity?.toString() || '-'],
+      ['PPO Signature', claim.ppoSignature || '-'],
+      ['Claim Date', this.formatDate(claim.claimDate)],
+      ['Date de création', this.formatDate(claim.createdAt)],
+      ['Créé par', claim.createdBy || '-']
+    ],
+    headStyles: { fillColor: [30, 60, 114] },
+    styles: { fontSize: 9 },
+    columnStyles: { 0: { cellWidth: 60 }, 1: { cellWidth: 120 } }
+  });
+
+  let y = (doc as any).lastAutoTable.finalY + 10;
+
+  // 📸 SECTION IMAGE (AJOUTÉE)
+  const safeUrl = this.getImageUrl(claim.id!);
+  if (safeUrl) {
     doc.setFontSize(12);
-    doc.text("1. INFORMATIONS GÉNÉRALES", 14, 50);
+    doc.text("📸 IMAGE ASSOCIÉE", 14, y);
+    y += 8;
 
-    autoTable(doc, {
-      startY: 55,
-      head: [['Champ', 'Valeur']],
-      body: [
-        ['ID', claim.id?.toString() || '-'],
-        ['Plant', claim.plant || '-'],
-        ['Customer', claim.customer || '-'],
-        ['Contact Person', claim.contactPerson || '-'],
-        ['Customer Email', claim.customerEmail || '-'],
-        ['Customer Phone', claim.customerPhone || '-'],
-        ['Supplier', claim.supplier || '-'],
-        ['Supplier Contact', claim.supplierContactPerson || '-'],
-        ['Order Number', claim.orderNumber || '-'],
-        ['Test Module Number', claim.testModuleNumber || '-'],
-        ['Test Module Quantity', claim.testModuleQuantity?.toString() || '-'],
-        ['PPO Signature', claim.ppoSignature || '-'],
-        ['Claim Date', this.formatDate(claim.claimDate)],
-        ['Date de création', this.formatDate(claim.createdAt)],
-        ['Créé par', claim.createdBy || '-']
-      ],
-      headStyles: { fillColor: [30, 60, 114] },
-      styles: { fontSize: 9 },
-      columnStyles: { 0: { cellWidth: 60 }, 1: { cellWidth: 120 } }
-    });
+    try {
+      // ✅ CORRECTION: Convertir SafeUrl en string URL
+      let imageUrlString: string;
 
-    // Section 2: Description du problème
-    let y = (doc as any).lastAutoTable.finalY + 10;
-    doc.setFontSize(12);
-    doc.text("2. DESCRIPTION DU PROBLÈME", 14, y);
-    y += 5;
+      if (typeof safeUrl === 'string') {
+        imageUrlString = safeUrl;
+      } else {
+        // SafeUrl a une propriété 'changingThisBreaksApplicationSecurity' contenant l'URL
+        imageUrlString = (safeUrl as any).changingThisBreaksApplicationSecurity ||
+                         safeUrl.toString();
+      }
 
-    autoTable(doc, {
-      startY: y,
-      head: [['Question', 'Réponse']],
-      body: [
-        ['What happened?', claim.problemWhatHappened || '-'],
-        ['Why is it a problem?', claim.problemWhy || '-'],
-        ['When detected?', claim.problemWhenDetected || '-'],
-        ['Who detected?', claim.problemWhoDetected || '-'],
-        ['Where detected?', claim.problemWhereDetected || '-'],
-        ['How detected?', claim.problemHowDetected || '-']
-      ],
-      headStyles: { fillColor: [30, 60, 114] },
-      styles: { fontSize: 9 },
-      columnStyles: { 0: { cellWidth: 60 }, 1: { cellWidth: 120 } }
-    });
+      console.log('📸 Conversion image:', imageUrlString);
 
-    // Section 3: Suivi de la réclamation
-    y = (doc as any).lastAutoTable.finalY + 10;
-    doc.setFontSize(12);
-    doc.text("3. SUIVI DE LA RÉCLAMATION", 14, y);
-    y += 5;
+      // Convertir l'image en base64
+      const imageBase64 = await this.imageToBase64(imageUrlString);
 
-    autoTable(doc, {
-      startY: y,
-      head: [['Champ', 'Valeur']],
-      body: [
-        ['Titre', claim.title || '-'],
-        ['Description', claim.description || '-'],
-        ['Priorité', this.getPriorityLabel(claim.priority || '')],
-        ['Statut', this.getStatusLabel(claim.status || '')],
-        ['Reporté par', claim.reportedBy || '-'],
-        ['Date report', this.formatDate(claim.reportedDate)],
-        ['Assigné à', claim.assignedTo || '-'],
-        ['Date assignation', this.formatDate(claim.assignedDate)],
-        ['Action prise', claim.actionTaken || '-'],
-        ['Résolution', claim.resolution || '-'],
-        ['Résolu par', claim.resolvedBy || '-'],
-        ['Date résolution', this.formatDate(claim.resolvedDate)],
-        ['Date estimée', this.formatDate(claim.estimatedResolutionDate)],
-        ['Date réelle', this.formatDate(claim.actualResolutionDate)]
-      ],
-      headStyles: { fillColor: [30, 60, 114] },
-      styles: { fontSize: 9 },
-      columnStyles: { 0: { cellWidth: 60 }, 1: { cellWidth: 120 } }
-    });
+      if (imageBase64) {
+        // Dimensions pour l'image (redimensionnée)
+        const maxWidth = 180;
+        const maxHeight = 120;
 
-    // Pied de page
-    const pageCount = doc.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(8);
-      doc.text("Système de Gestion Qualité Leoni", 14, doc.internal.pageSize.height - 10);
-      doc.text(`Page ${i}/${pageCount}`, doc.internal.pageSize.width - 20, doc.internal.pageSize.height - 10);
+        doc.addImage(imageBase64, 'JPEG', 15, y, maxWidth, maxHeight);
+        y += maxHeight + 10;
+      } else {
+        doc.setFontSize(9);
+        doc.setTextColor(150, 150, 150);
+        doc.text("⚠️ Image non disponible", 14, y);
+        y += 8;
+        doc.setTextColor(0, 0, 0);
+      }
+    } catch (error) {
+      console.error("Erreur chargement image:", error);
+      doc.setFontSize(9);
+      doc.setTextColor(150, 150, 150);
+      doc.text("⚠️ Image non disponible", 14, y);
+      y += 8;
+      doc.setTextColor(0, 0, 0);
     }
-
-    doc.save(`reclamation_${claim.id}.pdf`);
   }
+
+  // Section 2: Description du problème
+  doc.setFontSize(12);
+  doc.text("2. DESCRIPTION DU PROBLÈME", 14, y);
+  y += 5;
+
+  autoTable(doc, {
+    startY: y,
+    head: [['Question', 'Réponse']],
+    body: [
+      ['What happened?', claim.problemWhatHappened || '-'],
+      ['Why is it a problem?', claim.problemWhy || '-'],
+      ['When detected?', claim.problemWhenDetected || '-'],
+      ['Who detected?', claim.problemWhoDetected || '-'],
+      ['Where detected?', claim.problemWhereDetected || '-'],
+      ['How detected?', claim.problemHowDetected || '-']
+    ],
+    headStyles: { fillColor: [30, 60, 114] },
+    styles: { fontSize: 9 },
+    columnStyles: { 0: { cellWidth: 60 }, 1: { cellWidth: 120 } }
+  });
+
+  // Section 3: Suivi de la réclamation
+  y = (doc as any).lastAutoTable.finalY + 10;
+  doc.setFontSize(12);
+  doc.text("3. SUIVI DE LA RÉCLAMATION", 14, y);
+  y += 5;
+
+  autoTable(doc, {
+    startY: y,
+    head: [['Champ', 'Valeur']],
+    body: [
+      ['Titre', claim.title || '-'],
+      ['Description', claim.description || '-'],
+      ['Priorité', this.getPriorityLabel(claim.priority || '')],
+      ['Statut', this.getStatusLabel(claim.status || '')],
+      ['Reporté par', claim.reportedBy || '-'],
+      ['Date report', this.formatDate(claim.reportedDate)],
+      ['Assigné à', claim.assignedTo || '-'],
+      ['Date assignation', this.formatDate(claim.assignedDate)],
+      ['Action prise', claim.actionTaken || '-'],
+      ['Résolution', claim.resolution || '-'],
+      ['Résolu par', claim.resolvedBy || '-'],
+      ['Date résolution', this.formatDate(claim.resolvedDate)],
+      ['Date estimée', this.formatDate(claim.estimatedResolutionDate)],
+      ['Date réelle', this.formatDate(claim.actualResolutionDate)]
+    ],
+    headStyles: { fillColor: [30, 60, 114] },
+    styles: { fontSize: 9 },
+    columnStyles: { 0: { cellWidth: 60 }, 1: { cellWidth: 120 } }
+  });
+
+  // Pied de page
+  const pageCount = doc.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8);
+    doc.text("Système de Gestion Qualité Leoni", 14, doc.internal.pageSize.height - 10);
+    doc.text(`Page ${i}/${pageCount}`, doc.internal.pageSize.width - 20, doc.internal.pageSize.height - 10);
+  }
+
+  doc.save(`reclamation_${claim.id}.pdf`);
+}
+
+// ========== UTILITAIRE : Convertir URL image en Base64 ==========
+private imageToBase64(url: string): Promise<string | null> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'Anonymous';
+
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+
+      if (ctx) {
+        ctx.drawImage(img, 0, 0);
+        // Tenter d'obtenir le format original
+        let format = 'image/jpeg';
+        if (url.toLowerCase().includes('.png')) {
+          format = 'image/png';
+        } else if (url.toLowerCase().includes('.gif')) {
+          format = 'image/gif';
+        }
+        const base64 = canvas.toDataURL(format, 0.8);
+        resolve(base64);
+      } else {
+        resolve(null);
+      }
+    };
+
+    img.onerror = () => {
+      console.error("Erreur chargement image:", url);
+      resolve(null);
+    };
+
+    img.src = url;
+  });
+}
 
   exportAllClaimsPDF() {
     const doc = new jsPDF();

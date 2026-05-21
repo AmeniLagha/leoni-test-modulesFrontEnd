@@ -423,7 +423,7 @@ async exportClaimPDF(claim: Claim) {
   const doc = new jsPDF();
 
   // Logo
-  doc.addImage("assets/leonilogo.png", 'PNG', 15, 8, 30, 15);
+  doc.addImage("assets/leonilogo.png", 'PNG', 15, 10, 30, 15);
 
   // Titre
   doc.setFontSize(18);

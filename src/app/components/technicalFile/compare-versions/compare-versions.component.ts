@@ -87,9 +87,9 @@ export class CompareVersionsComponent implements OnInit {
     });
   }
 
-  goBack1(): void {
-  window.history.back();
-}
+  goBack(): void {
+    this.router.navigate(['/technical-files/items', this.itemId, 'detail']);
+  }
 
   // Formater les valeurs
   formatValue(value: any): string {

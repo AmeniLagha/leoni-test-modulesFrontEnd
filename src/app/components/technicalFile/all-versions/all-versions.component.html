@@ -6,9 +6,11 @@
       <i class="bi bi-clock-history"></i>
       Historique des versions - Item "{{ itemXCode }}"
     </h2>
-    <button class="btn btn-secondary" (click)="goBack()">
-      <i class="bi bi-arrow-left"></i> Retour
-    </button>
+    <div class="header-actions">
+      <button class="btn btn-secondary" (click)="goBack()">
+        <i class="bi bi-arrow-left"></i> Retour
+      </button>
+    </div>
   </div>
 
   <!-- Loading -->
@@ -53,184 +55,181 @@
         </div>
       </div>
 
-      <!-- Tableau complet de la version -->
-      <div class="version-table">
-        <table class="data-table">
+      <!-- Tableau complet de la version (même style que la liste des dossiers) -->
+      <div class="version-table-container">
+        <table class="items-table">
           <thead>
-            <tr>
-              <th style="width: 30%">Champ</th>
-              <th style="width: 70%">Valeur</th>
-            </tr>
+            <!-- PREMIÈRE LIGNE D'EN-TÊTE : GROUPES PRINCIPAUX -->
+            <tr class="group-header">
+              <th rowspan="4">#</th>
+              <th colspan="3">Général</th>
+              <th colspan="5">Code d'identité</th>
+              <th colspan="16">Inspection</th>
+              <th rowspan="4">Remarques</th>
+             </tr>
+
+            <!-- DEUXIÈME LIGNE D'EN-TÊTE : SOUS-GROUPES PRINCIPAUX -->
+            <tr class="group-header">
+              <th colspan="3"></th>
+              <th colspan="5"></th>
+              <th colspan="1">Réf. Pine Push Back</th>
+              <th colspan="6">Verification test raideur pine Push Back</th>
+              <th colspan="6">Verification valeur étanchéité</th>
+              <th colspan="3">Les détections</th>
+             </tr>
+
+            <!-- TROISIÈME LIGNE D'EN-TÊTE : SOUS-GROUPES -->
+            <tr class="group-header">
+              <!-- Général -->
+              <th>Position</th>
+              <th>Date d'entretien</th>
+              <th>Nom Technicien</th>
+
+              <!-- Code d'identité -->
+              <th>X_Code</th>
+              <th>N° réf LEONI</th>
+              <th>Index</th>
+              <th>Producteur</th>
+              <th>Type</th>
+
+              <!-- Réf. Pine (colonne seule) -->
+              <th></th>
+
+              <!-- Raideur (2 sous-groupes) -->
+              <th colspan="3">Raideur des pins</th>
+              <th colspan="3">Displacement path</th>
+
+              <!-- Étanchéité (2 sous-groupes) -->
+              <th colspan="3">Valeur maximale</th>
+              <th colspan="3">Valeur programmée</th>
+
+              <!-- Détections -->
+              <th colspan="3"></th>
+             </tr>
+
+            <!-- QUATRIÈME LIGNE D'EN-TÊTE : SOUS-SOUS-GROUPES (M1, M2, M3) -->
+            <tr class="subgroup-header">
+              <!-- Général (colonnes vides) -->
+              <th></th><th></th><th></th>
+
+              <!-- Code d'identité (colonnes vides) -->
+              <th></th><th></th><th></th><th></th><th></th>
+
+              <!-- Réf. Pine (colonne vide) -->
+              <th></th>
+
+              <!-- Raideur des pins -->
+              <th>M1</th><th>M2</th><th>M3</th>
+
+              <!-- Displacement path -->
+              <th>M1</th><th>M2</th><th>M3</th>
+
+              <!-- Valeur maximale étanchéité -->
+              <th>M1</th><th>M2</th><th>M3</th>
+
+              <!-- Valeur programmée étanchéité -->
+              <th>M1</th><th>M2</th><th>M3</th>
+
+              <!-- Détections -->
+              <th>M1</th><th>M2</th><th>M3</th>
+             </tr>
           </thead>
           <tbody>
-            <!-- Général -->
-            <tr class="section-header">
-              <td colspan="2"><strong>📋 GÉNÉRAL</strong></td>
-            </tr>
             <tr>
-              <td>Position</td>
+              <!-- # -->
+              <td class="item-number">1</td>
+
+              <!-- GÉNÉRAL -->
               <td>{{ formatValue(version.entity?.position) }}</td>
-            </tr>
-            <tr>
-              <td>Technicien</td>
+              <td>{{ formatDate(version.entity?.maintenanceDate) }}</td>
               <td>{{ formatValue(version.entity?.technicianName) }}</td>
-            </tr>
-            <tr>
-              <td>Date de maintenance</td>
-              <td>{{ formatValue(version.entity?.maintenanceDate) }}</td>
-            </tr>
 
-            <!-- Code d'identité -->
-            <tr class="section-header">
-              <td colspan="2"><strong>🔑 CODE D'IDENTITÉ</strong></td>
-            </tr>
-            <tr>
-              <td>X Code</td>
+              <!-- CODE D'IDENTITÉ -->
               <td>{{ formatValue(version.entity?.xCode) }}</td>
-            </tr>
-            <tr>
-              <td>Index</td>
-              <td>{{ formatValue(version.entity?.indexValue) }}</td>
-            </tr>
-            <tr>
-              <td>Réf. LEONI</td>
               <td>{{ formatValue(version.entity?.leoniReferenceNumber) }}</td>
-            </tr>
-            <tr>
-              <td>Producteur</td>
+              <td>{{ formatValue(version.entity?.indexValue) }}</td>
               <td>{{ formatValue(version.entity?.producer) }}</td>
-            </tr>
-            <tr>
-              <td>Type</td>
               <td>{{ formatValue(version.entity?.type) }}</td>
-            </tr>
-            <tr>
-              <td>Réf. Pine Push Back</td>
+
+              <!-- RÉFÉRENCE PINE PUSH BACK -->
               <td>{{ formatValue(version.entity?.referencePinePushBack) }}</td>
-            </tr>
 
-            <!-- Raideur des pins -->
-            <tr class="section-header">
-              <td colspan="2"><strong>📊 RAIDEUR DES PINS</strong></td>
-            </tr>
-            <tr>
-              <td>Raideur M1</td>
-              <td>{{ formatValue(version.entity?.pinRigidityM1) }}</td>
-            </tr>
-            <tr>
-              <td>Raideur M2</td>
-              <td>{{ formatValue(version.entity?.pinRigidityM2) }}</td>
-            </tr>
-            <tr>
-              <td>Raideur M3</td>
-              <td>{{ formatValue(version.entity?.pinRigidityM3) }}</td>
-            </tr>
+              <!-- RAIDEUR DES PINS -->
+              <td><span class="value-badge">{{ formatOkNok(version.entity?.pinRigidityM1) }}</span></td>
+              <td><span class="value-badge">{{ formatOkNok(version.entity?.pinRigidityM2) }}</span></td>
+              <td><span class="value-badge">{{ formatOkNok(version.entity?.pinRigidityM3) }}</span></td>
 
-            <!-- Déplacement -->
-            <tr class="section-header">
-              <td colspan="2"><strong>📏 DÉPLACEMENT</strong></td>
-            </tr>
-            <tr>
-              <td>Displacement M1</td>
-              <td>{{ formatValue(version.entity?.displacementPathM1) }}</td>
-            </tr>
-            <tr>
-              <td>Displacement M2</td>
-              <td>{{ formatValue(version.entity?.displacementPathM2) }}</td>
-            </tr>
-            <tr>
-              <td>Displacement M3</td>
-              <td>{{ formatValue(version.entity?.displacementPathM3) }}</td>
-            </tr>
+              <!-- DISPLACEMENT PATH -->
+              <td><span class="value-badge">{{ formatValue(version.entity?.displacementPathM1) }}</span></td>
+              <td><span class="value-badge">{{ formatValue(version.entity?.displacementPathM2) }}</span></td>
+              <td><span class="value-badge">{{ formatValue(version.entity?.displacementPathM3) }}</span></td>
 
-            <!-- Max Sealing -->
-            <tr class="section-header">
-              <td colspan="2"><strong>🔒 VALEUR MAXIMALE D'ÉTANCHÉITÉ</strong></td>
-            </tr>
-            <tr>
-              <td>Max Sealing M1</td>
-              <td>{{ formatValue(version.entity?.maxSealingValueM1) }}</td>
-            </tr>
-            <tr>
-              <td>Max Sealing M2</td>
-              <td>{{ formatValue(version.entity?.maxSealingValueM2) }}</td>
-            </tr>
-            <tr>
-              <td>Max Sealing M3</td>
-              <td>{{ formatValue(version.entity?.maxSealingValueM3) }}</td>
-            </tr>
+              <!-- VALEUR MAXIMALE D'ÉTANCHÉITÉ -->
+              <td><span class="value-badge">{{ formatValue(version.entity?.maxSealingValueM1) }}</span></td>
+              <td><span class="value-badge">{{ formatValue(version.entity?.maxSealingValueM2) }}</span></td>
+              <td><span class="value-badge">{{ formatValue(version.entity?.maxSealingValueM3) }}</span></td>
 
-            <!-- Programmed Sealing -->
-            <tr class="section-header">
-              <td colspan="2"><strong>⚙️ VALEUR PROGRAMMÉE D'ÉTANCHÉITÉ</strong></td>
-            </tr>
-            <tr>
-              <td>Prog Sealing M1</td>
-              <td>{{ formatValue(version.entity?.programmedSealingValueM1) }}</td>
-            </tr>
-            <tr>
-              <td>Prog Sealing M2</td>
-              <td>{{ formatValue(version.entity?.programmedSealingValueM2) }}</td>
-            </tr>
-            <tr>
-              <td>Prog Sealing M3</td>
-              <td>{{ formatValue(version.entity?.programmedSealingValueM3) }}</td>
-            </tr>
+              <!-- VALEUR PROGRAMMÉE D'ÉTANCHÉITÉ -->
+              <td><span class="value-badge">{{ formatValue(version.entity?.programmedSealingValueM1) }}</span></td>
+              <td><span class="value-badge">{{ formatValue(version.entity?.programmedSealingValueM2) }}</span></td>
+              <td><span class="value-badge">{{ formatValue(version.entity?.programmedSealingValueM3) }}</span></td>
 
-            <!-- Détections -->
-            <tr class="section-header">
-              <td colspan="2"><strong>🔍 DÉTECTIONS</strong></td>
-            </tr>
-            <tr>
-              <td>Détection M1</td>
-              <td>{{ formatValue(version.entity?.detectionsM1) }}</td>
-            </tr>
-            <tr>
-              <td>Détection M2</td>
-              <td>{{ formatValue(version.entity?.detectionsM2) }}</td>
-            </tr>
-            <tr>
-              <td>Détection M3</td>
-              <td>{{ formatValue(version.entity?.detectionsM3) }}</td>
-            </tr>
+              <!-- DÉTECTIONS -->
+              <td><span class="value-badge">{{ formatOkNok(version.entity?.detectionsM1) }}</span></td>
+              <td><span class="value-badge">{{ formatOkNok(version.entity?.detectionsM2) }}</span></td>
+              <td><span class="value-badge">{{ formatOkNok(version.entity?.detectionsM3) }}</span></td>
 
-            <!-- Validation -->
-            <tr class="section-header">
-              <td colspan="2"><strong>✅ STATUT DE VALIDATION</strong></td>
-            </tr>
-            <tr>
-              <td>Statut</td>
-              <td>{{ formatStatus(version.entity?.validationStatus) }}</td>
-            </tr>
-            <tr *ngIf="version.entity?.validatedByPp">
-              <td>Validé par PP</td>
-              <td>{{ version.entity?.validatedByPp }} ({{ version.entity?.validatedAtPp | date:'dd/MM/yyyy' }})</td>
-            </tr>
-            <tr *ngIf="version.entity?.validatedByMc">
-              <td>Validé par MC</td>
-              <td>{{ version.entity?.validatedByMc }} ({{ version.entity?.validatedAtMc | date:'dd/MM/yyyy' }})</td>
-            </tr>
-            <tr *ngIf="version.entity?.validatedByMp">
-              <td>Validé par MP</td>
-              <td>{{ version.entity?.validatedByMp }} ({{ version.entity?.validatedAtMp | date:'dd/MM/yyyy' }})</td>
-            </tr>
-
-            <!-- Remarques -->
-            <tr class="section-header">
-              <td colspan="2"><strong>💬 REMARQUES</strong></td>
-            </tr>
-            <tr>
-              <td>Remarques</td>
+              <!-- Remarques -->
               <td>{{ formatValue(version.entity?.remarks) }}</td>
+            </tr>
+
+            <!-- Ligne d'information sur le statut de validation -->
+            <tr class="status-info-row">
+              <td colspan="25">
+                <div class="status-info">
+                  <span class="status-label">Statut de validation:</span>
+                  <span class="status-badge" [ngClass]="getStatusClass(version.entity?.validationStatus)">
+                    {{ getStatusLabel(version.entity?.validationStatus) }}
+                  </span>
+                  <span *ngIf="version.entity?.validatedByPp" class="validator-info">
+                    <i class="bi bi-check-circle"></i> Validé PP: {{ version.entity?.validatedByPp }} ({{ version.entity?.validatedAtPp | date:'dd/MM/yyyy HH:mm' }})
+                  </span>
+                  <span *ngIf="version.entity?.validatedByMc" class="validator-info">
+                    <i class="bi bi-check-circle"></i> Validé MC: {{ version.entity?.validatedByMc }} ({{ version.entity?.validatedAtMc | date:'dd/MM/yyyy HH:mm' }})
+                  </span>
+                  <span *ngIf="version.entity?.validatedByMp" class="validator-info">
+                    <i class="bi bi-check-circle"></i> Validé MP: {{ version.entity?.validatedByMp }} ({{ version.entity?.validatedAtMp | date:'dd/MM/yyyy HH:mm' }})
+                  </span>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
 
+      <!-- Ligne de différences par rapport à la version précédente -->
+      <div *ngIf="i > 0" class="diff-summary">
+        <div class="diff-header" (click)="toggleDiffForVersion(i)">
+          <i class="bi" [class.bi-chevron-down]="expandedDiffs[i]" [class.bi-chevron-right]="!expandedDiffs[i]"></i>
+          <span>Modifications par rapport à la version précédente ({{ getChangesCount(version) }} changement(s))</span>
+        </div>
+        <div class="diff-content" *ngIf="expandedDiffs[i]">
+          <div *ngFor="let change of getChangesBetweenVersions(versions[i-1], version)" class="change-item">
+            <span class="field-name">{{ getFieldLabel(change.fieldName) }}</span>
+            <span class="old-value">"{{ change.oldValue }}"</span>
+            <i class="bi bi-arrow-right-short"></i>
+            <span class="new-value">"{{ change.newValue }}"</span>
+          </div>
+          <div *ngIf="getChangesBetweenVersions(versions[i-1], version).length === 0" class="no-changes">
+            Aucune modification détectée
+          </div>
+        </div>
+      </div>
+
       <!-- Séparateur entre les versions -->
       <div *ngIf="i < versions.length - 1" class="version-separator">
         <i class="bi bi-arrow-down"></i>
-        <span>Modification suivante</span>
+        <span>▼ Version suivante ▼</span>
         <i class="bi bi-arrow-down"></i>
       </div>
     </div>

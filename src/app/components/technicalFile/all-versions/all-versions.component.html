@@ -20,9 +20,14 @@
         Historique des versions - "{{ itemXCode }}"
       </h2>
     </div>
-    <button class="btn btn-outline-secondary" (click)="goBack()">
-      <i class="bi bi-arrow-left me-1"></i> Retour
-    </button>
+    <div class="d-flex gap-2">
+      <button class="btn btn-success" (click)="exportAllVersions()" *ngIf="versions.length > 0">
+        <i class="bi bi-file-earmark-excel me-1"></i> Exporter toutes les versions
+      </button>
+      <button class="btn btn-outline-secondary" (click)="goBack()">
+        <i class="bi bi-arrow-left me-1"></i> Retour
+      </button>
+    </div>
   </div>
 
   <!-- Loading -->
@@ -94,7 +99,7 @@
           <!-- Tableau responsive -->
           <div class="card-body p-0">
             <div class="table-responsive">
-              <table class="table table-bordered table-hover mb-0">
+              <table class="table table-bordered table-hover mb-0" [id]="'version-table-' + i">
                 <thead class="table-light">
                   <!-- Ligne 1: Groupes principaux -->
                   <tr class="text-center align-middle">
@@ -220,25 +225,30 @@
               </table>
             </div>
 
-            <!-- Status bar -->
+            <!-- Status bar avec bouton export -->
             <div class="bg-light p-3 border-top">
-              <div class="d-flex flex-wrap align-items-center gap-3">
-                <span class="fw-semibold">Statut de validation:</span>
-                <span class="badge fs-6 px-3 py-2" [ngClass]="getValidationBadgeClass(version.entity?.validationStatus)">
-                  <i class="bi" [ngClass]="getValidationIcon(version.entity?.validationStatus)"></i>
-                  {{ getStatusLabel(version.entity?.validationStatus) }}
-                </span>
-                <div class="d-flex gap-2 ms-auto">
-                  <span *ngIf="version.entity?.validatedByPp" class="badge bg-success bg-opacity-10 text-success border border-success">
-                    <i class="bi bi-person-check"></i> PP: {{ version.entity?.validatedByPp }}
+              <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                  <span class="fw-semibold">Statut de validation:</span>
+                  <span class="badge fs-6 px-3 py-2" [ngClass]="getValidationBadgeClass(version.entity?.validationStatus)">
+                    <i class="bi" [ngClass]="getValidationIcon(version.entity?.validationStatus)"></i>
+                    {{ getStatusLabel(version.entity?.validationStatus) }}
                   </span>
-                  <span *ngIf="version.entity?.validatedByMc" class="badge bg-info bg-opacity-10 text-info border border-info">
-                    <i class="bi bi-person-check"></i> MC: {{ version.entity?.validatedByMc }}
-                  </span>
-                  <span *ngIf="version.entity?.validatedByMp" class="badge bg-warning bg-opacity-10 text-warning border border-warning">
-                    <i class="bi bi-flag"></i> MP: {{ version.entity?.validatedByMp }}
-                  </span>
+                  <div class="d-flex gap-2">
+                    <span *ngIf="version.entity?.validatedByPp" class="badge bg-success bg-opacity-10 text-success border border-success">
+                      <i class="bi bi-person-check"></i> PP: {{ version.entity?.validatedByPp }}
+                    </span>
+                    <span *ngIf="version.entity?.validatedByMc" class="badge bg-info bg-opacity-10 text-info border border-info">
+                      <i class="bi bi-person-check"></i> MC: {{ version.entity?.validatedByMc }}
+                    </span>
+                    <span *ngIf="version.entity?.validatedByMp" class="badge bg-warning bg-opacity-10 text-warning border border-warning">
+                      <i class="bi bi-flag"></i> MP: {{ version.entity?.validatedByMp }}
+                    </span>
+                  </div>
                 </div>
+                <button class="btn btn-sm btn-success" (click)="exportVersionToExcel(version, i)">
+                  <i class="bi bi-file-earmark-excel me-1"></i> Exporter cette version
+                </button>
               </div>
             </div>
           </div>

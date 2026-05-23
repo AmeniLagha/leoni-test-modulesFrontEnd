@@ -1,243 +1,307 @@
 <!-- all-versions.component.html -->
-<div class="versions-container">
-  <!-- Header -->
-  <div class="page-header">
-    <h2>
-      <i class="bi bi-clock-history"></i>
-      Historique des versions - Item "{{ itemXCode }}"
-    </h2>
-    <div class="header-actions">
-      <button class="btn btn-secondary" (click)="goBack()">
-        <i class="bi bi-arrow-left"></i> Retour
-      </button>
+<div class="container-fluid px-4 py-4">
+  <!-- Header avec Breadcrumb -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-2">
+          <li class="breadcrumb-item">
+            <a href="#" (click)="$event.preventDefault(); goBack()" class="text-decoration-none">
+              <i class="bi bi-folder2"></i> Dossiers techniques
+            </a>
+          </li>
+          <li class="breadcrumb-item active">
+            <i class="bi bi-clock-history"></i> Historique des versions
+          </li>
+        </ol>
+      </nav>
+      <h2 class="mb-0 fw-semibold">
+        <i class="bi bi-clock-history text-primary me-2"></i>
+        Historique des versions - "{{ itemXCode }}"
+      </h2>
     </div>
+    <button class="btn btn-outline-secondary" (click)="goBack()">
+      <i class="bi bi-arrow-left me-1"></i> Retour
+    </button>
   </div>
 
   <!-- Loading -->
-  <div *ngIf="loading" class="loading-container">
-    <div class="spinner"></div>
-    <p>Chargement de l'historique...</p>
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p class="text-muted">Chargement de l'historique des versions...</p>
   </div>
 
   <!-- Error -->
-  <div *ngIf="error" class="error-container">
-    <i class="bi bi-exclamation-triangle-fill"></i>
+  <div *ngIf="error" class="alert alert-danger d-flex align-items-center" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
     <span>{{ error }}</span>
   </div>
 
-  <!-- Résumé des versions -->
-  <div *ngIf="!loading && !error && versions.length > 0" class="versions-summary">
-    <div class="summary-card">
-      <i class="bi bi-files"></i>
-      <span>{{ versions.length }} version(s) disponible(s)</span>
-    </div>
-  </div>
+  <!-- Contenu principal -->
+  <div *ngIf="!loading && !error && versions.length > 0">
 
-  <!-- Liste de TOUS les tableaux (chaque version) -->
-  <div *ngIf="!loading && !error" class="versions-list">
-    <div *ngFor="let version of versions; let i = index" class="version-card-wrapper">
-
-      <!-- En-tête de la version -->
-      <div class="version-header" [class.current-version]="i === versions.length - 1">
-        <div class="version-badge">
-          <i class="bi" [class.bi-file-earmark]="i !== versions.length - 1" [class.bi-file-earmark-check]="i === versions.length - 1"></i>
-          Version {{ version.versionNumber }}
-          <span *ngIf="i === 0" class="badge-creation">Création</span>
-          <span *ngIf="i === versions.length - 1" class="badge-current">Version actuelle</span>
-        </div>
-        <div class="version-meta">
-          <span><i class="bi bi-person"></i> {{ version.modifiedBy }}</span>
-          <span><i class="bi bi-calendar"></i> {{ version.modifiedAt | date:'dd/MM/yyyy HH:mm' }}</span>
-          <span [class]="'revision-type ' + (version.revisionType === 'ADD' ? 'add' : 'mod')">
-            <i class="bi" [class.bi-plus-circle]="version.revisionType === 'ADD'" [class.bi-pencil-square]="version.revisionType === 'MOD'"></i>
-            {{ version.revisionType === 'ADD' ? 'Création' : 'Modification' }}
-          </span>
-        </div>
+    <!-- Badge résumé -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+      <div class="badge bg-primary bg-opacity-10 text-primary p-3 rounded-4">
+        <i class="bi bi-files me-2 fs-5"></i>
+        <span class="fw-semibold">{{ versions.length }} version(s) disponible(s)</span>
       </div>
+      <div class="text-muted small">
+        <i class="bi bi-info-circle"></i> Cliquez sur une version pour voir les détails
+      </div>
+    </div>
 
-      <!-- Tableau complet de la version (même style que la liste des dossiers) -->
-      <div class="version-table-container">
-        <table class="items-table">
-          <thead>
-            <!-- PREMIÈRE LIGNE D'EN-TÊTE : GROUPES PRINCIPAUX -->
-            <tr class="group-header">
-              <th rowspan="4">#</th>
-              <th colspan="3">Général</th>
-              <th colspan="5">Code d'identité</th>
-              <th colspan="16">Inspection</th>
-              <th rowspan="4">Remarques</th>
-             </tr>
+    <!-- Timeline style versions -->
+    <div class="versions-timeline">
+      <div *ngFor="let version of versions; let i = index" class="timeline-item">
 
-            <!-- DEUXIÈME LIGNE D'EN-TÊTE : SOUS-GROUPES PRINCIPAUX -->
-            <tr class="group-header">
-              <th colspan="3"></th>
-              <th colspan="5"></th>
-              <th colspan="1">Réf. Pine Push Back</th>
-              <th colspan="6">Verification test raideur pine Push Back</th>
-              <th colspan="6">Verification valeur étanchéité</th>
-              <th colspan="3">Les détections</th>
-             </tr>
+        <!-- Timeline line -->
+        <div class="timeline-line" *ngIf="i < versions.length - 1"></div>
 
-            <!-- TROISIÈME LIGNE D'EN-TÊTE : SOUS-GROUPES -->
-            <tr class="group-header">
-              <!-- Général -->
-              <th>Position</th>
-              <th>Date d'entretien</th>
-              <th>Nom Technicien</th>
+        <!-- Version card -->
+        <div class="card shadow-sm border-0 rounded-4 mb-4 version-card" [class.current-version-card]="i === versions.length - 1">
 
-              <!-- Code d'identité -->
-              <th>X_Code</th>
-              <th>N° réf LEONI</th>
-              <th>Index</th>
-              <th>Producteur</th>
-              <th>Type</th>
-
-              <!-- Réf. Pine (colonne seule) -->
-              <th></th>
-
-              <!-- Raideur (2 sous-groupes) -->
-              <th colspan="3">Raideur des pins</th>
-              <th colspan="3">Displacement path</th>
-
-              <!-- Étanchéité (2 sous-groupes) -->
-              <th colspan="3">Valeur maximale</th>
-              <th colspan="3">Valeur programmée</th>
-
-              <!-- Détections -->
-              <th colspan="3"></th>
-             </tr>
-
-            <!-- QUATRIÈME LIGNE D'EN-TÊTE : SOUS-SOUS-GROUPES (M1, M2, M3) -->
-            <tr class="subgroup-header">
-              <!-- Général (colonnes vides) -->
-              <th></th><th></th><th></th>
-
-              <!-- Code d'identité (colonnes vides) -->
-              <th></th><th></th><th></th><th></th><th></th>
-
-              <!-- Réf. Pine (colonne vide) -->
-              <th></th>
-
-              <!-- Raideur des pins -->
-              <th>M1</th><th>M2</th><th>M3</th>
-
-              <!-- Displacement path -->
-              <th>M1</th><th>M2</th><th>M3</th>
-
-              <!-- Valeur maximale étanchéité -->
-              <th>M1</th><th>M2</th><th>M3</th>
-
-              <!-- Valeur programmée étanchéité -->
-              <th>M1</th><th>M2</th><th>M3</th>
-
-              <!-- Détections -->
-              <th>M1</th><th>M2</th><th>M3</th>
-             </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <!-- # -->
-              <td class="item-number">1</td>
-
-              <!-- GÉNÉRAL -->
-              <td>{{ formatValue(version.entity?.position) }}</td>
-              <td>{{ formatDate(version.entity?.maintenanceDate) }}</td>
-              <td>{{ formatValue(version.entity?.technicianName) }}</td>
-
-              <!-- CODE D'IDENTITÉ -->
-              <td>{{ formatValue(version.entity?.xCode) }}</td>
-              <td>{{ formatValue(version.entity?.leoniReferenceNumber) }}</td>
-              <td>{{ formatValue(version.entity?.indexValue) }}</td>
-              <td>{{ formatValue(version.entity?.producer) }}</td>
-              <td>{{ formatValue(version.entity?.type) }}</td>
-
-              <!-- RÉFÉRENCE PINE PUSH BACK -->
-              <td>{{ formatValue(version.entity?.referencePinePushBack) }}</td>
-
-              <!-- RAIDEUR DES PINS -->
-              <td><span class="value-badge">{{ formatOkNok(version.entity?.pinRigidityM1) }}</span></td>
-              <td><span class="value-badge">{{ formatOkNok(version.entity?.pinRigidityM2) }}</span></td>
-              <td><span class="value-badge">{{ formatOkNok(version.entity?.pinRigidityM3) }}</span></td>
-
-              <!-- DISPLACEMENT PATH -->
-              <td><span class="value-badge">{{ formatValue(version.entity?.displacementPathM1) }}</span></td>
-              <td><span class="value-badge">{{ formatValue(version.entity?.displacementPathM2) }}</span></td>
-              <td><span class="value-badge">{{ formatValue(version.entity?.displacementPathM3) }}</span></td>
-
-              <!-- VALEUR MAXIMALE D'ÉTANCHÉITÉ -->
-              <td><span class="value-badge">{{ formatValue(version.entity?.maxSealingValueM1) }}</span></td>
-              <td><span class="value-badge">{{ formatValue(version.entity?.maxSealingValueM2) }}</span></td>
-              <td><span class="value-badge">{{ formatValue(version.entity?.maxSealingValueM3) }}</span></td>
-
-              <!-- VALEUR PROGRAMMÉE D'ÉTANCHÉITÉ -->
-              <td><span class="value-badge">{{ formatValue(version.entity?.programmedSealingValueM1) }}</span></td>
-              <td><span class="value-badge">{{ formatValue(version.entity?.programmedSealingValueM2) }}</span></td>
-              <td><span class="value-badge">{{ formatValue(version.entity?.programmedSealingValueM3) }}</span></td>
-
-              <!-- DÉTECTIONS -->
-              <td><span class="value-badge">{{ formatOkNok(version.entity?.detectionsM1) }}</span></td>
-              <td><span class="value-badge">{{ formatOkNok(version.entity?.detectionsM2) }}</span></td>
-              <td><span class="value-badge">{{ formatOkNok(version.entity?.detectionsM3) }}</span></td>
-
-              <!-- Remarques -->
-              <td>{{ formatValue(version.entity?.remarks) }}</td>
-            </tr>
-
-            <!-- Ligne d'information sur le statut de validation -->
-            <tr class="status-info-row">
-              <td colspan="25">
-                <div class="status-info">
-                  <span class="status-label">Statut de validation:</span>
-                  <span class="status-badge" [ngClass]="getStatusClass(version.entity?.validationStatus)">
-                    {{ getStatusLabel(version.entity?.validationStatus) }}
+          <!-- Card header -->
+          <div class="card-header bg-white border-0 pt-4 pb-2 px-4">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+              <div>
+                <div class="d-flex align-items-center gap-3 flex-wrap">
+                  <span class="badge" [ngClass]="i === versions.length - 1 ? 'bg-success' : 'bg-secondary'">
+                    <i class="bi" [class.bi-check-circle]="i === versions.length - 1" [class.bi-file-text]="i !== versions.length - 1"></i>
+                    Version {{ version.versionNumber }}
                   </span>
-                  <span *ngIf="version.entity?.validatedByPp" class="validator-info">
-                    <i class="bi bi-check-circle"></i> Validé PP: {{ version.entity?.validatedByPp }} ({{ version.entity?.validatedAtPp | date:'dd/MM/yyyy HH:mm' }})
+                  <span *ngIf="i === 0" class="badge bg-info">
+                    <i class="bi bi-plus-circle"></i> Création
                   </span>
-                  <span *ngIf="version.entity?.validatedByMc" class="validator-info">
-                    <i class="bi bi-check-circle"></i> Validé MC: {{ version.entity?.validatedByMc }} ({{ version.entity?.validatedAtMc | date:'dd/MM/yyyy HH:mm' }})
-                  </span>
-                  <span *ngIf="version.entity?.validatedByMp" class="validator-info">
-                    <i class="bi bi-check-circle"></i> Validé MP: {{ version.entity?.validatedByMp }} ({{ version.entity?.validatedAtMp | date:'dd/MM/yyyy HH:mm' }})
+                  <span *ngIf="i === versions.length - 1" class="badge bg-warning text-dark">
+                    <i class="bi bi-star-fill"></i> Version actuelle
                   </span>
                 </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Ligne de différences par rapport à la version précédente -->
-      <div *ngIf="i > 0" class="diff-summary">
-        <div class="diff-header" (click)="toggleDiffForVersion(i)">
-          <i class="bi" [class.bi-chevron-down]="expandedDiffs[i]" [class.bi-chevron-right]="!expandedDiffs[i]"></i>
-          <span>Modifications par rapport à la version précédente ({{ getChangesCount(version) }} changement(s))</span>
-        </div>
-        <div class="diff-content" *ngIf="expandedDiffs[i]">
-          <div *ngFor="let change of getChangesBetweenVersions(versions[i-1], version)" class="change-item">
-            <span class="field-name">{{ getFieldLabel(change.fieldName) }}</span>
-            <span class="old-value">"{{ change.oldValue }}"</span>
-            <i class="bi bi-arrow-right-short"></i>
-            <span class="new-value">"{{ change.newValue }}"</span>
+              </div>
+              <div class="d-flex gap-3 text-muted small">
+                <span><i class="bi bi-person-circle me-1"></i> {{ version.modifiedBy }}</span>
+                <span><i class="bi bi-calendar3 me-1"></i> {{ version.modifiedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                <span [class.text-success]="version.revisionType === 'ADD'" [class.text-warning]="version.revisionType === 'MOD'">
+                  <i class="bi" [class.bi-plus-circle]="version.revisionType === 'ADD'" [class.bi-pencil-square]="version.revisionType === 'MOD'"></i>
+                  {{ version.revisionType === 'ADD' ? 'Création' : 'Modification' }}
+                </span>
+              </div>
+            </div>
           </div>
-          <div *ngIf="getChangesBetweenVersions(versions[i-1], version).length === 0" class="no-changes">
-            Aucune modification détectée
+
+          <!-- Tableau responsive -->
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover mb-0">
+                <thead class="table-light">
+                  <!-- Ligne 1: Groupes principaux -->
+                  <tr class="text-center align-middle">
+                    <th rowspan="4" class="bg-light" style="min-width: 50px;">#</th>
+                    <th colspan="3" class="bg-primary bg-opacity-10">Général</th>
+                    <th colspan="5" class="bg-primary bg-opacity-10">Code d'identité</th>
+                    <th colspan="16" class="bg-primary bg-opacity-10">Inspection</th>
+                    <th rowspan="4" class="bg-light" style="min-width: 100px;">Remarques</th>
+                  </tr>
+
+                  <!-- Ligne 2: Sous-groupes -->
+                  <tr class="text-center align-middle">
+                    <th colspan="3"></th>
+                    <th colspan="5"></th>
+                    <th colspan="1">Réf. Pine Push Back</th>
+                    <th colspan="6">Verification test raideur pine</th>
+                    <th colspan="6">Verification valeur étanchéité</th>
+                    <th colspan="3">Détections</th>
+                  </tr>
+
+                  <!-- Ligne 3: Détails -->
+                  <tr class="text-center align-middle small">
+                    <th>Position</th>
+                    <th>Date entretien</th>
+                    <th>Technicien</th>
+                    <th>X_Code</th>
+                    <th>Réf LEONI</th>
+                    <th>Index</th>
+                    <th>Producteur</th>
+                    <th>Type</th>
+                    <th></th>
+                    <th colspan="3">Raideur des pins</th>
+                    <th colspan="3">Displacement path</th>
+                    <th colspan="3">Valeur maximale</th>
+                    <th colspan="3">Valeur programmée</th>
+                    <th colspan="3"></th>
+                  </tr>
+
+                  <!-- Ligne 4: M1, M2, M3 -->
+                  <tr class="text-center align-middle small bg-light">
+                    <th></th><th></th><th></th>
+                    <th></th><th></th><th></th><th></th><th></th>
+                    <th></th>
+                    <th>M1</th><th>M2</th><th>M3</th>
+                    <th>M1</th><th>M2</th><th>M3</th>
+                    <th>M1</th><th>M2</th><th>M3</th>
+                    <th>M1</th><th>M2</th><th>M3</th>
+                    <th>M1</th><th>M2</th><th>M3</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="text-center fw-semibold bg-light">1</td>
+
+                    <!-- Général -->
+                    <td>{{ formatValue(version.entity?.position) }}</td>
+                    <td>{{ formatDate(version.entity?.maintenanceDate) }}</td>
+                    <td>{{ formatValue(version.entity?.technicianName) }}</td>
+
+                    <!-- Code identité -->
+                    <td>{{ formatValue(version.entity?.xCode) }}</td>
+                    <td>{{ formatValue(version.entity?.leoniReferenceNumber) }}</td>
+                    <td>{{ formatValue(version.entity?.indexValue) }}</td>
+                    <td>{{ formatValue(version.entity?.producer) }}</td>
+                    <td>{{ formatValue(version.entity?.type) }}</td>
+
+                    <!-- Réf Pine -->
+                    <td>{{ formatValue(version.entity?.referencePinePushBack) }}</td>
+
+                    <!-- Raideur -->
+                    <td [class.table-success]="version.entity?.pinRigidityM1 === 'OK'" [class.table-danger]="version.entity?.pinRigidityM1 === 'NOK'">
+                      <span class="badge" [ngClass]="getOkNokBadgeClass(version.entity?.pinRigidityM1)">
+                        {{ formatOkNok(version.entity?.pinRigidityM1) }}
+                      </span>
+                    </td>
+                    <td [class.table-success]="version.entity?.pinRigidityM2 === 'OK'" [class.table-danger]="version.entity?.pinRigidityM2 === 'NOK'">
+                      <span class="badge" [ngClass]="getOkNokBadgeClass(version.entity?.pinRigidityM2)">
+                        {{ formatOkNok(version.entity?.pinRigidityM2) }}
+                      </span>
+                    </td>
+                    <td [class.table-success]="version.entity?.pinRigidityM3 === 'OK'" [class.table-danger]="version.entity?.pinRigidityM3 === 'NOK'">
+                      <span class="badge" [ngClass]="getOkNokBadgeClass(version.entity?.pinRigidityM3)">
+                        {{ formatOkNok(version.entity?.pinRigidityM3) }}
+                      </span>
+                    </td>
+
+                    <!-- Displacement -->
+                    <td>{{ formatValue(version.entity?.displacementPathM1) }}</td>
+                    <td>{{ formatValue(version.entity?.displacementPathM2) }}</td>
+                    <td>{{ formatValue(version.entity?.displacementPathM3) }}</td>
+
+                    <!-- Max sealing -->
+                    <td>{{ formatValue(version.entity?.maxSealingValueM1) }}</td>
+                    <td>{{ formatValue(version.entity?.maxSealingValueM2) }}</td>
+                    <td>{{ formatValue(version.entity?.maxSealingValueM3) }}</td>
+
+                    <!-- Programmed sealing -->
+                    <td>{{ formatValue(version.entity?.programmedSealingValueM1) }}</td>
+                    <td>{{ formatValue(version.entity?.programmedSealingValueM2) }}</td>
+                    <td>{{ formatValue(version.entity?.programmedSealingValueM3) }}</td>
+
+                    <!-- Détections -->
+                    <td [class.table-success]="version.entity?.detectionsM1 === 'OK'" [class.table-danger]="version.entity?.detectionsM1 === 'NOK'">
+                      <span class="badge" [ngClass]="getOkNokBadgeClass(version.entity?.detectionsM1)">
+                        {{ formatOkNok(version.entity?.detectionsM1) }}
+                      </span>
+                    </td>
+                    <td [class.table-success]="version.entity?.detectionsM2 === 'OK'" [class.table-danger]="version.entity?.detectionsM2 === 'NOK'">
+                      <span class="badge" [ngClass]="getOkNokBadgeClass(version.entity?.detectionsM2)">
+                        {{ formatOkNok(version.entity?.detectionsM2) }}
+                      </span>
+                    </td>
+                    <td [class.table-success]="version.entity?.detectionsM3 === 'OK'" [class.table-danger]="version.entity?.detectionsM3 === 'NOK'">
+                      <span class="badge" [ngClass]="getOkNokBadgeClass(version.entity?.detectionsM3)">
+                        {{ formatOkNok(version.entity?.detectionsM3) }}
+                      </span>
+                    </td>
+
+                    <!-- Remarques -->
+                    <td class="text-wrap" style="max-width: 200px;">{{ formatValue(version.entity?.remarks) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Status bar -->
+            <div class="bg-light p-3 border-top">
+              <div class="d-flex flex-wrap align-items-center gap-3">
+                <span class="fw-semibold">Statut de validation:</span>
+                <span class="badge fs-6 px-3 py-2" [ngClass]="getValidationBadgeClass(version.entity?.validationStatus)">
+                  <i class="bi" [ngClass]="getValidationIcon(version.entity?.validationStatus)"></i>
+                  {{ getStatusLabel(version.entity?.validationStatus) }}
+                </span>
+                <div class="d-flex gap-2 ms-auto">
+                  <span *ngIf="version.entity?.validatedByPp" class="badge bg-success bg-opacity-10 text-success border border-success">
+                    <i class="bi bi-person-check"></i> PP: {{ version.entity?.validatedByPp }}
+                  </span>
+                  <span *ngIf="version.entity?.validatedByMc" class="badge bg-info bg-opacity-10 text-info border border-info">
+                    <i class="bi bi-person-check"></i> MC: {{ version.entity?.validatedByMc }}
+                  </span>
+                  <span *ngIf="version.entity?.validatedByMp" class="badge bg-warning bg-opacity-10 text-warning border border-warning">
+                    <i class="bi bi-flag"></i> MP: {{ version.entity?.validatedByMp }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Diff section (collapsible) -->
+          <div *ngIf="i > 0" class="card-footer bg-white border-0 p-0">
+            <button class="btn w-100 text-start py-3 px-4 rounded-0 collapsed-diff"
+                    [ngClass]="{'border-top': true}"
+                    (click)="toggleDiffForVersion(i)"
+                    [attr.aria-expanded]="expandedDiffs[i]">
+              <div class="d-flex justify-content-between align-items-center">
+                <span>
+                  <i class="bi" [class.bi-chevron-down]="expandedDiffs[i]" [class.bi-chevron-right]="!expandedDiffs[i]"></i>
+                  <i class="bi bi-git-compare ms-2 me-2"></i>
+                  <span class="fw-semibold">Modifications par rapport à la version précédente</span>
+                  <span class="badge bg-secondary ms-2">{{ getChangesCount(version) }} changement(s)</span>
+                </span>
+                <i class="bi" [class.bi-chevron-up]="expandedDiffs[i]" [class.bi-chevron-down]="!expandedDiffs[i]"></i>
+              </div>
+            </button>
+
+            <div class="collapse-diff" [ngClass]="{'show': expandedDiffs[i]}">
+              <div class="p-3 bg-light bg-opacity-25">
+                <div *ngIf="getChangesBetweenVersions(versions[i-1], version).length > 0">
+                  <div *ngFor="let change of getChangesBetweenVersions(versions[i-1], version)"
+                       class="diff-item d-flex align-items-center gap-2 py-2 px-3 mb-2 bg-white rounded-3 shadow-sm">
+                    <span class="fw-semibold text-dark" style="min-width: 180px;">{{ getFieldLabel(change.fieldName) }}</span>
+                    <div class="d-flex align-items-center gap-3 flex-wrap">
+                      <span class="text-danger">
+                        <i class="bi bi-x-circle-fill me-1"></i>
+                        <del>{{ change.oldValue || '-' }}</del>
+                      </span>
+                      <i class="bi bi-arrow-right-short fs-4 text-muted"></i>
+                      <span class="text-success">
+                        <i class="bi bi-check-circle-fill me-1"></i>
+                        <strong>{{ change.newValue || '-' }}</strong>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div *ngIf="getChangesBetweenVersions(versions[i-1], version).length === 0"
+                     class="text-center text-muted py-3">
+                  <i class="bi bi-check-circle fs-3 d-block mb-2"></i>
+                  <span>Aucune modification détectée</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Séparateur entre les versions -->
-      <div *ngIf="i < versions.length - 1" class="version-separator">
-        <i class="bi bi-arrow-down"></i>
-        <span>▼ Version suivante ▼</span>
-        <i class="bi bi-arrow-down"></i>
+        <!-- Timeline separator -->
+        <div *ngIf="i < versions.length - 1" class="text-center my-2">
+          <div class="timeline-arrow">
+            <i class="bi bi-arrow-down-circle-fill fs-2 text-primary opacity-50"></i>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Aucune version -->
-  <div *ngIf="!loading && !error && versions.length === 0" class="empty-state">
-    <i class="bi bi-inbox"></i>
-    <p>Aucun historique trouvé pour cet item</p>
+  <!-- Empty state -->
+  <div *ngIf="!loading && !error && versions.length === 0" class="text-center py-5">
+    <i class="bi bi-inbox fs-1 text-muted mb-3 d-block"></i>
+    <p class="text-muted">Aucun historique trouvé pour cet item</p>
   </div>
 </div>

@@ -229,4 +229,33 @@ export class AllVersionsComponent implements OnInit {
     };
     return labels[fieldName] || fieldName;
   }
+  // Ajouter ces méthodes dans le composant TypeScript
+getOkNokBadgeClass(value: string): string {
+  if (!value) return 'bg-secondary';
+  if (value === 'OK' || value === 'Ok' || value === 'ok') return 'badge-ok';
+  if (value === 'NOK' || value === 'Nok' || value === 'nok') return 'badge-nok';
+  return 'bg-secondary';
+}
+
+getValidationBadgeClass(status: string): string {
+  if (!status) return 'bg-secondary';
+  switch(status) {
+    case 'DRAFT': return 'bg-warning text-dark';
+    case 'VALIDATED_PP': return 'bg-info text-dark';
+    case 'VALIDATED_MC': return 'bg-primary';
+    case 'VALIDATED_MP': return 'bg-success';
+    default: return 'bg-secondary';
+  }
+}
+
+getValidationIcon(status: string): string {
+  if (!status) return 'bi-question-circle';
+  switch(status) {
+    case 'DRAFT': return 'bi-pencil';
+    case 'VALIDATED_PP': return 'bi-person-check';
+    case 'VALIDATED_MC': return 'bi-person-check-fill';
+    case 'VALIDATED_MP': return 'bi-flag-fill';
+    default: return 'bi-question-circle';
+  }
+}
 }

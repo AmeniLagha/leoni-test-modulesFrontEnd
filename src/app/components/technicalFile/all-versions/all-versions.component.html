@@ -1,0 +1,244 @@
+<!-- all-versions.component.html -->
+<div class="versions-container">
+  <!-- Header -->
+  <div class="page-header">
+    <h2>
+      <i class="bi bi-clock-history"></i>
+      Historique des versions - Item "{{ itemXCode }}"
+    </h2>
+    <button class="btn btn-secondary" (click)="goBack()">
+      <i class="bi bi-arrow-left"></i> Retour
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Chargement de l'historique...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error" class="error-container">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <span>{{ error }}</span>
+  </div>
+
+  <!-- Résumé des versions -->
+  <div *ngIf="!loading && !error && versions.length > 0" class="versions-summary">
+    <div class="summary-card">
+      <i class="bi bi-files"></i>
+      <span>{{ versions.length }} version(s) disponible(s)</span>
+    </div>
+  </div>
+
+  <!-- Liste de TOUS les tableaux (chaque version) -->
+  <div *ngIf="!loading && !error" class="versions-list">
+    <div *ngFor="let version of versions; let i = index" class="version-card-wrapper">
+
+      <!-- En-tête de la version -->
+      <div class="version-header" [class.current-version]="i === versions.length - 1">
+        <div class="version-badge">
+          <i class="bi" [class.bi-file-earmark]="i !== versions.length - 1" [class.bi-file-earmark-check]="i === versions.length - 1"></i>
+          Version {{ version.versionNumber }}
+          <span *ngIf="i === 0" class="badge-creation">Création</span>
+          <span *ngIf="i === versions.length - 1" class="badge-current">Version actuelle</span>
+        </div>
+        <div class="version-meta">
+          <span><i class="bi bi-person"></i> {{ version.modifiedBy }}</span>
+          <span><i class="bi bi-calendar"></i> {{ version.modifiedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+          <span [class]="'revision-type ' + (version.revisionType === 'ADD' ? 'add' : 'mod')">
+            <i class="bi" [class.bi-plus-circle]="version.revisionType === 'ADD'" [class.bi-pencil-square]="version.revisionType === 'MOD'"></i>
+            {{ version.revisionType === 'ADD' ? 'Création' : 'Modification' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Tableau complet de la version -->
+      <div class="version-table">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 30%">Champ</th>
+              <th style="width: 70%">Valeur</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Général -->
+            <tr class="section-header">
+              <td colspan="2"><strong>📋 GÉNÉRAL</strong></td>
+            </tr>
+            <tr>
+              <td>Position</td>
+              <td>{{ formatValue(version.entity?.position) }}</td>
+            </tr>
+            <tr>
+              <td>Technicien</td>
+              <td>{{ formatValue(version.entity?.technicianName) }}</td>
+            </tr>
+            <tr>
+              <td>Date de maintenance</td>
+              <td>{{ formatValue(version.entity?.maintenanceDate) }}</td>
+            </tr>
+
+            <!-- Code d'identité -->
+            <tr class="section-header">
+              <td colspan="2"><strong>🔑 CODE D'IDENTITÉ</strong></td>
+            </tr>
+            <tr>
+              <td>X Code</td>
+              <td>{{ formatValue(version.entity?.xCode) }}</td>
+            </tr>
+            <tr>
+              <td>Index</td>
+              <td>{{ formatValue(version.entity?.indexValue) }}</td>
+            </tr>
+            <tr>
+              <td>Réf. LEONI</td>
+              <td>{{ formatValue(version.entity?.leoniReferenceNumber) }}</td>
+            </tr>
+            <tr>
+              <td>Producteur</td>
+              <td>{{ formatValue(version.entity?.producer) }}</td>
+            </tr>
+            <tr>
+              <td>Type</td>
+              <td>{{ formatValue(version.entity?.type) }}</td>
+            </tr>
+            <tr>
+              <td>Réf. Pine Push Back</td>
+              <td>{{ formatValue(version.entity?.referencePinePushBack) }}</td>
+            </tr>
+
+            <!-- Raideur des pins -->
+            <tr class="section-header">
+              <td colspan="2"><strong>📊 RAIDEUR DES PINS</strong></td>
+            </tr>
+            <tr>
+              <td>Raideur M1</td>
+              <td>{{ formatValue(version.entity?.pinRigidityM1) }}</td>
+            </tr>
+            <tr>
+              <td>Raideur M2</td>
+              <td>{{ formatValue(version.entity?.pinRigidityM2) }}</td>
+            </tr>
+            <tr>
+              <td>Raideur M3</td>
+              <td>{{ formatValue(version.entity?.pinRigidityM3) }}</td>
+            </tr>
+
+            <!-- Déplacement -->
+            <tr class="section-header">
+              <td colspan="2"><strong>📏 DÉPLACEMENT</strong></td>
+            </tr>
+            <tr>
+              <td>Displacement M1</td>
+              <td>{{ formatValue(version.entity?.displacementPathM1) }}</td>
+            </tr>
+            <tr>
+              <td>Displacement M2</td>
+              <td>{{ formatValue(version.entity?.displacementPathM2) }}</td>
+            </tr>
+            <tr>
+              <td>Displacement M3</td>
+              <td>{{ formatValue(version.entity?.displacementPathM3) }}</td>
+            </tr>
+
+            <!-- Max Sealing -->
+            <tr class="section-header">
+              <td colspan="2"><strong>🔒 VALEUR MAXIMALE D'ÉTANCHÉITÉ</strong></td>
+            </tr>
+            <tr>
+              <td>Max Sealing M1</td>
+              <td>{{ formatValue(version.entity?.maxSealingValueM1) }}</td>
+            </tr>
+            <tr>
+              <td>Max Sealing M2</td>
+              <td>{{ formatValue(version.entity?.maxSealingValueM2) }}</td>
+            </tr>
+            <tr>
+              <td>Max Sealing M3</td>
+              <td>{{ formatValue(version.entity?.maxSealingValueM3) }}</td>
+            </tr>
+
+            <!-- Programmed Sealing -->
+            <tr class="section-header">
+              <td colspan="2"><strong>⚙️ VALEUR PROGRAMMÉE D'ÉTANCHÉITÉ</strong></td>
+            </tr>
+            <tr>
+              <td>Prog Sealing M1</td>
+              <td>{{ formatValue(version.entity?.programmedSealingValueM1) }}</td>
+            </tr>
+            <tr>
+              <td>Prog Sealing M2</td>
+              <td>{{ formatValue(version.entity?.programmedSealingValueM2) }}</td>
+            </tr>
+            <tr>
+              <td>Prog Sealing M3</td>
+              <td>{{ formatValue(version.entity?.programmedSealingValueM3) }}</td>
+            </tr>
+
+            <!-- Détections -->
+            <tr class="section-header">
+              <td colspan="2"><strong>🔍 DÉTECTIONS</strong></td>
+            </tr>
+            <tr>
+              <td>Détection M1</td>
+              <td>{{ formatValue(version.entity?.detectionsM1) }}</td>
+            </tr>
+            <tr>
+              <td>Détection M2</td>
+              <td>{{ formatValue(version.entity?.detectionsM2) }}</td>
+            </tr>
+            <tr>
+              <td>Détection M3</td>
+              <td>{{ formatValue(version.entity?.detectionsM3) }}</td>
+            </tr>
+
+            <!-- Validation -->
+            <tr class="section-header">
+              <td colspan="2"><strong>✅ STATUT DE VALIDATION</strong></td>
+            </tr>
+            <tr>
+              <td>Statut</td>
+              <td>{{ formatStatus(version.entity?.validationStatus) }}</td>
+            </tr>
+            <tr *ngIf="version.entity?.validatedByPp">
+              <td>Validé par PP</td>
+              <td>{{ version.entity?.validatedByPp }} ({{ version.entity?.validatedAtPp | date:'dd/MM/yyyy' }})</td>
+            </tr>
+            <tr *ngIf="version.entity?.validatedByMc">
+              <td>Validé par MC</td>
+              <td>{{ version.entity?.validatedByMc }} ({{ version.entity?.validatedAtMc | date:'dd/MM/yyyy' }})</td>
+            </tr>
+            <tr *ngIf="version.entity?.validatedByMp">
+              <td>Validé par MP</td>
+              <td>{{ version.entity?.validatedByMp }} ({{ version.entity?.validatedAtMp | date:'dd/MM/yyyy' }})</td>
+            </tr>
+
+            <!-- Remarques -->
+            <tr class="section-header">
+              <td colspan="2"><strong>💬 REMARQUES</strong></td>
+            </tr>
+            <tr>
+              <td>Remarques</td>
+              <td>{{ formatValue(version.entity?.remarks) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Séparateur entre les versions -->
+      <div *ngIf="i < versions.length - 1" class="version-separator">
+        <i class="bi bi-arrow-down"></i>
+        <span>Modification suivante</span>
+        <i class="bi bi-arrow-down"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Aucune version -->
+  <div *ngIf="!loading && !error && versions.length === 0" class="empty-state">
+    <i class="bi bi-inbox"></i>
+    <p>Aucun historique trouvé pour cet item</p>
+  </div>
+</div>

@@ -96,7 +96,10 @@ loadItemDetails(itemId: number) {
     }
   });
 }
-
+// Dans item-detail.component.ts
+showAllVersions(): void {
+  this.router.navigate(['/technical-files/items', this.itemId, 'all-versions']);
+}
   // Ouvrir le formulaire de stock
   openStockForm() {
     // Récupérer les informations pré-remplies

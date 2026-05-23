@@ -325,6 +325,7 @@
         title="Comparer les versions">
   <i class="bi bi-journal-check"></i>
 </button>
+
   <!-- BOUTON DÉTAIL (toujours visible) -->
   <button class="btn-sm btn-detail"
           (click)="detailItem(item.id)"
@@ -442,19 +443,19 @@
 <div *ngIf="!loading && !error && filteredFiles.length > 0" class="pagination-container">
   <div class="pagination-info">
     <span>
-      Affichage de 
-      <strong>{{ (currentPage - 1) * itemsPerPage + 1 }}</strong> 
-      à 
-      <strong>{{ Math.min(currentPage * itemsPerPage, filteredFiles.length) }}</strong> 
-      sur 
-      <strong>{{ filteredFiles.length }}</strong> 
+      Affichage de
+      <strong>{{ (currentPage - 1) * itemsPerPage + 1 }}</strong>
+      à
+      <strong>{{ Math.min(currentPage * itemsPerPage, filteredFiles.length) }}</strong>
+      sur
+      <strong>{{ filteredFiles.length }}</strong>
       dossiers
     </span>
   </div>
 
   <div class="pagination-controls">
-    <button 
-      class="pagination-btn" 
+    <button
+      class="pagination-btn"
       [disabled]="currentPage === 1"
       (click)="previousPage()">
       <i class="bi bi-chevron-left"></i>
@@ -462,7 +463,7 @@
     </button>
 
     <div class="pagination-pages">
-      <button 
+      <button
         *ngFor="let page of getPagesToShow()"
         class="pagination-page-btn"
         [class.active]="page === currentPage"
@@ -471,8 +472,8 @@
       </button>
     </div>
 
-    <button 
-      class="pagination-btn" 
+    <button
+      class="pagination-btn"
       [disabled]="currentPage === totalPages"
       (click)="nextPage()">
       Suivant

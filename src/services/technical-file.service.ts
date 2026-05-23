@@ -154,4 +154,12 @@ export class TechnicalFileService {
       headers: this.getAuthHeaders()
     }).pipe(map(res => this.extractData(res)));
   }
+  // technical-file.service.ts - Ajouter cette méthode
+
+getAllVersions(itemId: number): Observable<any> {
+  return this.http.get(`${this.api}/items/${itemId}/all-versions`,{
+    headers: this.getAuthHeaders()
+  });
+
+}
 }

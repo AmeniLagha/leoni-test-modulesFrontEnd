@@ -501,7 +501,9 @@
   .register-sidebar {
     width: 100%;
   }
-  /* Roles - Style Chips (ultra compact) */
+
+}
+ /* Roles - Style Chips (ultra compact) */
 .roles-grid-chips {
   display: flex;
   flex-wrap: wrap;
@@ -544,5 +546,4 @@
 .role-chip.selected i,
 .role-chip.selected span {
   color: white;
-}
 }

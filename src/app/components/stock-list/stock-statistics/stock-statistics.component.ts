@@ -86,22 +86,29 @@ export class StockStatisticsComponent implements OnInit {
     });
   }
 
-  loadAllStock() {
-    this.loading = true;
-    this.stockService.getAllStock().subscribe({
-      next: data => {
-        console.log('Données chargées (total):', data.length);
-        this.stockModules = data;
-        this.applyFiltersAndCalculate();
-        this.loading = false;
-      },
-      error: err => {
-        console.error(err);
-        this.error = 'Erreur lors du chargement du stock';
-        this.loading = false;
+ // stock-statistics.component.ts
+
+loadAllStock() {
+  this.loading = true;
+  this.stockService.getAllStock().subscribe({
+    next: data => {
+      console.log('Données chargées (total):', data.length);
+      // Vérifiez si vous recevez bien 898 modules
+      if (data.length === 0) {
+        console.warn('Aucune donnée reçue de l\'API');
       }
-    });
-  }
+      this.stockModules = data;
+      this.applyFiltersAndCalculate();
+      this.loading = false;
+    },
+    error: err => {
+      console.error('Erreur détaillée:', err);
+      this.error = 'Erreur lors du chargement du stock';
+      this.loading = false;
+    }
+  });
+}
+
 
   loadStockBySite(siteId: number) {
     this.loading = true;

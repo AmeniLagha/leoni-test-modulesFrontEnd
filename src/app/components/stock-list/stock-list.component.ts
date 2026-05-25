@@ -8,7 +8,8 @@ import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { Site } from '../../../models/site.model';
 import { SiteService } from '../../../services/Site';
-
+import * as ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
 @Component({
   selector: 'app-stock-list',
   standalone: true,
@@ -71,6 +72,7 @@ export class StockListComponent implements OnInit {
     explication: '',
     returnedBy: ''
   };
+  exporting = false;
 
   constructor(
     private stockService: StockService,
@@ -593,5 +595,299 @@ loadStockBySite(siteId: number) {
     if (detection === 'Activé' || detection === 'OK') return 'bg-success bg-opacity-10 text-success';
     if (detection === 'Désactivé') return 'bg-secondary bg-opacity-10 text-secondary';
     return 'badge bg-light text-dark';
+  }
+  /**
+   * Exporte les modules filtrés vers un fichier Excel formaté
+   */
+  async exportToExcel() {
+    this.exporting = true;
+
+    try {
+      // Créer un nouveau classeur
+      const workbook = new ExcelJS.Workbook();
+      const sheetName = this.selectedSiteId !== null
+        ? this.selectedSiteName.substring(0, 31) // Excel limite à 31 caractères
+        : 'Tous les modules';
+
+      const worksheet = workbook.addWorksheet(sheetName);
+
+      // Définir les colonnes
+      worksheet.columns = [
+        { header: 'ID', key: 'id', width: 10 },
+        { header: 'LEONI NUMR', key: 'leoniNumr', width: 20 },
+        { header: 'STUFF NUMR', key: 'stuffNumr', width: 20 },
+        { header: 'Index', key: 'indexValue', width: 12 },
+        { header: 'Qté', key: 'quantite', width: 8 },
+        { header: 'Fournisseur', key: 'fournisseur', width: 15 },
+        { header: 'État', key: 'etat', width: 10 },
+        { header: 'Caisse', key: 'caisse', width: 10 },
+        { header: 'Casier', key: 'casier', width: 10 },
+        { header: 'Spécifications', key: 'specifications', width: 30 },
+        { header: 'Info sur Module', key: 'infoSurModules', width: 30 },
+        { header: 'Final Displacement', key: 'finalDisplacement', width: 20 },
+        { header: 'Sealing', key: 'finalProgrammedSealing', width: 20 },
+        { header: 'Détection', key: 'finalDetection', width: 15 },
+        { header: 'Demandeur et explication', key: 'demandeurExplication', width: 35 },
+        { header: 'New Quantité', key: 'newQuantite', width: 12 },
+        { header: 'Statut', key: 'status', width: 12 },
+        { header: 'Dernière MAJ', key: 'dernierMaj', width: 15 },
+        { header: 'Déplacé par', key: 'movedBy', width: 20 },
+        { header: 'Date déplacement', key: 'movedAt', width: 20 },
+        { header: 'Date demande', key: 'dateDemande', width: 15 }
+      ];
+
+      // Style de l'en-tête
+      const headerRow = worksheet.getRow(1);
+      headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 12 };
+      headerRow.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF1e3c72' }
+      };
+      headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+      headerRow.height = 25;
+
+      // Ajouter les données
+      this.filteredStockModules.forEach(module => {
+        worksheet.addRow({
+          id: module.id,
+          leoniNumr: module.leoniNumr || '-',
+          stuffNumr: module.stuffNumr || '-',
+          indexValue: module.indexValue || '-',
+          quantite: module.quantite || 0,
+          fournisseur: module.fournisseur || '-',
+          etat: module.etat || '-',
+          caisse: module.caisse || '-',
+          casier: module.casier || '-',
+          specifications: module.specifications || '-',
+          infoSurModules: module.infoSurModules || '-',
+          finalDisplacement: module.finalDisplacement || '-',
+          finalProgrammedSealing: module.finalProgrammedSealing || '-',
+          finalDetection: module.finalDetection || '-',
+          demandeurExplication: module.demandeurExplication || '-',
+          newQuantite: module.newQuantite || '-',
+          status: this.getStatusLabel(module.status || ''),
+          dernierMaj: module.dernierMaj ? new Date(module.dernierMaj).toLocaleDateString('fr-FR') : '-',
+          movedBy: module.movedBy || '-',
+          movedAt: module.movedAt ? new Date(module.movedAt).toLocaleString('fr-FR') : '-',
+          dateDemande: module.dateDemande ? new Date(module.dateDemande).toLocaleDateString('fr-FR') : '-'
+        });
+      });
+
+      // Colorier les lignes en fonction du statut
+      worksheet.eachRow((row, rowNumber) => {
+        if (rowNumber > 1) { // Ignorer l'en-tête
+          const statusCell = row.getCell('status');
+          const statusValue = statusCell.value?.toString() || '';
+
+          if (statusValue === 'Disponible') {
+            row.eachCell(cell => {
+              cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FFE8F5E9' } // Vert clair
+              };
+            });
+          } else if (statusValue === 'Utilisé') {
+            row.eachCell(cell => {
+              cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FFFFF3E0' } // Orange clair
+              };
+            });
+          } else if (statusValue === 'Mis au rebut') {
+            row.eachCell(cell => {
+              cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FFFFEBEE' } // Rouge clair
+              };
+            });
+          }
+        }
+      });
+
+      // Ajouter des bordures à toutes les cellules
+      worksheet.eachRow(row => {
+        row.eachCell(cell => {
+          cell.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' }
+          };
+        });
+      });
+
+      // Figer la première ligne (en-tête)
+      worksheet.views = [
+        { state: 'frozen', ySplit: 1 }
+      ];
+
+      // Générer le fichier
+      const buffer = await workbook.xlsx.writeBuffer();
+      const fileName = `stock_modules_${this.getFileNameDate()}_${sheetName.replace(/\s/g, '_')}.xlsx`;
+      saveAs(new Blob([buffer]), fileName);
+
+      // Message de succès
+      this.showSuccess(`${this.filteredStockModules.length} module(s) exporté(s) avec succès !`);
+
+    } catch (error) {
+      console.error('Erreur lors de l\'export Excel:', error);
+      this.error = 'Erreur lors de l\'export Excel';
+      setTimeout(() => this.error = null, 3000);
+    } finally {
+      this.exporting = false;
+    }
+  }
+
+  /**
+   * Exporte les modules pour un site spécifique
+   */
+  async exportSiteModules(siteId: number, siteName: string) {
+    if (this.selectedSiteId !== siteId) {
+      // Si le site n'est pas sélectionné, le sélectionner d'abord
+      this.selectSite(siteId, siteName);
+      // Attendre que les données soient chargées puis exporter
+      setTimeout(() => {
+        this.exportToExcel();
+      }, 500);
+    } else {
+      await this.exportToExcel();
+    }
+  }
+
+  /**
+   * Exporte TOUS les modules (tous sites confondus)
+   */
+  async exportAllModules() {
+    if (this.selectedSiteId !== null) {
+      this.selectSite(null, 'Tous les modules');
+      setTimeout(() => {
+        this.exportToExcel();
+      }, 500);
+    } else {
+      await this.exportToExcel();
+    }
+  }
+
+  /**
+   * Export avec résumé statistique (version améliorée)
+   */
+  async exportWithSummary() {
+    this.exporting = true;
+
+    try {
+      const workbook = new ExcelJS.Workbook();
+
+      // Feuille 1: Liste des modules
+      const dataSheet = workbook.addWorksheet('Modules');
+      this.addDataSheet(dataSheet);
+
+      // Feuille 2: Résumé statistique
+      const summarySheet = workbook.addWorksheet('Résumé');
+      this.addSummarySheet(summarySheet);
+
+      // Générer le fichier
+      const buffer = await workbook.xlsx.writeBuffer();
+      const fileName = `stock_complet_${this.getFileNameDate()}.xlsx`;
+      saveAs(new Blob([buffer]), fileName);
+
+      this.showSuccess('Export complet avec résumé généré avec succès !');
+
+    } catch (error) {
+      console.error('Erreur lors de l\'export:', error);
+      this.error = 'Erreur lors de l\'export Excel';
+      setTimeout(() => this.error = null, 3000);
+    } finally {
+      this.exporting = false;
+    }
+  }
+
+  /**
+   * Ajoute la feuille de données
+   */
+  private addDataSheet(worksheet: ExcelJS.Worksheet) {
+    // Configuration des colonnes (comme dans exportToExcel)
+    worksheet.columns = [
+      { header: 'ID', key: 'id', width: 10 },
+      { header: 'LEONI NUMR', key: 'leoniNumr', width: 20 },
+      { header: 'STUFF NUMR', key: 'stuffNumr', width: 20 },
+      { header: 'Quantité', key: 'quantite', width: 10 },
+      { header: 'Statut', key: 'status', width: 12 },
+      // Ajoutez les autres colonnes selon vos besoins
+    ];
+
+    // Style de l'en-tête
+    const headerRow = worksheet.getRow(1);
+    headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    headerRow.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF1e3c72' }
+    };
+
+    // Ajouter les données
+    this.filteredStockModules.forEach(module => {
+      worksheet.addRow({
+        id: module.id,
+        leoniNumr: module.leoniNumr || '-',
+        stuffNumr: module.stuffNumr || '-',
+        quantite: module.quantite || 0,
+        status: this.getStatusLabel(module.status || '')
+      });
+    });
+  }
+
+  /**
+   * Ajoute une feuille de résumé statistique
+   */
+  private addSummarySheet(worksheet: ExcelJS.Worksheet) {
+    // Calculer les statistiques
+    const totalModules = this.stockModules.length;
+    const availableModules = this.stockModules.filter(m => m.status === 'AVAILABLE').length;
+    const usedModules = this.stockModules.filter(m => m.status === 'USED').length;
+    const scrappedModules = this.stockModules.filter(m => m.status === 'SCRAPPED').length;
+    const totalQuantity = this.stockModules.reduce((sum, m) => sum + (m.quantite || 0), 0);
+
+    // Ajouter les données
+    worksheet.addRow(['RAPPORT STOCK MODULES']);
+    worksheet.addRow([`Date: ${new Date().toLocaleString('fr-FR')}`]);
+    worksheet.addRow([]);
+    worksheet.addRow(['INDICATEURS', 'VALEURS']);
+    worksheet.addRow(['Total modules', totalModules]);
+    worksheet.addRow(['Modules disponibles', availableModules]);
+    worksheet.addRow(['Modules utilisés', usedModules]);
+    worksheet.addRow(['Modules mis au rebut', scrappedModules]);
+    worksheet.addRow(['Quantité totale', totalQuantity]);
+
+    // Style
+    worksheet.getRow(1).font = { bold: true, size: 16 };
+    worksheet.getRow(4).font = { bold: true };
+    worksheet.getColumn(1).width = 25;
+    worksheet.getColumn(2).width = 15;
+  }
+
+  /**
+   * Génère un nom de fichier avec la date
+   */
+  private getFileNameDate(): string {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}_${hours}h${minutes}`;
+  }
+
+  /**
+   * Affiche un message de succès
+   */
+  private showSuccess(message: string) {
+    // Utiliser une notification ou un toast
+    console.log('Succès:', message);
+    alert(message); // Temporaire, à remplacer par un toast
   }
 }

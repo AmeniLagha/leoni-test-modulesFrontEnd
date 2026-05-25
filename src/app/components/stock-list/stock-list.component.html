@@ -12,14 +12,27 @@
           </h2>
           <p class="text-white-50 mb-0">Gestion et suivi des modules par site</p>
         </div>
-        <div class="d-flex gap-2">
-          <button class="btn btn-light" routerLink="/stock/add">
-            <i class="bi bi-plus-circle me-2"></i>Nouveau module
-          </button>
-            <a routerLink="/dashboard" class="btn btn-light">
-          <i class="bi bi-arrow-left me-2"></i>Retour
-        </a>
-        </div>
+      <!-- Dans l'en-tête, après les boutons existants -->
+<div class="d-flex gap-2">
+  <!-- Bouton Export Excel simple -->
+  <button class="btn btn-success" (click)="exportToExcel()" [disabled]="exporting || filteredStockModules.length === 0">
+    <i class="bi bi-file-excel me-2"></i>
+    {{ exporting ? 'Export en cours...' : 'Exporter Excel' }}
+  </button>
+
+  <!-- Bouton Export avec résumé (optionnel) -->
+  <button class="btn btn-info" (click)="exportWithSummary()" [disabled]="exporting || filteredStockModules.length === 0">
+    <i class="bi bi-graph-up me-2"></i>
+    Export complet + Stats
+  </button>
+
+  <button class="btn btn-light" routerLink="/stock/add">
+    <i class="bi bi-plus-circle me-2"></i>Nouveau module
+  </button>
+  <a routerLink="/dashboard" class="btn btn-light">
+    <i class="bi bi-arrow-left me-2"></i>Retour
+  </a>
+</div>
 
       </div>
     </div>
@@ -66,6 +79,15 @@
       </li>
 
       </ul>
+       <div class="me-2">
+        <button class="btn btn-sm btn-success"
+                (click)="exportToExcel()"
+                [disabled]="exporting || filteredStockModules.length === 0"
+                title="Exporter les modules affichés">
+          <i class="bi bi-file-excel me-1"></i>
+          Excel
+        </button>
+      </div>
     </div>
   </div>
 </div>

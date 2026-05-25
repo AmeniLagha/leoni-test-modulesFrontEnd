@@ -15,7 +15,7 @@
   --danger: #ef4444;
   --warning: #f59e0b;
   --dark: #1e293b;
-  --gray: #94a3b8;
+  --gray: #64748b;
   --light: #f8fafc;
   --white: #ffffff;
   --border: #e2e8f0;
@@ -44,7 +44,7 @@
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
-/* Sidebar */
+/* ========== SIDEBAR GAUCHE ========== */
 .register-sidebar {
   width: 35%;
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
@@ -80,18 +80,19 @@
 
 .sidebar-logo img {
   height: 50px;
-  filter: brightness(0) invert(1);
+  filter: brightness(0) invert(1); /* logo blanc */
 }
 
+/* Tous les textes de la sidebar sont blancs */
 .sidebar-content h2 {
-  color: white;
+  color: #ffffff !important;
   font-size: 1.8rem;
   margin-bottom: 1rem;
   font-weight: 700;
 }
 
 .sidebar-content > p {
-  color: rgba(255,255,255,0.8);
+  color: rgba(255, 255, 255, 0.9) !important;
   line-height: 1.6;
   margin-bottom: 2rem;
 }
@@ -107,13 +108,19 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  color: rgba(255,255,255,0.9);
+  color: #ffffff !important;
 }
 
 .feature i {
   font-size: 1.2rem;
+  color: #ffffff;
 }
 
+.feature span {
+  color: #ffffff;
+}
+
+/* Progress steps dans la sidebar */
 .sidebar-progress {
   margin-top: auto;
 }
@@ -122,7 +129,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 2rem;
   padding: 1rem;
 }
@@ -139,7 +146,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -160,7 +167,7 @@
 
 .step-text {
   font-size: 0.7rem;
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .step.active .step-text {
@@ -171,7 +178,7 @@
 .step-line {
   width: 100%;
   height: 2px;
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.3);
   margin: 0 0.5rem;
 }
 
@@ -179,7 +186,7 @@
   background: var(--success);
 }
 
-/* Form Container (partie droite) */
+/* ========== PARTIE DROITE (FORMULAIRE) ========== */
 .register-form-container {
   flex: 1;
   padding: 2.5rem;
@@ -224,7 +231,7 @@
   font-size: 0.85rem;
 }
 
-/* Form */
+/* Formulaire */
 .register-form {
   max-width: 450px;
   margin: 0 auto;
@@ -245,7 +252,7 @@
   }
 }
 
-/* Input Group Custom */
+/* Champs de saisie */
 .input-group-custom {
   margin-bottom: 1.5rem;
   position: relative;
@@ -281,6 +288,7 @@
   background: var(--white);
   transition: all 0.2s;
   outline: none;
+  color: var(--dark);
 }
 
 .input-field input:focus {
@@ -354,7 +362,7 @@
   gap: 0.25rem;
 }
 
-/* Password Strength */
+/* Force mot de passe */
 .password-strength {
   margin-top: -0.5rem;
   margin-bottom: 1rem;
@@ -400,7 +408,7 @@
 .strength-text.medium { color: var(--warning); }
 .strength-text.strong { color: var(--success); }
 
-/* Roles Grid */
+/* Rôles */
 .roles-grid {
   display: flex;
   flex-direction: column;
@@ -461,7 +469,7 @@
   color: var(--gray);
 }
 
-/* Section Divider */
+/* Séparateur */
 .section-divider {
   text-align: center;
   margin: 1.5rem 0;
@@ -487,7 +495,7 @@
   z-index: 1;
 }
 
-/* Projects Section */
+/* Projets */
 .projects-section,
 .site-section {
   margin-bottom: 1.5rem;
@@ -528,7 +536,7 @@
   color: white;
 }
 
-/* Select Wrapper */
+/* Select site */
 .select-wrapper {
   position: relative;
 }
@@ -569,7 +577,7 @@
   outline: none;
 }
 
-/* Info Card */
+/* Info card admin */
 .info-card {
   display: flex;
   gap: 1rem;
@@ -623,7 +631,7 @@
   border-left: 3px solid var(--success);
 }
 
-/* Form Actions */
+/* Boutons */
 .form-actions {
   display: flex;
   gap: 1rem;
@@ -679,16 +687,13 @@
   .register-card {
     flex-direction: column;
   }
-
   .register-sidebar {
     width: 100%;
     padding: 2rem;
   }
-
   .sidebar-progress {
     margin-top: 2rem;
   }
-
   .register-form-container {
     padding: 2rem;
   }
@@ -698,28 +703,22 @@
   .register-wrapper {
     padding: 1rem;
   }
-
   .register-form-container {
     padding: 1.5rem;
   }
-
   .form-header h1 {
     font-size: 1.5rem;
   }
-
   .roles-grid {
     gap: 0.5rem;
   }
-
   .role-option {
     padding: 0.75rem;
   }
-
   .role-radio {
     width: 40px;
     height: 40px;
   }
-
   .role-radio i {
     font-size: 1.2rem;
   }

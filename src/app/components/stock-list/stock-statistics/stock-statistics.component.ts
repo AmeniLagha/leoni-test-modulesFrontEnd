@@ -62,7 +62,21 @@ export class StockStatisticsComponent implements OnInit {
   ngOnInit(): void {
     this.loadSites();
     this.initDates();
+    this.checkAdminStatus();
   }
+// stock-statistics.component.ts
+
+isAdmin: boolean = false;
+
+checkAdminStatus() {
+  // Vérifier le rôle depuis le token ou service d'auth
+  const role = this.authService.getUserRole();
+  this.isAdmin = role === 'ADMIN';
+
+  if (!this.isAdmin) {
+    console.log('⚠️ Utilisateur non-ADMIN - Les statistiques sont limitées à son site');
+  }
+}
 
   initDates() {
     const now = new Date();
@@ -86,27 +100,44 @@ export class StockStatisticsComponent implements OnInit {
     });
   }
 
- // stock-statistics.component.ts
+// stock-statistics.component.ts
+
+// stock-statistics.component.ts
 
 loadAllStock() {
   this.loading = true;
+
   this.stockService.getAllStock().subscribe({
     next: data => {
-      console.log('Données chargées (total):', data.length);
-      // Vérifiez si vous recevez bien 898 modules
-      if (data.length === 0) {
-        console.warn('Aucune donnée reçue de l\'API');
-      }
+      console.log('📊 STATISTICS: Données reçues de l\'API:', data.length);
+      console.log('Premier module:', data[0]);
+
+      // ✅ Afficher la répartition par siteId (pas siteName)
+      const siteCount = new Map();
+      data.forEach(module => {
+        const siteId = module.siteId || 0;
+        const siteName = this.getSiteNameFromId(siteId);
+        siteCount.set(siteName, (siteCount.get(siteName) || 0) + 1);
+      });
+      console.log('Répartition par site:', Array.from(siteCount.entries()));
+
       this.stockModules = data;
       this.applyFiltersAndCalculate();
       this.loading = false;
     },
     error: err => {
       console.error('Erreur détaillée:', err);
-      this.error = 'Erreur lors du chargement du stock';
+      this.error = `Erreur lors du chargement du stock: ${err.message}`;
       this.loading = false;
     }
   });
+}
+
+// ✅ Méthode helper pour obtenir le nom du site à partir de l'ID
+private getSiteNameFromId(siteId: number): string {
+  if (!siteId) return 'Non affecté';
+  const site = this.sites.find(s => s.id === siteId);
+  return site ? site.name : `Site ${siteId}`;
 }
 
 
@@ -158,38 +189,49 @@ loadAllStock() {
     return null;
   }
 
-  applyFiltersAndCalculate() {
-    // Commencer avec les modules chargés (déjà filtrés par site)
-    let filteredModules = [...this.stockModules];
+ // stock-statistics.component.ts
 
-    console.log('Modules avant filtre date:', filteredModules.length);
+applyFiltersAndCalculate() {
+  // Commencer avec les modules chargés (déjà filtrés par site)
+  let filteredModules = [...this.stockModules];
 
-    // Filtre par date
-    if (this.startDate && this.endDate && this.startDate !== this.endDate) {
-      const start = new Date(this.startDate);
-      const end = new Date(this.endDate);
-      end.setHours(23, 59, 59);
+  console.log('Modules avant filtre date:', filteredModules.length);
+  console.log('Sample module:', filteredModules[0]); // ✅ Debug: voir les propriétés disponibles
 
-      filteredModules = filteredModules.filter(module => {
-        const moduleDate = this.getModuleDate(module);
-        if (!moduleDate) return true;
-        return moduleDate >= start && moduleDate <= end;
-      });
-      console.log('Modules après filtre date:', filteredModules.length);
-    }
+  // Filtre par date
+  if (this.startDate && this.endDate && this.startDate !== this.endDate) {
+    const start = new Date(this.startDate);
+    const end = new Date(this.endDate);
+    end.setHours(23, 59, 59);
 
-    // STOCKER LES MODULES FILTRÉS POUR LES STATS
-    this.filteredModulesForStats = filteredModules;
-
-    // Calculer toutes les statistiques à partir des modules filtrés
-    this.calculateStatistics(this.filteredModulesForStats);
-    this.calculateSupplierStats(this.filteredModulesForStats);
-    this.calculateEtatStats(this.filteredModulesForStats);
-    this.calculateCaisseStats(this.filteredModulesForStats);
-    this.calculateMonthlyEvolution(this.filteredModulesForStats);
-    this.calculateTopModules();
-    this.calculateSiteStats(); // PAS besoin de passer les modules, il utilise filteredModulesForStats
+    filteredModules = filteredModules.filter(module => {
+      const moduleDate = this.getModuleDate(module);
+      if (!moduleDate) return true;
+      return moduleDate >= start && moduleDate <= end;
+    });
+    console.log('Modules après filtre date:', filteredModules.length);
   }
+
+  // STOCKER LES MODULES FILTRÉS POUR LES STATS
+  this.filteredModulesForStats = filteredModules;
+
+  // ✅ Afficher la répartition par siteId
+  const siteIdCount = new Map();
+  this.filteredModulesForStats.forEach(module => {
+    const siteId = module.siteId || 0;
+    siteIdCount.set(siteId, (siteIdCount.get(siteId) || 0) + 1);
+  });
+  console.log('Répartition par siteId:', Array.from(siteIdCount.entries()));
+
+  // Calculer toutes les statistiques
+  this.calculateStatistics(this.filteredModulesForStats);
+  this.calculateSupplierStats(this.filteredModulesForStats);
+  this.calculateEtatStats(this.filteredModulesForStats);
+  this.calculateCaisseStats(this.filteredModulesForStats);
+  this.calculateMonthlyEvolution(this.filteredModulesForStats);
+  this.calculateTopModules();
+  this.calculateSiteStats();
+}
 
   calculateStatistics(modules: StockModule[]) {
     this.totalModules = modules.length;
@@ -319,45 +361,40 @@ loadAllStock() {
       .slice(0, 10);
   }
 
-  // CORRECTION IMPORTANTE: calculateSiteStats utilise filteredModulesForStats
-  calculateSiteStats() {
-    // Utiliser les modules déjà filtrés
-    const modules = this.filteredModulesForStats;
+ // stock-statistics.component.ts
 
-    const siteMap = new Map<number, { siteName: string; count: number; quantity: number }>();
+calculateSiteStats() {
+  // Utiliser les modules déjà filtrés
+  const modules = this.filteredModulesForStats;
 
-    modules.forEach(module => {
-      const siteId = module.siteId || 0;
-      let siteName = 'Non affecté';
+  const siteMap = new Map<number, { siteName: string; count: number; quantity: number }>();
 
-      if (siteId !== 0) {
-        const site = this.sites.find(s => s.id === siteId);
-        siteName = site ? site.name : `Site ${siteId}`;
-      }
+  modules.forEach(module => {
+    const siteId = module.siteId || 0;
+    // ✅ Utiliser la méthode helper pour obtenir le nom
+    let siteName = 'Non affecté';
 
-      if (!siteMap.has(siteId)) {
-        siteMap.set(siteId, { siteName, count: 0, quantity: 0 });
-      }
-
-      const current = siteMap.get(siteId)!;
-      current.count++;
-      current.quantity += module.quantite || 0;
-    });
-
-    this.siteStats = Array.from(siteMap.values())
-      .sort((a, b) => b.quantity - a.quantity);
-
-    console.log('Statistiques par site (filtrées):', this.siteStats);
-    console.log('Total des quantités par site:', this.siteStats.reduce((sum, s) => sum + s.quantity, 0));
-    console.log('Total quantity global:', this.totalQuantity);
-
-    // Vérification de cohérence
-    const totalFromSites = this.siteStats.reduce((sum, s) => sum + s.quantity, 0);
-    if (Math.abs(totalFromSites - this.totalQuantity) > 1) {
-      console.warn('⚠️ Incohérence: somme des sites =', totalFromSites, '≠ total quantity =', this.totalQuantity);
+    if (siteId !== 0) {
+      const site = this.sites.find(s => s.id === siteId);
+      siteName = site ? site.name : `Site ${siteId}`;
     }
-  }
 
+    if (!siteMap.has(siteId)) {
+      siteMap.set(siteId, { siteName, count: 0, quantity: 0 });
+    }
+
+    const current = siteMap.get(siteId)!;
+    current.count++;
+    current.quantity += module.quantite || 0;
+  });
+
+  this.siteStats = Array.from(siteMap.values())
+    .sort((a, b) => b.quantity - a.quantity);
+
+  console.log('Statistiques par site (filtrées):', this.siteStats);
+  console.log('Total des quantités par site:', this.siteStats.reduce((sum, s) => sum + s.quantity, 0));
+  console.log('Total quantity global:', this.totalQuantity);
+}
   resetFilters() {
     this.selectedSiteId = null;
     this.selectedSiteName = 'Tous les sites';

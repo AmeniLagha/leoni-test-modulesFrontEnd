@@ -1,7 +1,7 @@
 /* STYLES SIMPLES ET GARANTIS */
 .register-wrapper {
   min-height: 100vh;
-  background: white
+  background: #bbc8d2
   display: flex;
   align-items: center;
   justify-content: center;
@@ -465,7 +465,7 @@
 }
 
 .btn-primary {
-  background: #2563eb;
+  background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   color: white;
 }
 
@@ -489,7 +489,7 @@
 }
 
 .btn-submit {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
 }
 
 /* Responsive */

@@ -416,4 +416,16 @@ private submitRegistration(): void {
       this.registerForm.get('projets')?.setValue([...projets, projectName]);
     }
   }
+  // Dans register.component.ts, ajoutez cette méthode
+getRoleDescription(role: string): string {
+  const descriptions: { [key: string]: string } = {
+    'ADMIN': 'Accès complet à toutes les fonctionnalités',
+    'ING': 'Gestion technique et suivi des projets',
+    'PT': 'Contrôle et validation des productions',
+    'PP': 'Planification et préparation',
+    'MC': 'Maintenance et réparations correctives',
+    'MP': 'Maintenance préventive planifiée'
+  };
+  return descriptions[role] || '';
+}
 }

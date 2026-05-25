@@ -61,6 +61,13 @@
     </div>
   </div>
 
+  <!-- INFO NON-ADMIN -->
+  <div *ngIf="!loading && !isAdmin && stockModules.length > 0" class="alert alert-info mb-4">
+    <i class="bi bi-info-circle-fill me-2"></i>
+    <strong>Note :</strong> Vous voyez uniquement les modules de votre site ({{ stockModules.length }} modules).
+    Contactez un administrateur pour voir tous les modules.
+  </div>
+
   <!-- LOADING -->
   <div *ngIf="loading" class="text-center py-5">
     <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
@@ -138,15 +145,11 @@
         </div>
       </div>
     </div>
-<!-- Après les filtres, avant les KPIs -->
-<div *ngIf="!loading && stockModules.length < 898" class="alert alert-info mb-4">
-  <i class="bi bi-info-circle-fill me-2"></i>
-  <strong>Note :</strong> Vous voyez uniquement les modules de votre site ({{ stockModules.length }} modules).
-  <span *ngIf="!isAdmin">Contactez un administrateur pour voir tous les modules.</span>
-</div>
-    <!-- STATS PAR STATUT + TOP MODULES -->
+
+    <!-- SECTION GRAPHIQUES LIGNE 1 -->
     <div class="row g-4 mb-4">
-      <div class="col-md-4">
+      <!-- Camembert -->
+      <div class="col-md-5">
         <div class="card border-0 shadow-sm h-100">
           <div class="card-header bg-white border-0 pt-4 pb-0">
             <h5 class="card-title">
@@ -154,45 +157,156 @@
               Répartition par statut
             </h5>
           </div>
+          <div class="card-body" style="height: 350px;">
+            <canvas baseChart
+                    [data]="pieChartData"
+                    [options]="pieChartOptions"
+                    [type]="pieChartType">
+            </canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barres horizontales Fournisseurs -->
+      <div class="col-md-7">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-white border-0 pt-4 pb-0">
+            <h5 class="card-title">
+              <i class="bi bi-truck me-2 text-info"></i>
+              Top Fournisseurs
+            </h5>
+          </div>
+          <div class="card-body" style="height: 350px;">
+            <canvas baseChart
+                    [data]="supplierBarChartData"
+                    [options]="supplierBarChartOptions"
+                    [type]="supplierBarChartType">
+            </canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION GRAPHIQUES LIGNE 2 -->
+    <div class="row g-4 mb-4">
+      <!-- Évolution mensuelle -->
+      <div class="col-12">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white border-0 pt-4 pb-0">
+            <h5 class="card-title">
+              <i class="bi bi-graph-up me-2 text-success"></i>
+              Évolution mensuelle
+            </h5>
+          </div>
+          <div class="card-body" style="height: 400px;">
+            <canvas baseChart
+                    [data]="lineChartData"
+                    [options]="lineChartOptions"
+                    [type]="lineChartType">
+            </canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION GRAPHIQUES LIGNE 3 -->
+    <div class="row g-4 mb-4">
+      <!-- Top Caisses -->
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white border-0 pt-4 pb-0">
+            <h5 class="card-title">
+              <i class="bi bi-boxes me-2 text-warning"></i>
+              Top Caisses
+            </h5>
+          </div>
+          <div class="card-body" style="height: 350px;">
+            <canvas baseChart
+                    [data]="caisseBarChartData"
+                    [options]="caisseBarChartOptions"
+                    [type]="caisseBarChartType">
+            </canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Sites -->
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white border-0 pt-4 pb-0">
+            <h5 class="card-title">
+              <i class="bi bi-building me-2 text-primary"></i>
+              Répartition par Site
+            </h5>
+          </div>
+          <div class="card-body" style="height: 350px;">
+            <canvas baseChart
+                    [data]="siteBarChartData"
+                    [options]="siteBarChartOptions"
+                    [type]="siteBarChartType">
+            </canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABLEAUX STATISTIQUES -->
+    <div class="row g-4 mb-4">
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white border-0 pt-4 pb-0">
+            <h5 class="card-title">
+              <i class="bi bi-truck me-2 text-info"></i>
+              Top fournisseurs (détail)
+            </h5>
+          </div>
           <div class="card-body">
-            <div class="progress mb-3" style="height: 30px;">
-              <div class="progress-bar bg-success"
-                   [style.width.%]="getPercentage(availableModules, totalModules)"
-                   role="progressbar">
-                Disponible: {{ getPercentage(availableModules, totalModules) }}%
-              </div>
-              <div class="progress-bar bg-warning"
-                   [style.width.%]="getPercentage(usedModules, totalModules)"
-                   role="progressbar">
-                Utilisé: {{ getPercentage(usedModules, totalModules) }}%
-              </div>
-              <div class="progress-bar bg-danger"
-                   [style.width.%]="getPercentage(scrappedModules, totalModules)"
-                   role="progressbar">
-                Rebut: {{ getPercentage(scrappedModules, totalModules) }}%
-              </div>
-            </div>
-            <div class="mt-3">
-              <div class="d-flex justify-content-between mb-2">
-                <span><i class="bi bi-circle-fill text-success me-2"></i>Disponible</span>
-                <span>{{ availableModules }} modules ({{ availableQuantity }} unités)</span>
-              </div>
-              <div class="d-flex justify-content-between mb-2">
-                <span><i class="bi bi-circle-fill text-warning me-2"></i>Utilisé</span>
-                <span>{{ usedModules }} modules ({{ usedQuantity }} unités)</span>
-              </div>
-              <div class="d-flex justify-content-between mb-2">
-                <span><i class="bi bi-circle-fill text-danger me-2"></i>Mis au rebut</span>
-                <span>{{ scrappedModules }} modules ({{ scrappedQuantity }} unités)</span>
-              </div>
+            <div class="table-responsive">
+              <table class="table table-sm">
+                <thead>
+                  <tr><th>Fournisseur</th><th class="text-end">Modules</th><th class="text-end">Quantité</th></tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let supplier of supplierStats.slice(0, 10)">
+                    <td>{{ supplier.name }}</td><td class="text-end">{{ supplier.count }}</td><td class="text-end">{{ supplier.quantity }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- TOP MODULES -->
-      <div class="col-md-8">
-        <div class="card border-0 shadow-sm h-100">
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white border-0 pt-4 pb-0">
+            <h5 class="card-title">
+              <i class="bi bi-box me-2 text-success"></i>
+              Top caisses (détail)
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-sm">
+                <thead>
+                  <tr><th>Caisse</th><th class="text-end">Modules</th><th class="text-end">Quantité</th></tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let caisse of caisseStats.slice(0, 10)">
+                    <td>{{ caisse.caisse }}</td><td class="text-end">{{ caisse.count }}</td><td class="text-end">{{ caisse.quantity }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABLEAU TOP MODULES -->
+    <div class="row g-4 mb-4">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm">
           <div class="card-header bg-white border-0 pt-4 pb-0">
             <h5 class="card-title">
               <i class="bi bi-trophy me-2 text-warning"></i>
@@ -202,27 +316,12 @@
           <div class="card-body">
             <div class="table-responsive">
               <table class="table table-sm">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>LEONI NUMR</th>
-                    <th>STUFF NUMR</th>
-                    <th class="text-end">Nombre d'utilisations</th>
-                  </tr>
-                </thead>
+                <thead><tr><th>#</th><th>LEONI NUMR</th><th>STUFF NUMR</th><th class="text-end">Utilisations</th></tr></thead>
                 <tbody>
                   <tr *ngFor="let module of topModules; let i = index">
-                    <td class="fw-bold">{{ i + 1 }}</td>
-                    <td><code>{{ module.leoniNumr }}</code></td>
-                    <td><code>{{ module.stuffNumr }}</code></td>
-                    <td class="text-end"><span class="badge bg-primary">{{ module.usageCount }}</span></td>
+                    <td class="fw-bold">{{ i + 1 }}</td><td><code>{{ module.leoniNumr }}</code></td><td><code>{{ module.stuffNumr }}</code></td><td class="text-end"><span class="badge bg-primary">{{ module.usageCount }}</span></td>
                   </tr>
-                  <tr *ngIf="topModules.length === 0">
-                    <td colspan="4" class="text-center text-muted py-4">
-                      <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                      Aucune donnée disponible
-                    </td>
-                  </tr>
+                  <tr *ngIf="topModules.length === 0"><td colspan="4" class="text-center text-muted py-4">Aucune donnée disponible</td></tr>
                 </tbody>
               </table>
             </div>
@@ -231,149 +330,22 @@
       </div>
     </div>
 
-    <!-- STATS PAR FOURNISSEUR + STATS PAR CAISSE -->
-    <div class="row g-4 mb-4">
-      <div class="col-md-6">
-        <div class="card border-0 shadow-sm">
-          <div class="card-header bg-white border-0 pt-4 pb-0">
-            <h5 class="card-title">
-              <i class="bi bi-truck me-2 text-info"></i>
-              Top fournisseurs
-            </h5>
-          </div>
-          <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-sm">
-                <thead>
-                  <tr>
-                    <th>Fournisseur</th>
-                    <th class="text-end">Modules</th>
-                    <th class="text-end">Quantité</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let supplier of supplierStats.slice(0, 5)">
-                    <td>{{ supplier.name }}</td>
-                    <td class="text-end">{{ supplier.count }}</td>
-                    <td class="text-end">{{ supplier.quantity }}</td>
-                  </tr>
-                  <tr *ngIf="supplierStats.length === 0">
-                    <td colspan="3" class="text-center text-muted">Aucune donnée disponible</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- STATS PAR CAISSE -->
-      <div class="col-md-6">
-        <div class="card border-0 shadow-sm">
-          <div class="card-header bg-white border-0 pt-4 pb-0">
-            <h5 class="card-title">
-              <i class="bi bi-box me-2 text-success"></i>
-              Répartition par caisse
-            </h5>
-          </div>
-          <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-sm">
-                <thead>
-                  <tr>
-                    <th>Caisse</th>
-                    <th class="text-end">Modules</th>
-                    <th class="text-end">Quantité</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let caisse of caisseStats.slice(0, 5)">
-                    <td>{{ caisse.caisse }}</td>
-                    <td class="text-end">{{ caisse.count }}</td>
-                    <td class="text-end">{{ caisse.quantity }}</td>
-                  </tr>
-                  <tr *ngIf="caisseStats.length === 0">
-                    <td colspan="3" class="text-center text-muted">Aucune donnée disponible</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- STATS PAR SITE -->
-    <div class="row g-4 mb-4" *ngIf="siteStats.length > 0">
-      <div class="col-12">
-        <div class="card border-0 shadow-sm">
-          <div class="card-header bg-white border-0 pt-4 pb-0">
-            <h5 class="card-title">
-              <i class="bi bi-building me-2 text-primary"></i>
-              Répartition par site
-            </h5>
-          </div>
-          <div class="card-body">
-            <div class="table-responsive">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>Site</th>
-                    <th class="text-end">Nombre de modules</th>
-                    <th class="text-end">Quantité totale</th>
-                    <th>% du stock total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let site of siteStats">
-                    <td><strong>{{ site.siteName }}</strong></td>
-                    <td class="text-end">{{ site.count }}</td>
-                    <td class="text-end">{{ site.quantity }}</td>
-                    <td>
-                      <div class="d-flex align-items-center">
-                        <div class="progress flex-grow-1 me-2" style="height: 8px;">
-                          <div class="progress-bar bg-primary"
-                               [style.width.%]="getPercentage(site.quantity, totalQuantity)"
-                               role="progressbar"></div>
-                        </div>
-                        <span>{{ getPercentage(site.quantity, totalQuantity) }}%</span>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ÉVOLUTION MENSUELLE -->
+    <!-- ÉVOLUTION MENSUELLE TABLEAU -->
     <div class="row g-4" *ngIf="monthlyEvolution.length > 0">
       <div class="col-12">
         <div class="card border-0 shadow-sm">
           <div class="card-header bg-white border-0 pt-4 pb-0">
             <h5 class="card-title">
               <i class="bi bi-calendar-week me-2 text-info"></i>
-              Évolution mensuelle des mouvements
+              Évolution mensuelle (détail)
             </h5>
           </div>
           <div class="card-body">
             <div class="table-responsive">
               <table class="table">
-                <thead>
-                  <tr>
-                    <th>Mois</th>
-                    <th class="text-end">Nombre de mouvements</th>
-                    <th class="text-end">Quantité</th>
-                  </tr>
-                </thead>
+                <thead><tr><th>Mois</th><th class="text-end">Mouvements</th><th class="text-end">Quantité</th></tr></thead>
                 <tbody>
-                  <tr *ngFor="let month of monthlyEvolution">
-                    <td>{{ month.month }}</td>
-                    <td class="text-end">{{ month.count }}</td>
-                    <td class="text-end">{{ month.quantity }}</td>
-                  </tr>
+                  <tr *ngFor="let month of monthlyEvolution"><td>{{ month.month }}</td><td class="text-end">{{ month.count }}</td><td class="text-end">{{ month.quantity }}</td></tr>
                 </tbody>
               </table>
             </div>

@@ -25,7 +25,7 @@
 /* ========== SIDEBAR GAUCHE ========== */
 .register-sidebar {
   width: 35%;
-  background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   padding: 40px 30px;
   display: flex;
   flex-direction: column;
@@ -309,59 +309,51 @@
 .strength-text.medium { color: #f59e0b; }
 .strength-text.strong { color: #10b981; }
 
-/* Roles */
-.roles-grid {
+/* ========== ROLES - STYLE CHIPS (ULTRA COMPACT) ========== */
+/* Ces styles s'appliquent à TOUTES les tailles d'écran */
+.roles-grid-chips {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-.role-card-modern {
+.role-chip {
   display: flex;
   align-items: center;
-  gap: 15px;
-  padding: 15px;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 30px;
   cursor: pointer;
   transition: all 0.2s;
   background: white;
 }
 
-.role-card-modern:hover {
-  border-color: #2563eb;
-  background: #f8fafc;
+.role-chip i {
+  font-size: 14px;
+  color: #6c757d;
 }
 
-.role-card-modern.selected {
+.role-chip span {
+  font-size: 12px;
+  font-weight: 500;
+  color: #475569;
+}
+
+.role-chip:hover {
+  border-color: #2563eb;
+  background: #f8fafc;
+  transform: translateY(-1px);
+}
+
+.role-chip.selected {
   border-color: #2563eb;
   background: #2563eb;
 }
 
-.role-card-modern.selected i,
-.role-card-modern.selected .role-info-modern strong,
-.role-card-modern.selected .role-info-modern span {
+.role-chip.selected i,
+.role-chip.selected span {
   color: white;
-}
-
-.role-card-modern i {
-  font-size: 28px;
-  color: #6c757d;
-}
-
-.role-info-modern {
-  flex: 1;
-}
-
-.role-info-modern strong {
-  display: block;
-  color: #1e293b;
-  margin-bottom: 4px;
-}
-
-.role-info-modern span {
-  font-size: 12px;
-  color: #6c757d;
 }
 
 /* Projects tags */
@@ -462,16 +454,15 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
 }
 
 .btn-primary {
-  background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   transform: translateY(-2px);
 }
 
@@ -501,49 +492,4 @@
   .register-sidebar {
     width: 100%;
   }
-
-}
- /* Roles - Style Chips (ultra compact) */
-.roles-grid-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.role-chip {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 30px;
-  cursor: pointer;
-  transition: all 0.2s;
-  background: white;
-}
-
-.role-chip i {
-  font-size: 14px;
-  color: #6c757d;
-}
-
-.role-chip span {
-  font-size: 12px;
-  font-weight: 500;
-  color: #475569;
-}
-
-.role-chip:hover {
-  border-color: #2563eb;
-  background: #f8fafc;
-}
-
-.role-chip.selected {
-  border-color: #2563eb;
-  background: #2563eb;
-}
-
-.role-chip.selected i,
-.role-chip.selected span {
-  color: white;
 }

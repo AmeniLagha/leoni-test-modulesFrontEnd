@@ -1,117 +1,109 @@
 <!-- stock-list.component.html -->
 <div class="container-fluid px-4 py-4">
-  <!-- HEADER GRADIENT LEONI -->
-  <div class="card border-0 shadow-lg mb-4" style="background: linear-gradient(135deg, #1e3c72 0%, #0f2b4a 100%);">
+  <!-- HEADER GRADIENT LEONI AVEC ANIMATION -->
+  <div class="card border-0 shadow-lg mb-4 gradient-header animate-slide-down">
     <div class="card-body p-4">
       <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div>
-          <h2 class="text-white mb-2">
-            <i class="bi bi-box-seam me-2"></i>
-            Modules en stock
-            <span class="badge bg-white text-primary ms-2 fs-6">{{ filteredStockModules.length }}</span>
-          </h2>
-          <p class="text-white-50 mb-0">Gestion et suivi des modules par site</p>
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <div class="icon-pulse">
+              <i class="bi bi-box-seam fs-3 text-white"></i>
+            </div>
+            <h2 class="text-white mb-0">
+              Modules en stock
+              <span class="badge bg-white text-primary ms-2 fs-6 animate-pulse">{{ filteredStockModules.length }}</span>
+            </h2>
+          </div>
+          <p class="text-white-50 mb-0">
+            <i class="bi bi-geo-alt-fill me-1"></i>
+            Gestion et suivi des modules par site
+          </p>
         </div>
-      <!-- Dans l'en-tête, après les boutons existants -->
-<div class="d-flex gap-2">
-  <!-- Bouton Export Excel simple -->
-  <button class="btn btn-success" (click)="exportToExcel()" [disabled]="exporting || filteredStockModules.length === 0">
-    <i class="bi bi-file-excel me-2"></i>
-    {{ exporting ? 'Export en cours...' : 'Exporter Excel' }}
-  </button>
-
-  <!-- Bouton Export avec résumé (optionnel) -->
-  <button class="btn btn-info" (click)="exportWithSummary()" [disabled]="exporting || filteredStockModules.length === 0">
-    <i class="bi bi-graph-up me-2"></i>
-    Export complet + Stats
-  </button>
-
-  <button class="btn btn-light" routerLink="/stock/add">
-    <i class="bi bi-plus-circle me-2"></i>Nouveau module
-  </button>
-  <a routerLink="/dashboard" class="btn btn-light">
-    <i class="bi bi-arrow-left me-2"></i>Retour
-  </a>
-</div>
-
-      </div>
-    </div>
-  </div>
-
-  <!-- ONGLETS PAR SITE (comme Excel) -->
-  <div class="card border-0 shadow-sm mb-4">
-    <div class="card-body p-0">
-      <div class="nav nav-tabs nav-fill" style="border-bottom: 2px solid #e9ecef;">
-        <!-- Onglet Tous les modules -->
-        <li class="nav-item">
-          <a class="nav-link" [class.active]="selectedSiteId === null"
-             (click)="selectSite(null, 'Tous les modules')"
-             href="javascript:void(0)">
-            <i class="bi bi-database me-2"></i>
-            Tous les modules
-            <span class="badge bg-secondary ms-2">{{ stockModules.length }}</span>
+        <div class="d-flex gap-2 flex-wrap">
+          <button class="btn btn-success btn-hover-lift" (click)="exportToExcel()"
+                  [disabled]="exporting || filteredStockModules.length === 0">
+            <i class="bi bi-file-excel me-2"></i>
+            <span *ngIf="!exporting">Exporter Excel</span>
+            <span *ngIf="exporting"><i class="bi bi-hourglass-split me-1"></i>Export...</span>
+          </button>
+          <button class="btn btn-outline-info btn-hover-lift" routerLink="/stock/statistics">
+            <i class="bi bi-graph-up me-2"></i>
+            Statistiques
+          </button>
+          <button class="btn btn-light btn-hover-lift" routerLink="/stock/add">
+            <i class="bi bi-plus-circle me-2"></i>
+            Nouveau module
+          </button>
+          <a routerLink="/dashboard" class="btn btn-light btn-hover-lift">
+            <i class="bi bi-arrow-left me-2"></i>Retour
           </a>
-        </li>
-<!-- ONGLETS PAR SITE (comme Excel) -->
-<div class="card border-0 shadow-sm mb-4">
-  <div class="card-body p-0">
-    <ul class="nav nav-tabs nav-fill" style="border-bottom: 2px solid #e9ecef;">
-      <!-- Onglet Tous les modules -->
-      <li class="nav-item">
-        <a class="nav-link" [class.active]="selectedSiteId === null"
-           (click)="selectSite(null, 'Tous les modules')"
-           href="javascript:void(0)">
-          <i class="bi bi-database me-2"></i>
-          Tous les modules
-          <span class="badge bg-secondary ms-2">{{ stockModules.length }}</span>
-        </a>
-      </li>
-
-      <!-- Onglet pour chaque site - AJOUTER CETTE BOUCLE -->
-      <li class="nav-item" *ngFor="let site of sites">
-        <a class="nav-link" [class.active]="selectedSiteId === site.id"
-           (click)="selectSite(site.id, site.name)"
-           href="javascript:void(0)">
-          <i class="bi bi-building me-2"></i>
-          {{ site.name }}
-          <span class="badge bg-secondary ms-2">{{ getSiteModuleCount(site.id) }}</span>
-        </a>
-      </li>
-
-      </ul>
-       <div class="me-2">
-        <button class="btn btn-sm btn-success"
-                (click)="exportToExcel()"
-                [disabled]="exporting || filteredStockModules.length === 0"
-                title="Exporter les modules affichés">
-          <i class="bi bi-file-excel me-1"></i>
-          Excel
-        </button>
+        </div>
       </div>
     </div>
   </div>
-</div>
-  <!-- BARRE DE RECHERCHE ET TRI -->
-  <div class="card border-0 shadow-sm mb-4">
+
+  <!-- ONGLETS PAR SITE AVEC DESIGN MODERNE -->
+  <div class="card border-0 shadow-sm mb-4 animate-fade-in">
+    <div class="card-body p-0">
+      <div class="tabs-container">
+        <div class="d-flex justify-content-between align-items-center border-bottom">
+          <ul class="nav nav-tabs mb-0" style="border-bottom: none;">
+            <li class="nav-item">
+              <a class="nav-link tab-link" [class.active]="selectedSiteId === null"
+                 (click)="selectSite(null, 'Tous les modules')"
+                 href="javascript:void(0)">
+                <i class="bi bi-database me-2"></i>
+                Tous les modules
+                <span class="badge ms-2" [class.bg-primary]="selectedSiteId === null"
+                      [class.bg-secondary]="selectedSiteId !== null">
+                  {{ stockModules.length }}
+                </span>
+              </a>
+            </li>
+            <li class="nav-item" *ngFor="let site of sites">
+              <a class="nav-link tab-link" [class.active]="selectedSiteId === site.id"
+                 (click)="selectSite(site.id, site.name)"
+                 href="javascript:void(0)">
+                <i class="bi bi-building me-2"></i>
+                {{ site.name }}
+                <span class="badge ms-2" [class.bg-primary]="selectedSiteId === site.id"
+                      [class.bg-secondary]="selectedSiteId !== site.id">
+                  {{ getSiteModuleCount(site.id) }}
+                </span>
+              </a>
+            </li>
+          </ul>
+          <button class="btn btn-sm btn-success me-3 btn-hover-lift"
+                  (click)="exportToExcel()"
+                  [disabled]="exporting || filteredStockModules.length === 0"
+                  title="Exporter les modules affichés">
+            <i class="bi bi-file-excel me-1"></i>
+            Excel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BARRE DE RECHERCHE ET TRI AVEC DESIGN MODERNE -->
+  <div class="card border-0 shadow-sm mb-4 animate-fade-in animation-delay-1">
     <div class="card-body">
-      <div class="row g-3">
-        <div class="col-md-4">
-          <div class="input-group">
-            <span class="input-group-text bg-white border-end-0">
-              <i class="bi bi-search text-muted"></i>
-            </span>
-            <input type="text" class="form-control border-start-0 ps-0"
+      <div class="row g-3 align-items-center">
+        <div class="col-md-5">
+          <div class="search-wrapper">
+            <i class="bi bi-search search-icon"></i>
+            <input type="text" class="form-control search-input"
                    placeholder="Rechercher par ID, référence, fournisseur, état..."
                    [(ngModel)]="searchTerm"
                    (ngModelChange)="onSearchChange()">
+            <i class="bi bi-x-circle-fill clear-search" *ngIf="searchTerm"
+               (click)="searchTerm = ''; onSearchChange()"></i>
           </div>
         </div>
         <div class="col-md-3">
-          <div class="input-group">
-            <span class="input-group-text bg-white">
-              <i class="bi bi-sort-alpha-down"></i>
-            </span>
-            <select class="form-select" [(ngModel)]="sortField" (change)="applyFilter()">
+          <div class="filter-wrapper">
+            <i class="bi bi-funnel filter-icon"></i>
+            <select class="form-select filter-select" [(ngModel)]="sortField" (change)="applyFilter()">
               <option value="">Trier par...</option>
               <option value="id">ID</option>
               <option value="leoniNumr">LEONI NUMR</option>
@@ -131,142 +123,171 @@
             <option value="desc">⬇ Descendant</option>
           </select>
         </div>
-        <div class="col-md-3">
-          <button *ngIf="searchTerm || sortField" class="btn btn-outline-secondary w-100" (click)="resetFilters()">
-            <i class="bi bi-eraser me-2"></i>Effacer les filtres
+        <div class="col-md-2">
+          <button *ngIf="searchTerm || sortField" class="btn btn-outline-secondary w-100 btn-hover-lift"
+                  (click)="resetFilters()">
+            <i class="bi bi-eraser me-2"></i>Effacer
           </button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Info site actif -->
-  <div class="alert alert-info mb-3" *ngIf="selectedSiteId !== null">
-    <i class="bi bi-info-circle me-2"></i>
-    Affichage des modules pour le site : <strong>{{ selectedSiteName }}</strong>
+  <!-- INFO SITE ACTIF (TOAST MODERNE) -->
+  <div class="alert-modern mb-3 animate-fade-in animation-delay-2" *ngIf="selectedSiteId !== null">
+    <div class="d-flex align-items-center">
+      <div class="alert-icon">
+        <i class="bi bi-building-check"></i>
+      </div>
+      <div class="alert-content">
+        <span class="alert-label">Site actif :</span>
+        <strong>{{ selectedSiteName }}</strong>
+        <span class="alert-badge">{{ filteredStockModules.length }} modules</span>
+      </div>
+      <button class="alert-close" (click)="selectedSiteId = null; loadAllStock()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
   </div>
 
-  <!-- LOADING -->
-  <div *ngIf="loading" class="text-center py-5">
-    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
-      <span class="visually-hidden">Chargement...</span>
+  <!-- LOADING AVEC SKELETON -->
+  <div *ngIf="loading" class="animate-fade-in">
+    <div class="skeleton-table">
+      <div class="skeleton-header"></div>
+      <div class="skeleton-row" *ngFor="let _ of [].constructor(5)"></div>
     </div>
-    <p class="text-muted mt-3">Chargement des modules...</p>
   </div>
 
   <!-- ERROR -->
-  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show shadow-sm animate-fade-in" role="alert">
     <i class="bi bi-exclamation-triangle-fill me-2"></i>
     {{ error }}
     <button type="button" class="btn-close" (click)="error = null"></button>
   </div>
 
-  <!-- TABLEAU DES MODULES -->
-  <div *ngIf="!loading && paginatedStockModules.length > 0" class="card border-0 shadow-sm">
+  <!-- TABLEAU DES MODULES AVEC DESIGN MODERNE -->
+  <div *ngIf="!loading && paginatedStockModules.length > 0" class="card border-0 shadow-sm animate-fade-in animation-delay-3">
     <div class="card-body p-0">
       <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="bg-light">
+        <table class="table table-modern mb-0">
+          <thead>
             <tr>
-              <th class="px-2 py-3">Casier</th>
-              <th class="px-2 py-3">STUFF NUMR</th>
-              <th class="px-2 py-3">LEONI NUMR</th>
-              <th class="px-2 py-3">Index</th>
-              <th class="px-2 py-3">Qté</th>
-              <th class="px-2 py-3">Fournisseur</th>
-              <th class="px-2 py-3">État</th>
-              <th class="px-2 py-3">Caisse</th>
-              <th class="px-2 py-3">Spécification</th>
-              <th class="px-2 py-3">Dernier Mise a jour</th>
-              <th class="px-2 py-3">Info sur Module</th>
-              <th class="px-2 py-3">Displacement</th>
-              <th class="px-2 py-3">Sealing</th>
-              <th class="px-2 py-3">Détection</th>
-              <th class="px-2 py-3">Demandeur et explication</th>
-              <th class="px-2 py-3">New Quantité</th>
-              <th class="px-2 py-3">Statut</th>
-              <th class="px-2 py-3 text-center">Actions</th>
+              <th class="sticky-col"><i class="bi bi-grid-3x3-gap-fill me-1"></i>Casier</th>
+              <th><i class="bi bi-upc-scan me-1"></i>STUFF NUMR</th>
+              <th><i class="bi bi-upc-scan me-1"></i>LEONI NUMR</th>
+              <th><i class="bi bi-hash me-1"></i>Index</th>
+              <th><i class="bi bi-calculator-fill me-1"></i>Qté</th>
+              <th><i class="bi bi-truck me-1"></i>Fournisseur</th>
+              <th><i class="bi bi-check-circle me-1"></i>État</th>
+              <th><i class="bi bi-box me-1"></i>Caisse</th>
+              <th><i class="bi bi-file-text me-1"></i>Spécification</th>
+              <th><i class="bi bi-calendar me-1"></i>Dernière MAJ</th>
+              <th><i class="bi bi-info-circle me-1"></i>Info Module</th>
+              <th><i class="bi bi-arrow-left-right me-1"></i>Displacement</th>
+              <th><i class="bi bi-shield-check me-1"></i>Sealing</th>
+              <th><i class="bi bi-radar me-1"></i>Détection</th>
+              <th><i class="bi bi-person-lines-fill me-1"></i>Demandeur</th>
+              <th><i class="bi bi-plus-slash-minus me-1"></i>New Qté</th>
+              <th><i class="bi bi-tag me-1"></i>Statut</th>
+              <th class="text-center"><i class="bi bi-tools me-1"></i>Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let module of paginatedStockModules">
-              <td class="px-2 py-2">
-                <i class="bi bi-grid me-1"></i>{{ module.casier || '-' }}
+            <tr *ngFor="let module of paginatedStockModules; let i = index" class="table-row-hover"
+                [style.animation-delay]="i * 0.05 + 's'">
+              <td class="casier-cell">
+                <span class="casier-badge">
+                  <i class="bi bi-grid me-1"></i>{{ module.casier || '-' }}
+                </span>
               </td>
-              <td class="px-2 py-2">
-                <code class="bg-light px-2 py-1 rounded">{{ module.stuffNumr || '-' }}</code>
+              <td>
+                <code class="code-badge">{{ module.stuffNumr || '-' }}</code>
               </td>
-              <td class="px-2 py-2">
-                <code class="bg-light px-2 py-1 rounded">{{ module.leoniNumr || '-' }}</code>
+              <td>
+                <code class="code-badge">{{ module.leoniNumr || '-' }}</code>
               </td>
-              <td class="px-2 py-2">
-                <span class="badge bg-secondary bg-opacity-10">{{ module.indexValue || '-' }}</span>
+              <td>
+                <span class="index-badge">{{ module.indexValue || '-' }}</span>
               </td>
-              <td class="px-2 py-2">
-                <span class="fw-semibold">{{ module.quantite || 0 }}</span>
+              <td>
+                <span class="quantity-badge"
+                      [class.out-of-stock]="module.quantite === 0">
+                  {{ module.quantite || 0 }}
+                </span>
               </td>
-              <td class="px-2 py-2">
-                <span class="badge bg-info bg-opacity-10 text-info">{{ module.fournisseur || '-' }}</span>
+              <td>
+                <span class="supplier-badge">{{ module.fournisseur || '-' }}</span>
               </td>
-              <td class="px-2 py-2">
-                <span class="badge" [ngClass]="module.etat === 'OK' ? 'bg-success bg-opacity-10 text-success' : 'bg-warning bg-opacity-10 text-warning'">
+              <td>
+                <span class="status-badge" [class.status-ok]="module.etat === 'OK'"
+                      [class.status-nok]="module.etat !== 'OK'">
                   {{ module.etat || '-' }}
                 </span>
               </td>
-              <td class="px-2 py-2">
-                <span class="badge bg-dark bg-opacity-10">Caisse {{ module.caisse || '-' }}</span>
+              <td>
+                <span class="caisse-badge">Caisse {{ module.caisse || '-' }}</span>
               </td>
-              <td class="px-2 py-2">
-                <span class="value-badge">{{ module.specifications || '-' }}</span>
+              <td>
+                <span class="text-truncate d-inline-block" style="max-width: 150px;"
+                      [title]="module.specifications || '-'">
+                  {{ module.specifications || '-' }}
+                </span>
               </td>
-              <td class="px-2 py-2">
-                <span class="value-badge">{{ module.dernierMaj || '-' }}</span>
+              <td>
+                <span class="date-badge">{{ module.dernierMaj || '-' }}</span>
               </td>
-              <td class="px-2 py-2">
-                <span class="value-badge">{{ module.infoSurModules || '-' }}</span>
+              <td>
+                <span class="text-truncate d-inline-block" style="max-width: 150px;"
+                      [title]="module.infoSurModules || '-'">
+                  {{ module.infoSurModules || '-' }}
+                </span>
               </td>
-              <td class="px-2 py-2">
-                <span class="value-badge">{{ module.finalDisplacement || '-' }}</span>
-              </td>
-              <td class="px-2 py-2">
-                <span class="value-badge">{{ module.finalProgrammedSealing || '-' }}</span>
-              </td>
-              <td class="px-2 py-2">
-                <span class="badge" [ngClass]="getDetectionBadgeClass(module.finalDetection || '')">
+              <td>{{ module.finalDisplacement || '-' }}</td>
+              <td>{{ module.finalProgrammedSealing || '-' }}</td>
+              <td>
+                <span class="detection-badge" [class.detection-active]="module.finalDetection === 'Activé'"
+                      [class.detection-inactive]="module.finalDetection === 'Désactivé'">
                   {{ module.finalDetection || '-' }}
                 </span>
               </td>
-              <td class="px-2 py-2">
-                <span class="value-badge">{{ module.demandeurExplication || '-' }}</span>
+              <td>
+                <span class="text-truncate d-inline-block" style="max-width: 200px;"
+                      [title]="module.demandeurExplication || '-'">
+                  {{ module.demandeurExplication || '-' }}
+                </span>
               </td>
-              <td class="px-2 py-2">
-                <span class="value-badge">{{ module.newQuantite|| '-' }}</span>
+              <td>
+                <span class="fw-bold">
+                  {{ module.newQuantite || '-' }}
+                </span>
               </td>
-              <td class="px-2 py-2">
-                <span class="badge" [ngClass]="getStatusBadgeClass(module.status || '')">
+              <td>
+                <span class="status-chip" [class.status-available]="module.status === 'AVAILABLE'"
+                      [class.status-used]="module.status === 'USED'"
+                      [class.status-scrapped]="module.status === 'SCRAPPED'">
                   <i class="bi" [ngClass]="getStatusIcon(module.status || '')"></i>
                   {{ getStatusLabel(module.status || '') }}
                 </span>
               </td>
-              <td class="px-2 py-2 text-center">
-                <div class="btn-group btn-group-sm" role="group">
-                  <button class="btn btn-outline-primary btn-sm" (click)="viewDetails(module.id!)" title="Détails">
+              <td class="text-center">
+                <div class="action-buttons">
+                  <button class="action-btn view-btn" (click)="viewDetails(module.id!)" title="Détails">
                     <i class="bi bi-eye"></i>
                   </button>
-                  <button class="btn btn-outline-info btn-sm" (click)="openTakeModal(module)"
-                          [disabled]="module.quantite === 0" title="Prendre module">
+                  <button class="action-btn take-btn" (click)="openTakeModal(module)"
+                          [disabled]="module.quantite === 0" title="Prendre">
                     <i class="bi bi-box-arrow-up"></i>
                   </button>
-                  <button class="btn btn-outline-success btn-sm" (click)="setStatus(module.id!, 'AVAILABLE')"
+                  <button class="action-btn available-btn" (click)="setStatus(module.id!, 'AVAILABLE')"
                           [disabled]="module.status === 'AVAILABLE'" title="Disponible">
                     <i class="bi bi-check-circle"></i>
                   </button>
-                  <button class="btn btn-outline-warning btn-sm" (click)="setStatus(module.id!, 'USED')"
+                  <button class="action-btn used-btn" (click)="setStatus(module.id!, 'USED')"
                           [disabled]="module.status === 'USED'" title="Utilisé">
                     <i class="bi bi-box-arrow-in-right"></i>
                   </button>
-                  <button class="btn btn-outline-danger btn-sm" (click)="setStatus(module.id!, 'SCRAPPED')"
-                          [disabled]="module.status === 'SCRAPPED'" title="Mis au rebut">
+                  <button class="action-btn scrap-btn" (click)="setStatus(module.id!, 'SCRAPPED')"
+                          [disabled]="module.status === 'SCRAPPED'" title="Mise au rebut">
                     <i class="bi bi-trash"></i>
                   </button>
                 </div>
@@ -277,16 +298,17 @@
       </div>
     </div>
 
-    <!-- PAGINATION -->
+    <!-- PAGINATION MODERNE -->
     <div class="card-footer bg-white border-0 py-3 px-4" *ngIf="totalPages > 1">
       <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-        <div class="text-muted small">
+        <div class="pagination-info">
+          <i class="bi bi-info-circle me-1"></i>
           Affichage de <strong>{{ (currentPage - 1) * pageSize + 1 }}</strong> à
           <strong>{{ Math.min(currentPage * pageSize, filteredStockModules.length) }}</strong>
           sur <strong>{{ filteredStockModules.length }}</strong> module(s)
         </div>
         <nav aria-label="Page navigation">
-          <ul class="pagination mb-0">
+          <ul class="pagination-modern mb-0">
             <li class="page-item" [class.disabled]="currentPage === 1">
               <a class="page-link" (click)="prevPage()" href="javascript:void(0)">
                 <i class="bi bi-chevron-left"></i>
@@ -303,8 +325,10 @@
           </ul>
         </nav>
         <div class="d-flex align-items-center gap-2">
-          <span class="text-muted small">Lignes par page:</span>
-          <select class="form-select form-select-sm" style="width: 70px;" [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+          <span class="text-muted small">
+            <i class="bi bi-table me-1"></i>Lignes:
+          </span>
+          <select class="form-select form-select-sm page-size-select" [(ngModel)]="pageSize" (change)="onPageSizeChange()">
             <option [value]="5">5</option>
             <option [value]="10">10</option>
             <option [value]="20">20</option>
@@ -315,14 +339,17 @@
     </div>
   </div>
 
-  <!-- AUCUN MODULE -->
-  <div *ngIf="!loading && filteredStockModules.length === 0" class="text-center py-5">
+  <!-- AUCUN MODULE AVEC DESIGN MODERNE -->
+  <div *ngIf="!loading && filteredStockModules.length === 0" class="empty-state animate-fade-in">
     <div class="card border-0 shadow-sm">
-      <div class="card-body py-5">
-        <i class="bi bi-inbox display-1 text-muted"></i>
+      <div class="card-body py-5 text-center">
+        <div class="empty-state-icon">
+          <i class="bi bi-inbox"></i>
+        </div>
         <h3 class="mt-3 text-muted">Aucun module trouvé</h3>
         <p class="text-muted">Aucun module ne correspond à votre recherche pour ce site.</p>
-        <button *ngIf="searchTerm || sortField" class="btn btn-outline-primary mt-3" (click)="resetFilters()">
+        <button *ngIf="searchTerm || sortField" class="btn btn-outline-primary mt-3 btn-hover-lift"
+                (click)="resetFilters()">
           <i class="bi bi-arrow-counterclockwise me-2"></i>Réinitialiser
         </button>
       </div>
@@ -330,6 +357,7 @@
   </div>
 </div>
 
+<!-- Vos modals (Détails, Prélèvement, Retour) restent identiques -->
 <!-- Ajoutez ici vos modals (Détails, Prélèvement, Retour) comme avant -->
 
 <!-- MODAL DÉTAILS -->

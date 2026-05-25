@@ -45,6 +45,7 @@ import { ReceptionstatsComponent } from './components/cahierdecharge/receptionst
 import { ProfilComponent } from './components/login/profil/profil.component';
 import { SettingsComponent } from './components/login/settings/settings.component';
 import { AllVersionsComponent } from './components/technicalFile/all-versions/all-versions.component';
+import { StockStatisticsComponent } from './components/stock-list/stock-statistics/stock-statistics.component';
 export const routes: Routes = [
   // Public routes
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -204,6 +205,11 @@ export const routes: Routes = [
   },
 // app.routes.ts
 { path: 'technical-files/items/:itemId/all-versions', component: AllVersionsComponent },
+{
+  path: 'stock/statistics',
+  component: StockStatisticsComponent,
+  canActivate: [authGuard]
+},
   // === MAINTENANCE ===
   {
     path: 'maintenance/corrective',

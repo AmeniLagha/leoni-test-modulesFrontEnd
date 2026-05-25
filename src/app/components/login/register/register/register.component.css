@@ -1,7 +1,7 @@
 /* STYLES SIMPLES ET GARANTIS */
 .register-wrapper {
   min-height: 100vh;
-  background: #bbc8d2
+  background: #5a6770
   display: flex;
   align-items: center;
   justify-content: center;
@@ -462,6 +462,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
 }
 
 .btn-primary {
@@ -470,7 +471,7 @@
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #1d4ed8;
+  background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   transform: translateY(-2px);
 }
 

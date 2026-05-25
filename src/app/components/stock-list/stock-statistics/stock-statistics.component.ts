@@ -1,10 +1,9 @@
 // stock-statistics.component.ts
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { BaseChartDirective, NgChartsModule } from 'ng2-charts';
-import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
+import * as echarts from 'echarts';
 
 import * as ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
@@ -17,11 +16,17 @@ import { AuthService } from '../../../../services/auth.service';
 @Component({
   selector: 'app-stock-statistics',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, NgChartsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './stock-statistics.component.html',
   styleUrls: ['./stock-statistics.component.css']
 })
-export class StockStatisticsComponent implements OnInit {
+export class StockStatisticsComponent implements OnInit, AfterViewInit {
+
+  @ViewChild('pieChart') pieChartRef!: ElementRef;
+  @ViewChild('supplierChart') supplierChartRef!: ElementRef;
+  @ViewChild('lineChart') lineChartRef!: ElementRef;
+  @ViewChild('caisseChart') caisseChartRef!: ElementRef;
+  @ViewChild('siteChart') siteChartRef!: ElementRef;
 
   stockModules: StockModule[] = [];
   sites: Site[] = [];
@@ -52,170 +57,9 @@ export class StockStatisticsComponent implements OnInit {
 
   exporting = false;
   isAdmin: boolean = false;
-
-  // Variable pour stocker les modules après filtrage
   filteredModulesForStats: StockModule[] = [];
 
-  // Graphiques
-  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
-
-  // Graphique 1: Camembert - Répartition par statut
-  public pieChartOptions: ChartConfiguration['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'bottom',
-        labels: { font: { size: 12 } }
-      },
-      tooltip: {
-        callbacks: {
-          label: (context) => {
-            const label = context.label || '';
-            const value = context.raw as number;
-            const total = this.totalModules;
-            const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-            return `${label}: ${value} modules (${percentage}%)`;
-          }
-        }
-      }
-    }
-  };
-
-  public pieChartData: ChartData<'pie'> = {
-    labels: ['Disponible', 'Utilisé', 'Mis au rebut'],
-    datasets: [{
-      data: [0, 0, 0],
-      backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
-      borderWidth: 0
-    }]
-  };
-
-  public pieChartType: ChartType = 'pie';
-
-  // Graphique 2: Barres horizontales - Top Fournisseurs
-  public supplierBarChartOptions: ChartConfiguration['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
-    indexAxis: 'y',
-    plugins: {
-      legend: { position: 'bottom' },
-      title: { display: true, text: 'Top Fournisseurs par Quantité', font: { size: 14 } }
-    },
-    scales: {
-      x: { title: { display: true, text: 'Quantité' } }
-    }
-  };
-
-  public supplierBarChartData: ChartData<'bar'> = {
-    labels: [],
-    datasets: [{
-      label: 'Quantité',
-      data: [],
-      backgroundColor: '#3b82f6',
-      borderRadius: 8
-    }]
-  };
-
-  public supplierBarChartType: ChartType = 'bar';
-
-  // Graphique 3: Ligne - Évolution mensuelle
-  public lineChartOptions: ChartConfiguration['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { position: 'bottom' },
-      title: { display: true, text: 'Évolution mensuelle des mouvements', font: { size: 14 } }
-    },
-    scales: {
-      y: {
-        title: { display: true, text: 'Valeur' },
-        beginAtZero: true
-      },
-      x: { title: { display: true, text: 'Mois' } }
-    }
-  };
-
-  public lineChartData: ChartData<'line'> = {
-    labels: [],
-    datasets: [
-      {
-        label: 'Nombre de mouvements',
-        data: [],
-        borderColor: '#3b82f6',
-        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-        fill: true,
-        tension: 0.4
-      },
-      {
-        label: 'Quantité',
-        data: [],
-        borderColor: '#10b981',
-        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-        fill: true,
-        tension: 0.4
-      }
-    ]
-  };
-
-  public lineChartType: ChartType = 'line';
-
-  // Graphique 4: Barres verticales - Top Caisses
-  public caisseBarChartOptions: ChartConfiguration['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { position: 'bottom' },
-      title: { display: true, text: 'Top 10 Caisses par Quantité', font: { size: 14 } }
-    },
-    scales: {
-      y: {
-        title: { display: true, text: 'Quantité' },
-        beginAtZero: true
-      },
-      x: { title: { display: true, text: 'Caisse' } }
-    }
-  };
-
-  public caisseBarChartData: ChartData<'bar'> = {
-    labels: [],
-    datasets: [{
-      label: 'Quantité',
-      data: [],
-      backgroundColor: '#8b5cf6',
-      borderRadius: 8
-    }]
-  };
-
-  public caisseBarChartType: ChartType = 'bar';
-
-  // Graphique 5: Barres - Top Sites
-  public siteBarChartOptions: ChartConfiguration['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { position: 'bottom' },
-      title: { display: true, text: 'Répartition par Site', font: { size: 14 } }
-    },
-    scales: {
-      y: {
-        title: { display: true, text: 'Quantité' },
-        beginAtZero: true
-      }
-    }
-  };
-
-  public siteBarChartData: ChartData<'bar'> = {
-    labels: [],
-    datasets: [{
-      label: 'Quantité',
-      data: [],
-      backgroundColor: '#06b6d4',
-      borderRadius: 8
-    }]
-  };
-
-  public siteBarChartType: ChartType = 'bar';
+  private chartsInitialized = false;
 
   constructor(
     private stockService: StockService,
@@ -227,6 +71,10 @@ export class StockStatisticsComponent implements OnInit {
     this.loadSites();
     this.initDates();
     this.checkAdminStatus();
+  }
+
+  ngAfterViewInit() {
+    // Les graphiques seront initialisés après le chargement des données
   }
 
   checkAdminStatus() {
@@ -358,7 +206,9 @@ export class StockStatisticsComponent implements OnInit {
     this.calculateMonthlyEvolution(this.filteredModulesForStats);
     this.calculateTopModules();
     this.calculateSiteStats();
-    this.updateCharts();
+
+    // Initialiser les graphiques après un court délai
+    setTimeout(() => this.initAllCharts(), 200);
   }
 
   calculateStatistics(modules: StockModule[]) {
@@ -506,36 +356,96 @@ export class StockStatisticsComponent implements OnInit {
       .sort((a, b) => b.quantity - a.quantity);
   }
 
-  // Mise à jour de tous les graphiques
-  updateCharts() {
-    // Camembert des statuts
-    this.pieChartData.datasets[0].data = [
-      this.availableModules,
-      this.usedModules,
-      this.scrappedModules
-    ];
+  initAllCharts() {
+    if (!this.pieChartRef?.nativeElement) return;
 
-    // Top fournisseurs (top 8 pour meilleur affichage)
-    const topSuppliers = this.supplierStats.slice(0, 8);
-    this.supplierBarChartData.labels = topSuppliers.map(s => s.name.length > 15 ? s.name.substring(0, 12) + '...' : s.name);
-    this.supplierBarChartData.datasets[0].data = topSuppliers.map(s => s.quantity);
+    this.initPieChart();
+    this.initSupplierChart();
+    this.initLineChart();
+    this.initCaisseChart();
+    this.initSiteChart();
 
-    // Évolution mensuelle
-    this.lineChartData.labels = this.monthlyEvolution.map(m => m.month);
-    this.lineChartData.datasets[0].data = this.monthlyEvolution.map(m => m.count);
-    this.lineChartData.datasets[1].data = this.monthlyEvolution.map(m => m.quantity);
+    this.chartsInitialized = true;
+  }
 
-    // Top caisses (top 10)
-    const topCaisses = this.caisseStats.slice(0, 10);
-    this.caisseBarChartData.labels = topCaisses.map(c => `Caisse ${c.caisse}`);
-    this.caisseBarChartData.datasets[0].data = topCaisses.map(c => c.quantity);
+  initPieChart() {
+    const chart = echarts.init(this.pieChartRef.nativeElement);
+    chart.setOption({
+      title: { text: 'Répartition par statut', left: 'center', top: 10, textStyle: { fontSize: 14, fontWeight: 'bold' } },
+      tooltip: { trigger: 'item', formatter: '{b}: {d}% ({c} modules)' },
+      legend: { orient: 'vertical', left: 'left', top: 50 },
+      series: [{
+        type: 'pie',
+        radius: '55%',
+        center: ['50%', '55%'],
+        data: [
+          { value: this.availableModules, name: 'Disponible', itemStyle: { color: '#10b981' } },
+          { value: this.usedModules, name: 'Utilisé', itemStyle: { color: '#f59e0b' } },
+          { value: this.scrappedModules, name: 'Mis au rebut', itemStyle: { color: '#ef4444' } }
+        ],
+        label: { show: true, formatter: '{b}: {d}%' }
+      }]
+    });
+    window.addEventListener('resize', () => chart.resize());
+  }
 
-    // Top sites
-    this.siteBarChartData.labels = this.siteStats.map(s => s.siteName);
-    this.siteBarChartData.datasets[0].data = this.siteStats.map(s => s.quantity);
+  initSupplierChart() {
+    if (this.supplierStats.length === 0) return;
+    const chart = echarts.init(this.supplierChartRef.nativeElement);
+    const top8 = this.supplierStats.slice(0, 8);
+    chart.setOption({
+      title: { text: 'Top Fournisseurs', left: 'center', textStyle: { fontSize: 14, fontWeight: 'bold' } },
+      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+      grid: { left: '15%', containLabel: true },
+      xAxis: { type: 'value', name: 'Quantité' },
+      yAxis: { type: 'category', data: top8.map(s => s.name.length > 15 ? s.name.substring(0, 12) + '...' : s.name), name: 'Fournisseur' },
+      series: [{ type: 'bar', data: top8.map(s => s.quantity), itemStyle: { color: '#3b82f6', borderRadius: [0, 8, 8, 0] }, label: { show: true, position: 'right' } }]
+    });
+    window.addEventListener('resize', () => chart.resize());
+  }
 
-    // Rafraîchir les graphiques
-    this.chart?.update();
+  initLineChart() {
+    if (this.monthlyEvolution.length === 0) return;
+    const chart = echarts.init(this.lineChartRef.nativeElement);
+    chart.setOption({
+      title: { text: 'Évolution mensuelle', left: 'center', textStyle: { fontSize: 14, fontWeight: 'bold' } },
+      tooltip: { trigger: 'axis' },
+      legend: { data: ['Mouvements', 'Quantité'], bottom: 0 },
+      xAxis: { type: 'category', data: this.monthlyEvolution.map(m => m.month), name: 'Mois' },
+      yAxis: { type: 'value', name: 'Valeur' },
+      series: [
+        { name: 'Mouvements', type: 'line', data: this.monthlyEvolution.map(m => m.count), smooth: true, lineStyle: { color: '#3b82f6', width: 2 }, areaStyle: { opacity: 0.1 }, symbol: 'circle', symbolSize: 8 },
+        { name: 'Quantité', type: 'line', data: this.monthlyEvolution.map(m => m.quantity), smooth: true, lineStyle: { color: '#10b981', width: 2 }, areaStyle: { opacity: 0.1 }, symbol: 'diamond', symbolSize: 8 }
+      ]
+    });
+    window.addEventListener('resize', () => chart.resize());
+  }
+
+  initCaisseChart() {
+    if (this.caisseStats.length === 0) return;
+    const chart = echarts.init(this.caisseChartRef.nativeElement);
+    const top10 = this.caisseStats.slice(0, 10);
+    chart.setOption({
+      title: { text: 'Top 10 Caisses', left: 'center', textStyle: { fontSize: 14, fontWeight: 'bold' } },
+      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+      xAxis: { type: 'category', data: top10.map(c => `Caisse ${c.caisse}`), axisLabel: { rotate: 45 } },
+      yAxis: { type: 'value', name: 'Quantité' },
+      series: [{ type: 'bar', data: top10.map(c => c.quantity), itemStyle: { color: '#8b5cf6', borderRadius: [8, 8, 0, 0] }, label: { show: true, position: 'top' } }]
+    });
+    window.addEventListener('resize', () => chart.resize());
+  }
+
+  initSiteChart() {
+    if (this.siteStats.length === 0) return;
+    const chart = echarts.init(this.siteChartRef.nativeElement);
+    chart.setOption({
+      title: { text: 'Répartition par Site', left: 'center', textStyle: { fontSize: 14, fontWeight: 'bold' } },
+      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+      xAxis: { type: 'category', data: this.siteStats.map(s => s.siteName), axisLabel: { rotate: 45 } },
+      yAxis: { type: 'value', name: 'Quantité' },
+      series: [{ type: 'bar', data: this.siteStats.map(s => s.quantity), itemStyle: { color: '#06b6d4', borderRadius: [8, 8, 0, 0] }, label: { show: true, position: 'top' } }]
+    });
+    window.addEventListener('resize', () => chart.resize());
   }
 
   resetFilters() {

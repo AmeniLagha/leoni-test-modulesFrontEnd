@@ -1,7 +1,7 @@
 /* STYLES SIMPLES ET GARANTIS */
 .register-wrapper {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  background: white
   display: flex;
   align-items: center;
   justify-content: center;
@@ -25,7 +25,7 @@
 /* ========== SIDEBAR GAUCHE ========== */
 .register-sidebar {
   width: 35%;
-  background: linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%);
+  background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   padding: 40px 30px;
   display: flex;
   flex-direction: column;

@@ -681,6 +681,62 @@
 .btn-submit {
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
 }
+/* FORCER LES COULEURS DE LA SIDEBAR - SOLUTION D'URGENCE */
+.register-sidebar,
+.register-sidebar *,
+.sidebar-content,
+.sidebar-content *,
+.sidebar-progress,
+.sidebar-progress *,
+.progress-steps,
+.progress-steps * {
+  color: #ffffff !important;
+}
+
+.sidebar-title {
+  color: white !important;
+}
+
+.sidebar-description {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.feature,
+.feature i,
+.feature span {
+  color: white !important;
+}
+
+.step-text {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.step.active .step-text {
+  color: white !important;
+}
+
+.step-circle,
+.step-circle span,
+.step-circle i {
+  color: white !important;
+}
+
+.progress-steps {
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+
+.step-circle {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+.step.active .step-circle {
+  background: white !important;
+  color: var(--primary) !important;
+}
+
+.step.active .step-circle span {
+  color: var(--primary) !important;
+}
 
 /* Responsive */
 @media (max-width: 900px) {

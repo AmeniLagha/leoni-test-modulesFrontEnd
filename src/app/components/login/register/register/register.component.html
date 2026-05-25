@@ -2,15 +2,24 @@
   <div class="register-container">
     <div class="register-card">
 
-      <!-- Sidebar gauche avec illustration -->
+      <!-- Sidebar gauche -->
       <div class="register-sidebar">
         <div class="sidebar-content">
+
+          <!-- Logo -->
           <div class="sidebar-logo">
             <img src="assets/leonilogo.png" alt="Leoni Logo">
           </div>
-          <h2>Bienvenue chez LEONI</h2>
-          <p>Créez un nouveau compte utilisateur pour accéder au système de gestion des modules</p>
 
+          <!-- Titre principal - BLANC -->
+          <h2 class="sidebar-title">Bienvenue chez LEONI</h2>
+
+          <!-- Description - BLANC -->
+          <p class="sidebar-description">
+            Créez un nouveau compte utilisateur pour accéder au système de gestion des modules
+          </p>
+
+          <!-- Features - TOUT BLANC -->
           <div class="sidebar-features">
             <div class="feature">
               <i class="bi bi-shield-check"></i>
@@ -26,6 +35,7 @@
             </div>
           </div>
 
+          <!-- Progress Steps - TOUT BLANC -->
           <div class="sidebar-progress">
             <div class="progress-steps">
               <div class="step" [class.active]="currentStep >= 1" [class.completed]="currentStep > 1">
@@ -52,6 +62,7 @@
               </div>
             </div>
           </div>
+
         </div>
       </div>
 

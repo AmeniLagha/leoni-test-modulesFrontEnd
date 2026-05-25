@@ -50,6 +50,9 @@ export class StockStatisticsComponent implements OnInit {
 
   exporting = false;
 
+  // Variable pour stocker les modules après filtrage (IMPORTANT)
+  filteredModulesForStats: StockModule[] = [];
+
   constructor(
     private stockService: StockService,
     private siteService: SiteService,
@@ -87,7 +90,7 @@ export class StockStatisticsComponent implements OnInit {
     this.loading = true;
     this.stockService.getAllStock().subscribe({
       next: data => {
-        console.log('Données chargées:', data.length); // Debug
+        console.log('Données chargées (total):', data.length);
         this.stockModules = data;
         this.applyFiltersAndCalculate();
         this.loading = false;
@@ -106,7 +109,7 @@ export class StockStatisticsComponent implements OnInit {
     if (site) {
       this.stockService.getStockBySiteName(site.name).subscribe({
         next: data => {
-          console.log(`Données pour ${site.name}:`, data.length); // Debug
+          console.log(`Données pour ${site.name}:`, data.length);
           this.stockModules = data;
           this.applyFiltersAndCalculate();
           this.loading = false;
@@ -135,49 +138,51 @@ export class StockStatisticsComponent implements OnInit {
     }
   }
 
-  // Dans applyFiltersAndCalculate() - Remplacer le nested ternary par une fonction dédiée
-
-applyFiltersAndCalculate() {
-  let filteredModules = [...this.stockModules];
-
-  console.log('Modules avant filtre:', filteredModules.length);
-
-  // Filtre par date (seulement si les dates sont définies et différentes)
-  if (this.startDate && this.endDate && this.startDate !== this.endDate) {
-    const start = new Date(this.startDate);
-    const end = new Date(this.endDate);
-    end.setHours(23, 59, 59);
-
-    filteredModules = filteredModules.filter(module => {
-      const moduleDate = this.getModuleDate(module);
-      if (!moduleDate) return true;
-      return moduleDate >= start && moduleDate <= end;
-    });
-    console.log('Modules après filtre date:', filteredModules.length);
+  private getModuleDate(module: StockModule): Date | null {
+    if (module.movedAt) {
+      return new Date(module.movedAt);
+    }
+    if (module.dernierMaj) {
+      return new Date(module.dernierMaj);
+    }
+    if (module.dateDemande) {
+      return new Date(module.dateDemande);
+    }
+    return null;
   }
 
-  this.calculateStatistics(filteredModules);
-  this.calculateSupplierStats(filteredModules);
-  this.calculateEtatStats(filteredModules);
-  this.calculateCaisseStats(filteredModules);
-  this.calculateMonthlyEvolution(filteredModules);
-  this.calculateTopModules();
-  this.calculateSiteStats();
-}
+  applyFiltersAndCalculate() {
+    // Commencer avec les modules chargés (déjà filtrés par site)
+    let filteredModules = [...this.stockModules];
 
-// Ajouter cette méthode helper pour extraire la date du module
-private getModuleDate(module: StockModule): Date | null {
-  if (module.movedAt) {
-    return new Date(module.movedAt);
+    console.log('Modules avant filtre date:', filteredModules.length);
+
+    // Filtre par date
+    if (this.startDate && this.endDate && this.startDate !== this.endDate) {
+      const start = new Date(this.startDate);
+      const end = new Date(this.endDate);
+      end.setHours(23, 59, 59);
+
+      filteredModules = filteredModules.filter(module => {
+        const moduleDate = this.getModuleDate(module);
+        if (!moduleDate) return true;
+        return moduleDate >= start && moduleDate <= end;
+      });
+      console.log('Modules après filtre date:', filteredModules.length);
+    }
+
+    // STOCKER LES MODULES FILTRÉS POUR LES STATS
+    this.filteredModulesForStats = filteredModules;
+
+    // Calculer toutes les statistiques à partir des modules filtrés
+    this.calculateStatistics(this.filteredModulesForStats);
+    this.calculateSupplierStats(this.filteredModulesForStats);
+    this.calculateEtatStats(this.filteredModulesForStats);
+    this.calculateCaisseStats(this.filteredModulesForStats);
+    this.calculateMonthlyEvolution(this.filteredModulesForStats);
+    this.calculateTopModules();
+    this.calculateSiteStats(); // PAS besoin de passer les modules, il utilise filteredModulesForStats
   }
-  if (module.dernierMaj) {
-    return new Date(module.dernierMaj);
-  }
-  if (module.dateDemande) {
-    return new Date(module.dateDemande);
-  }
-  return null;
-}
 
   calculateStatistics(modules: StockModule[]) {
     this.totalModules = modules.length;
@@ -199,7 +204,7 @@ private getModuleDate(module: StockModule): Date | null {
       .filter(m => m.status === 'SCRAPPED')
       .reduce((sum, m) => sum + (m.quantite || 0), 0);
 
-    console.log('Statistiques calculées:', { // Debug
+    console.log('Statistiques calculées:', {
       totalModules: this.totalModules,
       totalQuantity: this.totalQuantity,
       availableModules: this.availableModules,
@@ -222,8 +227,6 @@ private getModuleDate(module: StockModule): Date | null {
     this.supplierStats = Array.from(supplierMap.entries())
       .map(([name, stats]) => ({ name, count: stats.count, quantity: stats.quantity }))
       .sort((a, b) => b.quantity - a.quantity);
-
-    console.log('Fournisseurs:', this.supplierStats.length); // Debug
   }
 
   calculateEtatStats(modules: StockModule[]) {
@@ -258,35 +261,33 @@ private getModuleDate(module: StockModule): Date | null {
       .sort((a, b) => b.quantity - a.quantity);
   }
 
-  // Dans calculateMonthlyEvolution() - Remplacer 'createdAt' par les propriétés existantes
+  calculateMonthlyEvolution(modules: StockModule[]) {
+    const monthMap = new Map<string, { count: number; quantity: number }>();
 
-calculateMonthlyEvolution(modules: StockModule[]) {
-  const monthMap = new Map<string, { count: number; quantity: number }>();
-
-  modules.forEach(module => {
-    // Utiliser les propriétés existantes au lieu de 'createdAt'
-    const dateStr = module.movedAt || module.dernierMaj || module.dateDemande;
-    if (dateStr) {
-      const date = new Date(dateStr);
-      if (!isNaN(date.getTime())) {
-        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-        const current = monthMap.get(monthKey) || { count: 0, quantity: 0 };
-        current.count++;
-        current.quantity += module.quantite || 0;
-        monthMap.set(monthKey, current);
+    modules.forEach(module => {
+      const dateStr = module.movedAt || module.dernierMaj || module.dateDemande;
+      if (dateStr) {
+        const date = new Date(dateStr);
+        if (!isNaN(date.getTime())) {
+          const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+          const current = monthMap.get(monthKey) || { count: 0, quantity: 0 };
+          current.count++;
+          current.quantity += module.quantite || 0;
+          monthMap.set(monthKey, current);
+        }
       }
-    }
-  });
+    });
 
-  this.monthlyEvolution = Array.from(monthMap.entries())
-    .map(([month, stats]) => ({ month, count: stats.count, quantity: stats.quantity }))
-    .sort((a, b) => a.month.localeCompare(b.month));
-}
+    this.monthlyEvolution = Array.from(monthMap.entries())
+      .map(([month, stats]) => ({ month, count: stats.count, quantity: stats.quantity }))
+      .sort((a, b) => a.month.localeCompare(b.month));
+  }
 
   calculateTopModules() {
     const usageMap = new Map<string, number>();
 
-    this.stockModules.forEach(module => {
+    // Utiliser filteredModulesForStats au lieu de stockModules
+    this.filteredModulesForStats.forEach(module => {
       if (module.newQuantite && module.newQuantite > 0) {
         const key = module.leoniNumr || module.stuffNumr || '';
         if (key) {
@@ -298,7 +299,7 @@ calculateMonthlyEvolution(modules: StockModule[]) {
 
     this.topModules = Array.from(usageMap.entries())
       .map(([ref, usageCount]) => {
-        const module = this.stockModules.find(m =>
+        const module = this.filteredModulesForStats.find(m =>
           (m.leoniNumr === ref || m.stuffNumr === ref)
         );
         return {
@@ -311,10 +312,14 @@ calculateMonthlyEvolution(modules: StockModule[]) {
       .slice(0, 10);
   }
 
+  // CORRECTION IMPORTANTE: calculateSiteStats utilise filteredModulesForStats
   calculateSiteStats() {
+    // Utiliser les modules déjà filtrés
+    const modules = this.filteredModulesForStats;
+
     const siteMap = new Map<number, { siteName: string; count: number; quantity: number }>();
 
-    this.stockModules.forEach(module => {
+    modules.forEach(module => {
       const siteId = module.siteId || 0;
       let siteName = 'Non affecté';
 
@@ -335,7 +340,15 @@ calculateMonthlyEvolution(modules: StockModule[]) {
     this.siteStats = Array.from(siteMap.values())
       .sort((a, b) => b.quantity - a.quantity);
 
-    console.log('Statistiques par site:', this.siteStats); // Debug
+    console.log('Statistiques par site (filtrées):', this.siteStats);
+    console.log('Total des quantités par site:', this.siteStats.reduce((sum, s) => sum + s.quantity, 0));
+    console.log('Total quantity global:', this.totalQuantity);
+
+    // Vérification de cohérence
+    const totalFromSites = this.siteStats.reduce((sum, s) => sum + s.quantity, 0);
+    if (Math.abs(totalFromSites - this.totalQuantity) > 1) {
+      console.warn('⚠️ Incohérence: somme des sites =', totalFromSites, '≠ total quantity =', this.totalQuantity);
+    }
   }
 
   resetFilters() {

@@ -78,12 +78,10 @@ checkAdminStatus() {
   }
 }
 
-  initDates() {
-    const now = new Date();
-    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    this.startDate = firstDayOfMonth.toISOString().split('T')[0];
-    this.endDate = now.toISOString().split('T')[0];
-  }
+ initDates() {
+  this.startDate = '';
+  this.endDate = '';
+}
 
   loadSites() {
     this.loading = true;
@@ -189,41 +187,39 @@ private getSiteNameFromId(siteId: number): string {
     return null;
   }
 
- // stock-statistics.component.ts
-
-applyFiltersAndCalculate() {
-  // Commencer avec les modules chargés (déjà filtrés par site)
+ applyFiltersAndCalculate() {
   let filteredModules = [...this.stockModules];
 
-  console.log('Modules avant filtre date:', filteredModules.length);
-  console.log('Sample module:', filteredModules[0]); // ✅ Debug: voir les propriétés disponibles
+  console.log('📊 Total modules disponibles:', filteredModules.length);
 
-  // Filtre par date
-  if (this.startDate && this.endDate && this.startDate !== this.endDate) {
+  // Appliquer le filtre date SEULEMENT si les deux dates sont renseignées
+  if (this.startDate && this.endDate) {
     const start = new Date(this.startDate);
     const end = new Date(this.endDate);
     end.setHours(23, 59, 59);
 
+    const beforeFilter = filteredModules.length;
     filteredModules = filteredModules.filter(module => {
       const moduleDate = this.getModuleDate(module);
-      if (!moduleDate) return true;
+      if (!moduleDate) return true; // Garder les modules sans date
       return moduleDate >= start && moduleDate <= end;
     });
-    console.log('Modules après filtre date:', filteredModules.length);
+    console.log(`📅 Filtre date appliqué: ${beforeFilter} → ${filteredModules.length} modules`);
+  } else {
+    console.log('📅 Filtre date désactivé (dates vides)');
   }
 
-  // STOCKER LES MODULES FILTRÉS POUR LES STATS
   this.filteredModulesForStats = filteredModules;
 
-  // ✅ Afficher la répartition par siteId
-  const siteIdCount = new Map();
+  // Afficher la répartition par site
+  const siteDistribution = new Map<number, number>();
   this.filteredModulesForStats.forEach(module => {
     const siteId = module.siteId || 0;
-    siteIdCount.set(siteId, (siteIdCount.get(siteId) || 0) + 1);
+    siteDistribution.set(siteId, (siteDistribution.get(siteId) || 0) + 1);
   });
-  console.log('Répartition par siteId:', Array.from(siteIdCount.entries()));
+  console.log('📊 Répartition par site:', Array.from(siteDistribution.entries()));
 
-  // Calculer toutes les statistiques
+  // Calculer les stats
   this.calculateStatistics(this.filteredModulesForStats);
   this.calculateSupplierStats(this.filteredModulesForStats);
   this.calculateEtatStats(this.filteredModulesForStats);

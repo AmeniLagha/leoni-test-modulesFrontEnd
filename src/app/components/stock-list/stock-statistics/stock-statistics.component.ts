@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+
 import * as ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 import { StockModule } from '../../../../models/stock-module.model';
@@ -20,13 +21,11 @@ import { AuthService } from '../../../../services/auth.service';
 })
 export class StockStatisticsComponent implements OnInit {
 
-  // Données principales
   stockModules: StockModule[] = [];
   sites: Site[] = [];
   loading = false;
   error: string | null = null;
 
-  // Filtres
   selectedSiteId: number | null = null;
   selectedSiteName: string = 'Tous les sites';
   startDate: string = '';
@@ -42,25 +41,13 @@ export class StockStatisticsComponent implements OnInit {
   usedQuantity = 0;
   scrappedQuantity = 0;
 
-  // Statistiques par fournisseur
   supplierStats: { name: string; count: number; quantity: number }[] = [];
-
-  // Statistiques par état
   etatStats: { etat: string; count: number; quantity: number }[] = [];
-
-  // Statistiques par caisse
   caisseStats: { caisse: string; count: number; quantity: number }[] = [];
-
-  // Évolution mensuelle
   monthlyEvolution: { month: string; count: number; quantity: number }[] = [];
-
-  // Top modules les plus utilisés
   topModules: { leoniNumr: string; stuffNumr: string; usageCount: number }[] = [];
-
-  // Statistiques par site
   siteStats: { siteName: string; count: number; quantity: number }[] = [];
 
-  // Export
   exporting = false;
 
   constructor(
@@ -100,6 +87,7 @@ export class StockStatisticsComponent implements OnInit {
     this.loading = true;
     this.stockService.getAllStock().subscribe({
       next: data => {
+        console.log('Données chargées:', data.length); // Debug
         this.stockModules = data;
         this.applyFiltersAndCalculate();
         this.loading = false;
@@ -118,6 +106,7 @@ export class StockStatisticsComponent implements OnInit {
     if (site) {
       this.stockService.getStockBySiteName(site.name).subscribe({
         next: data => {
+          console.log(`Données pour ${site.name}:`, data.length); // Debug
           this.stockModules = data;
           this.applyFiltersAndCalculate();
           this.loading = false;
@@ -146,29 +135,49 @@ export class StockStatisticsComponent implements OnInit {
     }
   }
 
-  applyFiltersAndCalculate() {
-    let filteredModules = [...this.stockModules];
+  // Dans applyFiltersAndCalculate() - Remplacer le nested ternary par une fonction dédiée
 
-    // Filtre par date (si les dates sont définies)
-    if (this.startDate && this.endDate) {
-      filteredModules = filteredModules.filter(module => {
-        const moduleDate = module.movedAt ? new Date(module.movedAt) : null;
-        if (!moduleDate) return false;
-        const start = new Date(this.startDate);
-        const end = new Date(this.endDate);
-        end.setHours(23, 59, 59);
-        return moduleDate >= start && moduleDate <= end;
-      });
-    }
+applyFiltersAndCalculate() {
+  let filteredModules = [...this.stockModules];
 
-    this.calculateStatistics(filteredModules);
-    this.calculateSupplierStats(filteredModules);
-    this.calculateEtatStats(filteredModules);
-    this.calculateCaisseStats(filteredModules);
-    this.calculateMonthlyEvolution(filteredModules);
-    this.calculateTopModules();
-    this.calculateSiteStats();
+  console.log('Modules avant filtre:', filteredModules.length);
+
+  // Filtre par date (seulement si les dates sont définies et différentes)
+  if (this.startDate && this.endDate && this.startDate !== this.endDate) {
+    const start = new Date(this.startDate);
+    const end = new Date(this.endDate);
+    end.setHours(23, 59, 59);
+
+    filteredModules = filteredModules.filter(module => {
+      const moduleDate = this.getModuleDate(module);
+      if (!moduleDate) return true;
+      return moduleDate >= start && moduleDate <= end;
+    });
+    console.log('Modules après filtre date:', filteredModules.length);
   }
+
+  this.calculateStatistics(filteredModules);
+  this.calculateSupplierStats(filteredModules);
+  this.calculateEtatStats(filteredModules);
+  this.calculateCaisseStats(filteredModules);
+  this.calculateMonthlyEvolution(filteredModules);
+  this.calculateTopModules();
+  this.calculateSiteStats();
+}
+
+// Ajouter cette méthode helper pour extraire la date du module
+private getModuleDate(module: StockModule): Date | null {
+  if (module.movedAt) {
+    return new Date(module.movedAt);
+  }
+  if (module.dernierMaj) {
+    return new Date(module.dernierMaj);
+  }
+  if (module.dateDemande) {
+    return new Date(module.dateDemande);
+  }
+  return null;
+}
 
   calculateStatistics(modules: StockModule[]) {
     this.totalModules = modules.length;
@@ -189,13 +198,21 @@ export class StockStatisticsComponent implements OnInit {
     this.scrappedQuantity = modules
       .filter(m => m.status === 'SCRAPPED')
       .reduce((sum, m) => sum + (m.quantite || 0), 0);
+
+    console.log('Statistiques calculées:', { // Debug
+      totalModules: this.totalModules,
+      totalQuantity: this.totalQuantity,
+      availableModules: this.availableModules,
+      usedModules: this.usedModules,
+      scrappedModules: this.scrappedModules
+    });
   }
 
   calculateSupplierStats(modules: StockModule[]) {
     const supplierMap = new Map<string, { count: number; quantity: number }>();
 
     modules.forEach(module => {
-      const supplier = module.fournisseur || 'Non spécifié';
+      const supplier = module.fournisseur && module.fournisseur.trim() !== '' ? module.fournisseur : 'Non spécifié';
       const current = supplierMap.get(supplier) || { count: 0, quantity: 0 };
       current.count++;
       current.quantity += module.quantite || 0;
@@ -205,13 +222,15 @@ export class StockStatisticsComponent implements OnInit {
     this.supplierStats = Array.from(supplierMap.entries())
       .map(([name, stats]) => ({ name, count: stats.count, quantity: stats.quantity }))
       .sort((a, b) => b.quantity - a.quantity);
+
+    console.log('Fournisseurs:', this.supplierStats.length); // Debug
   }
 
   calculateEtatStats(modules: StockModule[]) {
     const etatMap = new Map<string, { count: number; quantity: number }>();
 
     modules.forEach(module => {
-      const etat = module.etat || 'Non spécifié';
+      const etat = module.etat && module.etat.trim() !== '' ? module.etat : 'Non spécifié';
       const current = etatMap.get(etat) || { count: 0, quantity: 0 };
       current.count++;
       current.quantity += module.quantite || 0;
@@ -227,7 +246,7 @@ export class StockStatisticsComponent implements OnInit {
     const caisseMap = new Map<string, { count: number; quantity: number }>();
 
     modules.forEach(module => {
-      const caisse = module.caisse || 'Non spécifié';
+      const caisse = module.caisse && module.caisse.trim() !== '' ? module.caisse : 'Non spécifié';
       const current = caisseMap.get(caisse) || { count: 0, quantity: 0 };
       current.count++;
       current.quantity += module.quantite || 0;
@@ -239,34 +258,41 @@ export class StockStatisticsComponent implements OnInit {
       .sort((a, b) => b.quantity - a.quantity);
   }
 
-  calculateMonthlyEvolution(modules: StockModule[]) {
-    const monthMap = new Map<string, { count: number; quantity: number }>();
+  // Dans calculateMonthlyEvolution() - Remplacer 'createdAt' par les propriétés existantes
 
-    modules.forEach(module => {
-      if (module.movedAt) {
-        const date = new Date(module.movedAt);
+calculateMonthlyEvolution(modules: StockModule[]) {
+  const monthMap = new Map<string, { count: number; quantity: number }>();
+
+  modules.forEach(module => {
+    // Utiliser les propriétés existantes au lieu de 'createdAt'
+    const dateStr = module.movedAt || module.dernierMaj || module.dateDemande;
+    if (dateStr) {
+      const date = new Date(dateStr);
+      if (!isNaN(date.getTime())) {
         const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
         const current = monthMap.get(monthKey) || { count: 0, quantity: 0 };
         current.count++;
         current.quantity += module.quantite || 0;
         monthMap.set(monthKey, current);
       }
-    });
+    }
+  });
 
-    this.monthlyEvolution = Array.from(monthMap.entries())
-      .map(([month, stats]) => ({ month, count: stats.count, quantity: stats.quantity }))
-      .sort((a, b) => a.month.localeCompare(b.month));
-  }
+  this.monthlyEvolution = Array.from(monthMap.entries())
+    .map(([month, stats]) => ({ month, count: stats.count, quantity: stats.quantity }))
+    .sort((a, b) => a.month.localeCompare(b.month));
+}
 
   calculateTopModules() {
-    // Compter les utilisations basées sur les mouvements
     const usageMap = new Map<string, number>();
 
     this.stockModules.forEach(module => {
       if (module.newQuantite && module.newQuantite > 0) {
         const key = module.leoniNumr || module.stuffNumr || '';
-        const current = usageMap.get(key) || 0;
-        usageMap.set(key, current + (module.newQuantite || 0));
+        if (key) {
+          const current = usageMap.get(key) || 0;
+          usageMap.set(key, current + (module.newQuantite || 0));
+        }
       }
     });
 
@@ -276,8 +302,8 @@ export class StockStatisticsComponent implements OnInit {
           (m.leoniNumr === ref || m.stuffNumr === ref)
         );
         return {
-          leoniNumr: module?.leoniNumr || '-',
-          stuffNumr: module?.stuffNumr || '-',
+          leoniNumr: module?.leoniNumr || ref.split(' - ')[0] || '-',
+          stuffNumr: module?.stuffNumr || ref.split(' - ')[1] || '-',
           usageCount
         };
       })
@@ -285,23 +311,32 @@ export class StockStatisticsComponent implements OnInit {
       .slice(0, 10);
   }
 
- calculateSiteStats() {
-  const siteMap = new Map<string, { count: number; quantity: number }>();
+  calculateSiteStats() {
+    const siteMap = new Map<number, { siteName: string; count: number; quantity: number }>();
 
-  this.stockModules.forEach(module => {
-    // Utiliser une propriété existante ou créer un nom par défaut
-    const siteName = module.siteId ? `Site ${module.siteId}` : 'Non affecté';
+    this.stockModules.forEach(module => {
+      const siteId = module.siteId || 0;
+      let siteName = 'Non affecté';
 
-    const current = siteMap.get(siteName) || { count: 0, quantity: 0 };
-    current.count++;
-    current.quantity += module.quantite || 0;
-    siteMap.set(siteName, current);
-  });
+      if (siteId !== 0) {
+        const site = this.sites.find(s => s.id === siteId);
+        siteName = site ? site.name : `Site ${siteId}`;
+      }
 
-  this.siteStats = Array.from(siteMap.entries())
-    .map(([siteName, stats]) => ({ siteName, count: stats.count, quantity: stats.quantity }))
-    .sort((a, b) => b.quantity - a.quantity);
-}
+      if (!siteMap.has(siteId)) {
+        siteMap.set(siteId, { siteName, count: 0, quantity: 0 });
+      }
+
+      const current = siteMap.get(siteId)!;
+      current.count++;
+      current.quantity += module.quantite || 0;
+    });
+
+    this.siteStats = Array.from(siteMap.values())
+      .sort((a, b) => b.quantity - a.quantity);
+
+    console.log('Statistiques par site:', this.siteStats); // Debug
+  }
 
   resetFilters() {
     this.selectedSiteId = null;
@@ -333,30 +368,24 @@ export class StockStatisticsComponent implements OnInit {
     return classes[status] || 'bg-secondary';
   }
 
-  // Export Excel
   async exportToExcel() {
     this.exporting = true;
 
     try {
       const workbook = new ExcelJS.Workbook();
 
-      // Feuille 1: Indicateurs globaux
       const summarySheet = workbook.addWorksheet('Indicateurs');
       this.addSummarySheet(summarySheet);
 
-      // Feuille 2: Par fournisseur
       const supplierSheet = workbook.addWorksheet('Par Fournisseur');
       this.addSupplierSheet(supplierSheet);
 
-      // Feuille 3: Par état
       const etatSheet = workbook.addWorksheet('Par État');
       this.addEtatSheet(etatSheet);
 
-      // Feuille 4: Par caisse
       const caisseSheet = workbook.addWorksheet('Par Caisse');
       this.addCaisseSheet(caisseSheet);
 
-      // Feuille 5: Évolution mensuelle
       const evolutionSheet = workbook.addWorksheet('Évolution Mensuelle');
       this.addEvolutionSheet(evolutionSheet);
 

@@ -76,7 +76,9 @@
     <button type="button" class="btn-close" (click)="error = null"></button>
   </div>
 
-  <div *ngIf="!loading">
+  <!-- CONTENU PRINCIPAL -->
+  <div *ngIf="!loading && stockModules.length > 0">
+
     <!-- KPI CARDS -->
     <div class="row g-4 mb-4">
       <div class="col-md-3">
@@ -85,7 +87,7 @@
             <div class="d-flex justify-content-between align-items-center">
               <div>
                 <h6 class="text-white-50 mb-2">Total Modules</h6>
-                <h2 class="mb-0">{{ totalModules }}</h2>
+                <h2 class="mb-0">{{ totalModules | number }}</h2>
                 <small>références distinctes</small>
               </div>
               <i class="bi bi-box-seam fs-1 opacity-50"></i>
@@ -99,7 +101,7 @@
             <div class="d-flex justify-content-between align-items-center">
               <div>
                 <h6 class="text-white-50 mb-2">Quantité Totale</h6>
-                <h2 class="mb-0">{{ totalQuantity }}</h2>
+                <h2 class="mb-0">{{ totalQuantity | number }}</h2>
                 <small>unités en stock</small>
               </div>
               <i class="bi bi-database fs-1 opacity-50"></i>
@@ -113,7 +115,7 @@
             <div class="d-flex justify-content-between align-items-center">
               <div>
                 <h6 class="text-white-50 mb-2">Disponible</h6>
-                <h2 class="mb-0">{{ availableModules }}</h2>
+                <h2 class="mb-0">{{ availableModules | number }}</h2>
                 <small>{{ getPercentage(availableModules, totalModules) }}% des modules</small>
               </div>
               <i class="bi bi-check-circle fs-1 opacity-50"></i>
@@ -137,7 +139,7 @@
       </div>
     </div>
 
-    <!-- STATS PAR STATUT -->
+    <!-- STATS PAR STATUT + TOP MODULES -->
     <div class="row g-4 mb-4">
       <div class="col-md-4">
         <div class="card border-0 shadow-sm h-100">
@@ -205,13 +207,16 @@
                 </thead>
                 <tbody>
                   <tr *ngFor="let module of topModules; let i = index">
-                    <td>{{ i + 1 }}</td>
+                    <td class="fw-bold">{{ i + 1 }}</td>
                     <td><code>{{ module.leoniNumr }}</code></td>
                     <td><code>{{ module.stuffNumr }}</code></td>
                     <td class="text-end"><span class="badge bg-primary">{{ module.usageCount }}</span></td>
                   </tr>
                   <tr *ngIf="topModules.length === 0">
-                    <td colspan="4" class="text-center text-muted">Aucune donnée disponible</td>
+                    <td colspan="4" class="text-center text-muted py-4">
+                      <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                      Aucune donnée disponible
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -221,7 +226,7 @@
       </div>
     </div>
 
-    <!-- STATS PAR FOURNISSEUR -->
+    <!-- STATS PAR FOURNISSEUR + STATS PAR CAISSE -->
     <div class="row g-4 mb-4">
       <div class="col-md-6">
         <div class="card border-0 shadow-sm">
@@ -246,6 +251,9 @@
                     <td>{{ supplier.name }}</td>
                     <td class="text-end">{{ supplier.count }}</td>
                     <td class="text-end">{{ supplier.quantity }}</td>
+                  </tr>
+                  <tr *ngIf="supplierStats.length === 0">
+                    <td colspan="3" class="text-center text-muted">Aucune donnée disponible</td>
                   </tr>
                 </tbody>
               </table>
@@ -279,6 +287,9 @@
                     <td class="text-end">{{ caisse.count }}</td>
                     <td class="text-end">{{ caisse.quantity }}</td>
                   </tr>
+                  <tr *ngIf="caisseStats.length === 0">
+                    <td colspan="3" class="text-center text-muted">Aucune donnée disponible</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -288,7 +299,7 @@
     </div>
 
     <!-- STATS PAR SITE -->
-    <div class="row g-4 mb-4">
+    <div class="row g-4 mb-4" *ngIf="siteStats.length > 0">
       <div class="col-12">
         <div class="card border-0 shadow-sm">
           <div class="card-header bg-white border-0 pt-4 pb-0">
@@ -363,6 +374,17 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MESSAGE SI AUCUNE DONNÉE -->
+  <div *ngIf="!loading && stockModules.length === 0" class="text-center py-5">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body py-5">
+        <i class="bi bi-database-slash display-1 text-muted"></i>
+        <h3 class="mt-3 text-muted">Aucune donnée</h3>
+        <p class="text-muted">Aucun module trouvé dans le stock.</p>
       </div>
     </div>
   </div>

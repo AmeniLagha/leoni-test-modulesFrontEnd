@@ -501,4 +501,48 @@
   .register-sidebar {
     width: 100%;
   }
+  /* Roles - Style Chips (ultra compact) */
+.roles-grid-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.role-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: white;
+}
+
+.role-chip i {
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.role-chip span {
+  font-size: 12px;
+  font-weight: 500;
+  color: #475569;
+}
+
+.role-chip:hover {
+  border-color: #2563eb;
+  background: #f8fafc;
+}
+
+.role-chip.selected {
+  border-color: #2563eb;
+  background: #2563eb;
+}
+
+.role-chip.selected i,
+.role-chip.selected span {
+  color: white;
+}
 }

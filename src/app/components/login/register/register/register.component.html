@@ -165,27 +165,25 @@
             </div>
           </div>
 
-          <!-- Étape 3 -->
-          <div class="form-step" *ngIf="currentStep === 3">
-            <div class="form-group-modern">
-              <label class="form-label-modern">
-                <i class="bi bi-person-badge me-2"></i>Rôle
-              </label>
-              <div class="roles-grid">
-                <div *ngFor="let r of roles" class="role-card-modern"
-                     [class.selected]="registerForm.get('role')?.value === r"
-                     (click)="registerForm.get('role')?.setValue(r)">
-                  <i class="bi" [ngClass]="getRoleIcon(r)"></i>
-                  <div class="role-info-modern">
-                    <strong>{{ getRoleLabel(r) }}</strong>
-                    <span>{{ getRoleDescription(r) }}</span>
-                  </div>
-                </div>
-              </div>
-              <div class="invalid-feedback-modern" *ngIf="registerForm.get('role')?.touched && registerForm.get('role')?.invalid">
-                Le rôle est requis
-              </div>
-            </div>
+        <!-- Étape 3 -->
+<div class="form-step" *ngIf="currentStep === 3">
+  <div class="form-group-modern">
+    <label class="form-label-modern">
+      <i class="bi bi-person-badge me-2"></i>Rôle
+    </label>
+   <div class="roles-grid-chips">
+  <div *ngFor="let r of roles" class="role-chip"
+       [class.selected]="registerForm.get('role')?.value === r"
+       (click)="registerForm.get('role')?.setValue(r)">
+    <i class="bi" [ngClass]="getRoleIcon(r)"></i>
+    <span>{{ getRoleLabel(r) }}</span>
+  </div>
+</div>
+    <div class="invalid-feedback-modern" *ngIf="registerForm.get('role')?.touched && registerForm.get('role')?.invalid">
+      Le rôle est requis
+    </div>
+  </div>
+
 
             <!-- Projets (si non ADMIN) -->
             <div class="form-group-modern" *ngIf="registerForm.get('role')?.value !== 'ADMIN'">
